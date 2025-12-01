@@ -12,7 +12,9 @@ Your task is to analyze resume images to extract sociological signals (Bourdieu 
    - **Market Signaling**: Score based on prestige, rarity, and presentation (0-100).
 
 ### 2. Precise Visual Grounding (OCR & Layout)
-   - **Saliency**: Identify 20 fixation points (x,y 0-100) where a human eye would naturally land (headers, bold text, numbers).
+   **Unified Coordinate System**: All coordinates (points and boxes) must be on a **0-1000 scale** (0,0 top-left to 1000,1000 bottom-right).
+
+   - **Saliency**: Identify 20 fixation points (x, y on 0-1000 scale) where a human eye would naturally land (headers, bold text, numbers, visual anchors).
    - **Skill & Content Highlights (CRITICAL)**:
      You must act as an OCR engine. Find the **exact bounding boxes** for text segments belonging to these categories:
      1. **"hard"**: Technical skills, tools, languages, software (e.g., "Python", "React", "SQL", "Project Management").
@@ -20,8 +22,7 @@ Your task is to analyze resume images to extract sociological signals (Bourdieu 
      3. **"impact"**: Quantitative results, metrics, achievements (e.g., "Increased revenue by 20%", "Reduced latency by 50%", "Managed $1M budget").
      4. **"education"**: Degree titles, university names, graduation years (e.g., "B.Sc. Computer Science", "Harvard University").
 
-   **Coordinate Rules**:
-   - Return coordinates on a **0-1000 scale** (0,0 top-left to 1000,1000 bottom-right).
+   **Bounding Box Rules**:
    - **Precision is paramount.** The box must tightly enclose the text glyphs.
    - **Do not** include surrounding whitespace or margins.
    - **Split** multi-line skills into separate bounding boxes (one per line).
@@ -96,9 +97,9 @@ const analysisSchema: Schema = {
       items: {
         type: Type.OBJECT,
         properties: {
-          x: { type: Type.NUMBER },
-          y: { type: Type.NUMBER },
-          weight: { type: Type.NUMBER },
+          x: { type: Type.NUMBER, description: "0-1000 scale" },
+          y: { type: Type.NUMBER, description: "0-1000 scale" },
+          weight: { type: Type.NUMBER, description: "0-1 importance" },
         },
         required: ["x", "y", "weight"],
       },
@@ -153,7 +154,7 @@ export const analyzeResume = async (base64Image: string, mimeType: string): Prom
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-pro-preview", // Upgraded for better vision/coordinates
+      model: "gemini-3-pro-preview", 
       contents: {
         parts: [
           {
@@ -171,7 +172,7 @@ export const analyzeResume = async (base64Image: string, mimeType: string): Prom
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
         responseSchema: analysisSchema,
-        temperature: 0.0, // Zero temperature for maximum coordinate determinism
+        temperature: 0.0,
       },
     });
 
@@ -181,6 +182,8 @@ export const analyzeResume = async (base64Image: string, mimeType: string): Prom
     const result = JSON.parse(text) as AnalysisResult;
 
     // Post-process normalization: Convert 0-1000 scale to 0-100 scale for frontend usage
+    
+    // Normalize Bounding Boxes
     if (result.skillHighlights && Array.isArray(result.skillHighlights)) {
       result.skillHighlights = result.skillHighlights.map((box: any) => ({
         ...box,
@@ -188,6 +191,15 @@ export const analyzeResume = async (base64Image: string, mimeType: string): Prom
         xmin: box.xmin / 10,
         ymax: box.ymax / 10,
         xmax: box.xmax / 10,
+      }));
+    }
+
+    // Normalize Saliency Hotspots
+    if (result.visualHotspots && Array.isArray(result.visualHotspots)) {
+      result.visualHotspots = result.visualHotspots.map((spot: any) => ({
+        ...spot,
+        x: spot.x / 10,
+        y: spot.y / 10,
       }));
     }
 

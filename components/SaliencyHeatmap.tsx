@@ -17,12 +17,14 @@ export const SaliencyHeatmap: React.FC<Props> = ({ hotspots, width, height }) =>
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Reset canvas
+    // Reset canvas dimensions and clear
     canvas.width = width;
     canvas.height = height;
+    ctx.clearRect(0, 0, width, height);
+
+    if (!hotspots || hotspots.length === 0) return;
 
     // 1. Create a density map on an offscreen canvas
-    // This will hold values from 0 (background) to 255 (max attention)
     const densityCanvas = document.createElement('canvas');
     densityCanvas.width = width;
     densityCanvas.height = height;
@@ -35,13 +37,17 @@ export const SaliencyHeatmap: React.FC<Props> = ({ hotspots, width, height }) =>
 
     // Draw hotspots
     hotspots.forEach(spot => {
-        const x = (spot.x / 100) * width;
-        const y = (spot.y / 100) * height;
-        // Increase radius for smoother, cloud-like coverage
+        // Clamp percentages to 0-100 to avoid drawing off-canvas
+        const safeX = Math.max(0, Math.min(100, spot.x));
+        const safeY = Math.max(0, Math.min(100, spot.y));
+
+        const x = (safeX / 100) * width;
+        const y = (safeY / 100) * height;
+        
+        // Dynamic radius based on viewport
         const radius = Math.max(width, height) * 0.15; 
         
         const gradient = densityCtx.createRadialGradient(x, y, 0, x, y, radius);
-        // Soft gaussian-like falloff
         gradient.addColorStop(0, `rgba(255, 255, 255, ${spot.weight})`); 
         gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
 
@@ -57,12 +63,10 @@ export const SaliencyHeatmap: React.FC<Props> = ({ hotspots, width, height }) =>
     const densityData = densityCtx.getImageData(0, 0, width, height);
     const pixels = densityData.data; // RGBA
     
-    // Create output buffer
     const outputData = ctx.createImageData(width, height);
     const outPixels = outputData.data;
 
-    // Precise Inferno Colormap Interpolation
-    // Colors taken from matplotlib.cm.inferno
+    // Inferno Colormap
     const stops = [
         { pos: 0.0, r: 0, g: 0, b: 4 },       // Black
         { pos: 0.2, r: 66, g: 10, b: 104 },   // Purple
@@ -73,10 +77,7 @@ export const SaliencyHeatmap: React.FC<Props> = ({ hotspots, width, height }) =>
     ];
 
     const getInfernoColor = (t: number) => {
-        // Clamp t
         t = Math.max(0, Math.min(1, t));
-        
-        // Find interval
         let lower = stops[0];
         let upper = stops[stops.length - 1];
         
@@ -99,30 +100,36 @@ export const SaliencyHeatmap: React.FC<Props> = ({ hotspots, width, height }) =>
     };
 
     for (let i = 0; i < pixels.length; i += 4) {
-        // Use Red channel as intensity (since it's grayscale)
+        // Use Red channel as intensity
         const intensity = pixels[i] / 255; 
         
+        // Skip pixels with very low intensity to allow underlying image to show through better
+        if (intensity < 0.05) {
+             outPixels[i + 3] = 0; // Transparent
+             continue;
+        }
+
         const [r, g, b] = getInfernoColor(intensity);
         
         outPixels[i] = r;
         outPixels[i + 1] = g;
         outPixels[i + 2] = b;
-        outPixels[i + 3] = 255; // Fully opaque
+        // Map opacity: Low intensity is more transparent, high intensity is more opaque
+        outPixels[i + 3] = Math.floor(Math.min(255, intensity * 200 + 50)); 
     }
 
     ctx.putImageData(outputData, 0, 0);
 
   }, [hotspots, width, height]);
 
-  // Apply the alpha blending via CSS opacity (0.65 matches the python script's alpha)
   return (
     <canvas 
       ref={canvasRef} 
-      className="absolute inset-0 pointer-events-none"
+      className="absolute inset-0 pointer-events-none z-10"
       style={{ 
         width: '100%', 
         height: '100%',
-        opacity: 0.65, 
+        opacity: 0.7, 
         mixBlendMode: 'normal' 
       }}
     />

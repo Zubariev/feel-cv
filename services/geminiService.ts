@@ -2,47 +2,41 @@ import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { AnalysisResult } from "../types";
 
 const SYSTEM_INSTRUCTION = `
-You are the "CV Intelligence Engine", an advanced AI combining Data Science and HR expertise. 
-Your goal is to analyze resume images to extract deep sociological and professional signals based on the Bourdieu Capital theory and modern visual design principles.
+You are the "CV Intelligence Engine", an expert AI combining Data Science, HR analytics, and Document Vision.
+Your task is to analyze resume images to extract sociological signals (Bourdieu Capital), professional metrics, and **precise visual layout data**.
 
-Analyze the provided resume image for the following:
-
-1. **NLP Analysis**:
-   - **Keywords**: Extract hard/soft skills.
+### 1. NLP & Content Analysis
    - **Tone**: Evaluate Formal, Professional, Confident, Assertive, Friendly tones (0-100).
-   - **Skill Composition**: Estimate percentage of text dedicated to Hard Skills, Soft Skills, Education, and Impact statements.
-   - **Forms of Capital (Bourdieu)**:
-     - **Scores (0-100)** for distribution analysis.
-     - **Evidence (Quotes/Citations)**: Extract 1-3 specific short text fragments from the resume for each capital type to justify the score.
-   - **Market Signaling**: Rarity of experience, brand power of employers, GitHub strength, etc. (0-100).
+   - **Capital Scores**: Evaluate Material, Social, Cultural, Symbolic, Technological capital (0-100) with short evidence quotes.
+   - **Skill Composition**: Estimate text coverage % for Hard Skills, Soft Skills, Education, and Impact.
+   - **Market Signaling**: Score based on prestige, rarity, and presentation (0-100).
 
-2. **Visual Analysis & Saliency**:
-   - **Visual Saliency Simulation (MSI-Net style)**: Identify 20 specific coordinates (x, y as percentages 0-100) where a recruiter's eye is most likely to fixate.
-   - **Skill & Content Localization**: Visually identify the **exact** bounding boxes for the following categories:
-     - "Hard Skills" (tools, languages, frameworks, technical terms)
-     - "Soft Skills" (leadership, communication, problem-solving)
-     - "Impact" (quantitative metrics, numbers like "20% growth", "$1M revenue", specific achievements)
-     - "Education" (university names, degrees, certificates, graduation dates)
-   - **CRITICAL COORDINATE RULES**: 
-     - Return coordinates on a **0-1000 scale** (integer) for maximum precision. 
-     - ymin, xmin, ymax, xmax.
-     - Ensure bounding boxes are **tight** around the text. Do not include excessive padding.
-     - Do not group distinct items into one huge box; separate them where possible (return up to 40 distinct boxes total).
-   - **Fixation/Attention**: Rate how well the layout guides the eye to key sections (0-100).
-   - **Typography**: Consistency, hierarchy, readability.
-   - **Whitespace**: Effective use of negative space.
-   - **ATS Friendliness**: Estimated parsability based on layout complexity (columns, graphics).
+### 2. Precise Visual Grounding (OCR & Layout)
+   - **Saliency**: Identify 20 fixation points (x,y 0-100) where a human eye would naturally land (headers, bold text, numbers).
+   - **Skill & Content Highlights (CRITICAL)**:
+     You must act as an OCR engine. Find the **exact bounding boxes** for text segments belonging to these categories:
+     1. **"hard"**: Technical skills, tools, languages, software (e.g., "Python", "React", "SQL", "Project Management").
+     2. **"soft"**: Interpersonal skills, traits (e.g., "Leadership", "Communication", "Mentoring").
+     3. **"impact"**: Quantitative results, metrics, achievements (e.g., "Increased revenue by 20%", "Reduced latency by 50%", "Managed $1M budget").
+     4. **"education"**: Degree titles, university names, graduation years (e.g., "B.Sc. Computer Science", "Harvard University").
 
-Return the data in a strict JSON format.
+   **Coordinate Rules**:
+   - Return coordinates on a **0-1000 scale** (0,0 top-left to 1000,1000 bottom-right).
+   - **Precision is paramount.** The box must tightly enclose the text glyphs.
+   - **Do not** include surrounding whitespace or margins.
+   - **Split** multi-line skills into separate bounding boxes (one per line).
+   - Return up to 50 distinct bounding boxes to ensure comprehensive coverage.
+
+Return the result in strict JSON format.
 `;
 
 const analysisSchema: Schema = {
   type: Type.OBJECT,
   properties: {
-    readabilityScore: { type: Type.NUMBER, description: "0-100 score for ease of reading" },
-    marketSignalingScore: { type: Type.NUMBER, description: "0-100 score for candidate market value signals" },
-    atsFriendlinessIndex: { type: Type.NUMBER, description: "0-100 score for machine parsability" },
-    overallScore: { type: Type.NUMBER, description: "0-100 integrated score" },
+    readabilityScore: { type: Type.NUMBER, description: "0-100 score" },
+    marketSignalingScore: { type: Type.NUMBER, description: "0-100 score" },
+    atsFriendlinessIndex: { type: Type.NUMBER, description: "0-100 score" },
+    overallScore: { type: Type.NUMBER, description: "0-100 score" },
     capitalDistribution: {
       type: Type.OBJECT,
       properties: {
@@ -79,10 +73,10 @@ const analysisSchema: Schema = {
     skillComposition: {
       type: Type.OBJECT,
       properties: {
-        hardSkills: { type: Type.NUMBER, description: "Percentage (0-100)" },
-        softSkills: { type: Type.NUMBER, description: "Percentage (0-100)" },
-        education: { type: Type.NUMBER, description: "Percentage (0-100)" },
-        impact: { type: Type.NUMBER, description: "Percentage (0-100)" },
+        hardSkills: { type: Type.NUMBER },
+        softSkills: { type: Type.NUMBER },
+        education: { type: Type.NUMBER },
+        impact: { type: Type.NUMBER },
       },
       required: ["hardSkills", "softSkills", "education", "impact"],
     },
@@ -99,29 +93,28 @@ const analysisSchema: Schema = {
     },
     visualHotspots: {
       type: Type.ARRAY,
-      description: "List of visual fixation points for saliency map generation",
       items: {
         type: Type.OBJECT,
         properties: {
-          x: { type: Type.NUMBER, description: "X coordinate percentage (0-100)" },
-          y: { type: Type.NUMBER, description: "Y coordinate percentage (0-100)" },
-          weight: { type: Type.NUMBER, description: "Intensity weight (0-1)" },
+          x: { type: Type.NUMBER },
+          y: { type: Type.NUMBER },
+          weight: { type: Type.NUMBER },
         },
         required: ["x", "y", "weight"],
       },
     },
     skillHighlights: {
       type: Type.ARRAY,
-      description: "Bounding boxes for Hard skills, Soft skills, Impact, and Education. Use 0-1000 scale.",
+      description: "Precise bounding boxes for identified text segments.",
       items: {
         type: Type.OBJECT,
         properties: {
           type: { type: Type.STRING, enum: ["hard", "soft", "impact", "education"] },
-          name: { type: Type.STRING, description: "The text content of the highlight" },
-          ymin: { type: Type.INTEGER, description: "Top Y coordinate (0-1000)" },
-          xmin: { type: Type.INTEGER, description: "Left X coordinate (0-1000)" },
-          ymax: { type: Type.INTEGER, description: "Bottom Y coordinate (0-1000)" },
-          xmax: { type: Type.INTEGER, description: "Right X coordinate (0-1000)" },
+          name: { type: Type.STRING },
+          ymin: { type: Type.INTEGER, description: "0-1000 scale" },
+          xmin: { type: Type.INTEGER, description: "0-1000 scale" },
+          ymax: { type: Type.INTEGER, description: "0-1000 scale" },
+          xmax: { type: Type.INTEGER, description: "0-1000 scale" },
         },
         required: ["type", "name", "ymin", "xmin", "ymax", "xmax"],
       },
@@ -160,7 +153,7 @@ export const analyzeResume = async (base64Image: string, mimeType: string): Prom
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3-pro-preview", // Upgraded for better vision/coordinates
       contents: {
         parts: [
           {
@@ -170,7 +163,7 @@ export const analyzeResume = async (base64Image: string, mimeType: string): Prom
             },
           },
           {
-            text: "Analyze this resume according to the CV Intelligence Engine protocols.",
+            text: "Analyze this resume. Extract Bourdieu capital signals and generate precise bounding boxes for Hard Skills, Soft Skills, Impact/Metrics, and Education.",
           },
         ],
       },
@@ -178,7 +171,7 @@ export const analyzeResume = async (base64Image: string, mimeType: string): Prom
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
         responseSchema: analysisSchema,
-        temperature: 0.1, // Reduced temperature for higher precision
+        temperature: 0.0, // Zero temperature for maximum coordinate determinism
       },
     });
 

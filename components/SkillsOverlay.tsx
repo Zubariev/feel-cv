@@ -11,13 +11,13 @@ export const SkillsOverlay: React.FC<Props> = ({ highlights }) => {
   const getColorClass = (type: string) => {
     switch (type) {
       case 'hard':
-        return 'bg-indigo-600';
+        return 'bg-indigo-500'; // Tech/Hard
       case 'soft':
-        return 'bg-teal-400';
+        return 'bg-teal-400'; // Human/Soft
       case 'impact':
-        return 'bg-rose-500';
+        return 'bg-rose-500'; // Impact/Numbers
       case 'education':
-        return 'bg-slate-500';
+        return 'bg-amber-400'; // Education/Gold
       default:
         return 'bg-gray-400';
     }
@@ -38,16 +38,22 @@ export const SkillsOverlay: React.FC<Props> = ({ highlights }) => {
       {highlights.map((item, index) => {
         const bgColor = getColorClass(item.type);
 
+        // We use slightly larger dimensions than the exact bbox to create a nice highlighter effect
+        const top = Math.max(0, item.ymin - 0.2);
+        const left = Math.max(0, item.xmin - 0.2);
+        const width = (item.xmax - item.xmin) + 0.4;
+        const height = (item.ymax - item.ymin) + 0.4;
+
         return (
           <div
             key={index}
             style={{
-              top: `${item.ymin}%`,
-              left: `${item.xmin}%`,
-              width: `${item.xmax - item.xmin}%`,
-              height: `${item.ymax - item.ymin}%`,
+              top: `${top}%`,
+              left: `${left}%`,
+              width: `${width}%`,
+              height: `${height}%`,
             }}
-            className={`absolute ${bgColor} opacity-30 mix-blend-multiply rounded-sm transition-opacity duration-300`}
+            className={`absolute ${bgColor} opacity-30 mix-blend-multiply rounded-[1px] transition-opacity duration-300`}
             title={`${item.name} (${getLabel(item.type)})`}
           >
           </div>

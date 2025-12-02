@@ -7,6 +7,7 @@ import { VisualMetrics } from './components/VisualMetrics';
 import { SaliencyHeatmap } from './components/SaliencyHeatmap';
 import { CapitalEvidence } from './components/CapitalEvidence';
 import { SkillsOverlay } from './components/SkillsOverlay';
+import { LandingPage } from './components/LandingPage';
 import { analyzeResume } from './services/geminiService';
 import { convertPdfToImage } from './services/pdfService';
 import { AnalysisResult } from './types';
@@ -22,10 +23,12 @@ import {
   RefreshCw,
   Eye,
   EyeOff,
-  Layers
+  Layers,
+  ArrowLeft
 } from 'lucide-react';
 
 export default function App() {
+  const [showLanding, setShowLanding] = useState(true);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -117,12 +120,23 @@ export default function App() {
     setImagePreview(null);
   };
 
+  if (showLanding) {
+    return <LandingPage onStart={() => setShowLanding(false)} />;
+  }
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
+    <div className="min-h-screen bg-slate-50 text-slate-900 pb-20 animate-in fade-in duration-500">
       {/* Header */}
-      <header className="bg-slate-850 text-white py-6 shadow-lg sticky top-0 z-50">
+      <header className="bg-slate-850 text-white py-4 shadow-lg sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
           <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setShowLanding(true)}
+              className="p-1 hover:bg-slate-700 rounded transition-colors text-slate-400 hover:text-white mr-1"
+              title="Back to Home"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
             <div className="bg-indigo-500 p-2 rounded-lg">
                 <BrainCircuit className="w-6 h-6 text-white" />
             </div>
@@ -145,10 +159,10 @@ export default function App() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {!result ? (
-          <div className="flex flex-col items-center justify-center min-h-[60vh]">
+          <div className="flex flex-col items-center justify-center min-h-[60vh] animate-in slide-in-from-bottom-4 duration-500">
             <div className="text-center mb-10 max-w-2xl">
               <h2 className="text-4xl font-extrabold text-slate-800 mb-4">
-                Decode the Hidden Signals in Resumes
+                Decode the Hidden Signals
               </h2>
               <p className="text-lg text-slate-500">
                 Upload a CV to extract <span className="text-indigo-600 font-semibold">Social Capital</span>, 
@@ -172,7 +186,7 @@ export default function App() {
                  <div className="flex flex-col items-center">
                     <Eye className="w-8 h-8 text-slate-400 mb-3" />
                     <h4 className="font-semibold text-slate-700">Visual Saliency</h4>
-                    <p className="text-sm text-slate-500">Predictive eye-tracking heatmaps (MSI-Net style)</p>
+                    <p className="text-sm text-slate-500">Predictive eye-tracking heatmaps</p>
                 </div>
             </div>
           </div>

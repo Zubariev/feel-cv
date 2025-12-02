@@ -148,6 +148,32 @@ export interface Database {
           hotspots?: Json
         }
       }
+      ai_detected_entities: {
+        Row: {
+          id: string
+          analysis_run_id: string
+          type: string
+          name: string
+          confidence: number
+          bounding_box: Json
+        }
+        Insert: {
+          id?: string
+          analysis_run_id: string
+          type: string
+          name: string
+          confidence: number
+          bounding_box: Json
+        }
+        Update: {
+          id?: string
+          analysis_run_id?: string
+          type?: string
+          name?: string
+          confidence?: number
+          bounding_box?: Json
+        }
+      }
     }
   }
 }

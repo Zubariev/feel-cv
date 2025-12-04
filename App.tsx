@@ -11,6 +11,9 @@ import { LandingPage } from './components/LandingPage';
 import { analyzeResume } from './services/geminiService';
 import { convertPdfToImage } from './services/pdfService';
 import { AnalysisResult } from './types';
+import { supabase } from './services/supabaseClient';
+import type { Session, User } from '@supabase/supabase-js';
+import { databaseService } from './services/databaseService';
 import { 
   BarChart3, 
   BrainCircuit, 
@@ -34,6 +37,11 @@ export default function App() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [showSaliency, setShowSaliency] = useState(true);
   const [showSkills, setShowSkills] = useState(false);
+  const [authSession, setAuthSession] = useState<Session | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [lastSavedAnalysisId, setLastSavedAnalysisId] = useState<string | null>(null);
   
   // Ref for image dimensions to size the canvas
   const imageRef = useRef<HTMLImageElement>(null);
@@ -70,10 +78,88 @@ export default function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, [result]);
 
+  // Initialize auth session and subscribe to changes
+  useEffect(() => {
+    let isMounted = true;
+
+    const initAuth = async () => {
+      const { data, error } = await supabase.auth.getSession();
+      if (!isMounted) return;
+      if (error) {
+        console.error('Error getting session', error);
+        return;
+      }
+      setAuthSession(data.session);
+      setCurrentUser(data.session?.user ?? null);
+    };
+
+    initAuth();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAuthSession(session);
+      setCurrentUser(session?.user ?? null);
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleLogin = async (email: string, password: string) => {
+    setAuthError(null);
+    setAuthLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        setAuthError(error.message);
+      }
+    } catch (err: any) {
+      console.error('Login error', err);
+      setAuthError('Unexpected error during login. Please try again.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleSignup = async (email: string, password: string) => {
+    setAuthError(null);
+    setAuthLoading(true);
+    try {
+      const { error } = await supabase.auth.signUp({ email, password });
+      if (error) {
+        setAuthError(error.message);
+      } else {
+        setAuthError('Check your email to confirm your account before signing in.');
+      }
+    } catch (err: any) {
+      console.error('Signup error', err);
+      setAuthError('Unexpected error during signup. Please try again.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    setAuthError(null);
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        setAuthError(error.message);
+      }
+    } catch (err: any) {
+      console.error('Logout error', err);
+      setAuthError('Unexpected error during logout. Please try again.');
+    }
+  };
+
   const handleFileSelect = async (file: File) => {
     try {
       setIsAnalyzing(true);
       setResult(null); // Clear previous
+      setLastSavedAnalysisId(null);
       
       let base64Data = "";
       let mimeType = "";
@@ -107,6 +193,24 @@ export default function App() {
 
       const analysis = await analyzeResume(base64Data, mimeType);
       setResult(analysis);
+
+      // Persist analysis if user is authenticated (required by RLS policies)
+      if (currentUser?.id) {
+        try {
+          const analysisId = await databaseService.saveAnalysisResult(
+            currentUser.id,
+            file,
+            analysis
+          );
+          setLastSavedAnalysisId(analysisId);
+        } catch (err) {
+          console.error('Failed to persist analysis to Supabase', err);
+        }
+      } else {
+        console.warn(
+          'Analysis result not saved because no authenticated user was found. RLS requires auth.uid().'
+        );
+      }
     } catch (error) {
       console.error(error);
       alert("Failed to analyze resume. Please try again.");
@@ -118,10 +222,22 @@ export default function App() {
   const handleReset = () => {
     setResult(null);
     setImagePreview(null);
+    setLastSavedAnalysisId(null);
   };
 
   if (showLanding) {
-    return <LandingPage onStart={() => setShowLanding(false)} />;
+    return (
+      <LandingPage
+        onStart={() => setShowLanding(false)}
+        isAuthenticated={!!currentUser}
+        userEmail={currentUser?.email ?? undefined}
+        onLogin={handleLogin}
+        onSignup={handleSignup}
+        onLogout={handleLogout}
+        authError={authError}
+        authLoading={authLoading}
+      />
+    );
   }
 
   return (
@@ -145,6 +261,24 @@ export default function App() {
               <p className="text-xs text-slate-400 font-medium">5 types of capital & Visual Signal Extraction</p>
             </div>
           </div>
+          <div className="flex items-center gap-4">
+            {currentUser && (
+              <div className="text-right mr-2">
+                <p className="text-xs text-slate-300 font-medium">
+                  Signed in as
+                </p>
+                <p className="text-xs text-white truncate max-w-[180px]">
+                  {currentUser.email}
+                </p>
+              </div>
+            )}
+            <button
+              onClick={currentUser ? handleLogout : () => setShowLanding(true)}
+              className="flex items-center gap-2 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-md text-xs font-medium transition-colors"
+            >
+              {currentUser ? 'Sign out' : 'Sign in'}
+            </button>
+          </div>
           {result && (
             <button 
               onClick={handleReset}
@@ -165,7 +299,7 @@ export default function App() {
                 Decode the Hidden Signals
               </h2>
               <p className="text-lg text-slate-500">
-                Upload a CV to extract <span className="text-indigo-600 font-semibold">Social Capital</span>, 
+                Upload a CV to extract <span className="text-indigo-600 font-semibold">Capital Items</span>, 
                 analyze <span className="text-indigo-600 font-semibold">Visual Hierarchies</span>, and 
                 measure <span className="text-indigo-600 font-semibold">Market Signaling</span> strength.
               </p>

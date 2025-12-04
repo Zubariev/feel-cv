@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   BrainCircuit, 
   Eye, 
@@ -16,9 +16,38 @@ import {
 
 interface Props {
   onStart: () => void;
+  isAuthenticated: boolean;
+  userEmail?: string;
+  onLogin: (email: string, password: string) => Promise<void> | void;
+  onSignup: (email: string, password: string) => Promise<void> | void;
+  onLogout: () => Promise<void> | void;
+  authError?: string | null;
+  authLoading?: boolean;
 }
 
-export const LandingPage: React.FC<Props> = ({ onStart }) => {
+export const LandingPage: React.FC<Props> = ({
+  onStart,
+  isAuthenticated,
+  userEmail,
+  onLogin,
+  onSignup,
+  onLogout,
+  authError,
+  authLoading,
+}) => {
+  const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (mode === 'login') {
+      await onLogin(email, password);
+    } else {
+      await onSignup(email, password);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-indigo-100 selection:text-indigo-900">
       
@@ -44,13 +73,27 @@ export const LandingPage: React.FC<Props> = ({ onStart }) => {
             Uncover how recruiters, AI, and hiring managers perceive you—visually, semantically, and symbolically.
           </p>
 
-          <button 
-            onClick={onStart}
-            className="group relative inline-flex items-center gap-3 px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-full transition-all duration-300 shadow-[0_0_20px_rgba(79,70,229,0.5)] hover:shadow-[0_0_30px_rgba(79,70,229,0.6)]"
-          >
-            Launch CVSense
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </button>
+          <div className="flex flex-col md:flex-row items-center gap-4">
+            <button 
+              onClick={onStart}
+              disabled={!isAuthenticated}
+              className={`group relative inline-flex items-center gap-3 px-8 py-4 rounded-full transition-all duration-300 shadow-[0_0_20px_rgba(79,70,229,0.5)] hover:shadow-[0_0_30px_rgba(79,70,229,0.6)] ${
+                isAuthenticated
+                  ? 'bg-indigo-600 hover:bg-indigo-500 text-white cursor-pointer'
+                  : 'bg-slate-700 text-slate-300 cursor-not-allowed'
+              }`}
+            >
+              Launch CVSense
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </button>
+            <div className="text-xs text-slate-400 md:text-left">
+              {isAuthenticated ? (
+                <span>Signed in as <span className="text-slate-200 font-medium">{userEmail}</span></span>
+              ) : (
+                <span>Sign in or create an account below to start analyzing resumes.</span>
+              )}
+            </div>
+          </div>
           
           <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 text-sm text-slate-400 font-medium">
             <div className="flex flex-col items-center gap-2">
@@ -73,32 +116,140 @@ export const LandingPage: React.FC<Props> = ({ onStart }) => {
         </div>
       </section>
 
-      {/* Value Prop Section */}
+      {/* Auth + Value Prop Section */}
       <section className="py-24 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Not Another Keyword Checker</h2>
-            <p className="text-lg text-slate-600">
-              This is full-spectrum resume intelligence. Our multi-layer document analysis parses structure, layout, semantics, and sociological capital to give you a 360° evaluation.
-            </p>
-          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
+            <div className="lg:col-span-2">
+              <div className="text-left max-w-3xl mb-10">
+                <h2 className="text-3xl font-bold text-slate-900 mb-4">Not Another Keyword Checker</h2>
+                <p className="text-lg text-slate-600">
+                  This is full-spectrum resume intelligence. Our multi-layer document analysis parses structure, layout, semantics, and capital items to give you a 360° evaluation.
+                </p>
+              </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <FeatureCard 
-              icon={<Eye className="w-8 h-8 text-purple-600" />}
-              title="Visual Signal Extraction"
-              description="Powered by custom MSI-Net models to predict exactly where human eyes fixate first. We generate heatmaps, whitespace diagnostics, and fixation zones."
-            />
-            <FeatureCard 
-              icon={<Activity className="w-8 h-8 text-indigo-600" />}
-              title="AI Recruiter Simulation"
-              description="Simulates a 7-second screening pass. Identifies 'Low Attention' zones you're wasting space on and 'High Fixation' zones driving impressions."
-            />
-            <FeatureCard 
-              icon={<TrendingUp className="w-8 h-8 text-emerald-600" />}
-              title="Global Performance Metrics"
-              description="Get concrete scores on Market Signaling (prestige/rarity), ATS Friendliness, and an Overall Composite Score (0-100)."
-            />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <FeatureCard 
+                  icon={<Eye className="w-8 h-8 text-purple-600" />}
+                  title="Visual Signal Extraction"
+                  description="Powered by custom MSI-Net models to predict exactly where human eyes fixate first. We generate heatmaps, whitespace diagnostics, and fixation zones."
+                />
+                <FeatureCard 
+                  icon={<Activity className="w-8 h-8 text-indigo-600" />}
+                  title="AI Recruiter Simulation"
+                  description="Simulates a 7-second screening pass. Identifies 'Low Attention' zones you're wasting space on and 'High Fixation' zones driving impressions."
+                />
+                <FeatureCard 
+                  icon={<TrendingUp className="w-8 h-8 text-emerald-600" />}
+                  title="Global Performance Metrics"
+                  description="Get concrete scores on Market Signaling (prestige/rarity), ATS Friendliness, and an Overall Composite Score (0-100)."
+                />
+              </div>
+            </div>
+
+            {/* Auth Card */}
+            <div className="w-full max-w-md mx-auto bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+              <div className="flex items-center justify-between mb  -4">
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900">
+                    {isAuthenticated ? 'Account' : mode === 'login' ? 'Sign in' : 'Create account'}
+                  </h3>
+                </div>
+                <div className="w-9 h-9 rounded-full bg-indigo-50 flex items-center justify-center">
+                  <Users className="w-5 h-5 text-indigo-600" />
+                </div>
+              </div>
+
+              {isAuthenticated ? (
+                <div className="mt-4 space-y-4">
+                  <div className="rounded-lg bg-slate-50 border border-slate-100 px-3 py-2 text-left">
+                    <p className="text-xs text-slate-500">Signed in as</p>
+                    <p className="text-sm font-medium text-slate-800 truncate">{userEmail}</p>
+                  </div>
+                  <button
+                    onClick={onLogout}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+                  >
+                    Sign out
+                  </button>
+                  <div className="flex items-start gap-2 text-xs text-slate-500">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5" />
+                    <span>Your future analyses will be stored and protected via row-level security.</span>
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+                  <div className="flex text-xs rounded-full bg-slate-100 p-1">
+                    <button
+                      type="button"
+                      onClick={() => setMode('login')}
+                      className={`flex-1 px-3 py-1.5 rounded-full font-medium ${
+                        mode === 'login'
+                          ? 'bg-white text-slate-900 shadow-sm'
+                          : 'text-slate-500'
+                      }`}
+                    >
+                      Sign in
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMode('signup')}
+                      className={`flex-1 px-3 py-1.5 rounded-full font-medium ${
+                        mode === 'signup'
+                          ? 'bg-white text-slate-900 shadow-sm'
+                          : 'text-slate-500'
+                      }`}
+                    >
+                      Sign up
+                    </button>
+                  </div>
+
+                  <div className="space-y-3 text-left">
+                    <div>
+                      <label className="block text-xs font-medium text-slate-600 mb-1">
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        placeholder="you@example.com"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-slate-600 mb-1">
+                        Password
+                      </label>
+                      <input
+                        type="password"
+                        required
+                        minLength={6}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        placeholder="At least 6 characters"
+                      />
+                    </div>
+                  </div>
+
+                  {authError && (
+                    <div className="rounded-lg bg-rose-50 border border-rose-100 px-3 py-2 text-xs text-rose-700 text-left">
+                      {authError}
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={authLoading}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    {authLoading ? 'Processing…' : mode === 'login' ? 'Sign in' : 'Create account'}
+                  </button>
+                </form>
+              )}
+            </div>
           </div>
         </div>
       </section>
@@ -115,9 +266,9 @@ export const LandingPage: React.FC<Props> = ({ onStart }) => {
                   Bourdieu's Theory of Capital
                 </h2>
                 <p className="text-slate-600 mb-6 leading-relaxed">
-                  CVSense is built on sociological market theory. We interpret your professional history through 5 distinct forms of capital to measure your true leverage in the talent market.
+                  CVSense is built on sociological and market signaling theories. We interpret your professional history through 5 distinct forms of capital to measure your true leverage in the talent market.
                 </p>
-                <button onClick={onStart} className="text-indigo-600 font-semibold flex items-center hover:gap-2 transition-all">
+                <button onClick={onStart} disabled={!isAuthenticated} className="text-indigo-600 font-semibold flex items-center hover:gap-2 transition-all">
                   Analyze your capital <ArrowRight className="w-4 h-4 ml-2" />
                 </button>
               </div>
@@ -196,6 +347,7 @@ export const LandingPage: React.FC<Props> = ({ onStart }) => {
           </p>
           <button 
             onClick={onStart}
+            disabled={!isAuthenticated}
             className="inline-flex items-center gap-2 px-10 py-5 bg-slate-900 hover:bg-slate-800 text-white text-lg font-semibold rounded-lg transition-colors shadow-xl"
           >
             Start Analysis Now

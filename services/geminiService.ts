@@ -144,10 +144,15 @@ const analysisSchema: Schema = {
   ],
 };
 
-export const analyzeResume = async (base64Image: string, mimeType: string): Promise<AnalysisResult> => {
-  const apiKey = process.env.API_KEY;
+export const analyzeResume = async (
+  base64Image: string,
+  mimeType: string
+): Promise<AnalysisResult> => {
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   if (!apiKey) {
-    throw new Error("API_KEY is not defined");
+    throw new Error(
+      "VITE_GEMINI_API_KEY is not defined. Please set it in your environment."
+    );
   }
 
   const ai = new GoogleGenAI({ apiKey });

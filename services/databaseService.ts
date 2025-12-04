@@ -1,11 +1,11 @@
 import { AnalysisResult } from '../types';
-import { Database } from '../types/supabase';
+import { Database, Json } from '../types/supabase';
 
 // NOTE: This service assumes you have a Supabase client initialized. 
 // Since we are in a pure frontend context without the actual Supabase instance injected, 
 // these are the structural functions you would call.
 
-// In a real app, import { supabase } from './supabaseClient';
+import { supabase } from './supabaseClient';
 
 export const databaseService = {
   
@@ -14,101 +14,173 @@ export const databaseService = {
    * Corresponds to the hierarchy: Document -> AnalysisRun -> [Scores, Capital, Visuals, Entities]
    */
   async saveAnalysisResult(
-    userId: string, 
-    file: File, 
+    userId: string,
+    file: File,
     analysis: AnalysisResult
-  ): Promise<string | null> {
-    console.log("Saving analysis for user:", userId);
-    
+  ): Promise<string> {
+    console.log('Saving analysis for user:', userId);
+
     try {
       // 1. Upload File to Storage (Bucket: user_uploads_raw)
-      // const { data: uploadData, error: uploadError } = await supabase.storage
-      //   .from('user_uploads_raw')
-      //   .upload(`${userId}/${crypto.randomUUID()}_${file.name}`, file);
-      
-      // if (uploadError) throw uploadError;
+      const fileExtension =
+        file.name.includes('.') ? file.name.split('.').pop()!.toLowerCase() : '';
+
+      const storagePath = `${userId}/${crypto.randomUUID()}_${file.name}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('user_uploads_raw')
+        .upload(storagePath, file);
+
+      if (uploadError) throw uploadError;
 
       // 2. Create Document Record
-      // const { data: doc, error: docError } = await supabase
-      //   .from('documents')
-      //   .insert({
-      //     user_id: userId,
-      //     filename: file.name,
-      //     mime_type: file.type,
-      //     storage_path: uploadData.path
-      //   })
-      //   .select()
-      //   .single();
-        
-      // if (docError) throw docError;
+      const { data: document, error: documentError } = await supabase
+        .from('documents')
+        .insert({
+          user_id: userId,
+          original_filename: file.name,
+          mime_type: file.type,
+          file_extension: fileExtension,
+          storage_bucket: 'user_uploads_raw',
+          storage_path: uploadData.path,
+          file_size: file.size
+        } satisfies Database['public']['Tables']['documents']['Insert'])
+        .select()
+        .single();
 
-      const mockDocId = crypto.randomUUID(); // Placeholder
-      const mockRunId = crypto.randomUUID(); // Placeholder
+      if (documentError || !document) throw documentError;
 
-      // 3. Create Analysis Run
-      // const { data: run, error: runError } = await supabase
-      //   .from('analysis_runs')
-      //   .insert({
-      //     document_id: doc.id,
-      //     model_version: 'gemini-2.5-flash'
-      //   })
-      //   .select()
-      //   .single();
+      // 3. Create AI Analysis session
+      const { data: analysisRow, error: analysisError } = await supabase
+        .from('ai_analysis')
+        .insert({
+          user_id: userId,
+          document_id: document.id,
+          model_used: 'gemini-2.5-flash',
+          version: '1.0',
+          overall_score: analysis.overallScore
+        } satisfies Database['public']['Tables']['ai_analysis']['Insert'])
+        .select()
+        .single();
 
-      // 4. Save Scores
-      /*
-      await supabase.from('ai_scores').insert({
-        analysis_run_id: run.id,
-        readability_score: analysis.readabilityScore,
-        market_signaling_score: analysis.marketSignalingScore,
-        ats_friendliness_index: analysis.atsFriendlinessIndex,
-        overall_score: analysis.overallScore
-      });
-      */
+      if (analysisError || !analysisRow) throw analysisError;
+
+      const analysisId = analysisRow.id;
+
+      // 4. Save Individual Scores
+      const scoreRows: Database['public']['Tables']['ai_scores']['Insert'][] = [
+        {
+          analysis_id: analysisId,
+          category: 'overall',
+          score: analysis.overallScore,
+          details: {
+            readabilityScore: analysis.readabilityScore,
+            marketSignalingScore: analysis.marketSignalingScore,
+            atsFriendlinessIndex: analysis.atsFriendlinessIndex
+          } as Json
+        },
+        {
+          analysis_id: analysisId,
+          category: 'readability',
+          score: analysis.readabilityScore,
+          details: null
+        },
+        {
+          analysis_id: analysisId,
+          category: 'market_signaling',
+          score: analysis.marketSignalingScore,
+          details: null
+        },
+        {
+          analysis_id: analysisId,
+          category: 'ats_friendliness',
+          score: analysis.atsFriendlinessIndex,
+          details: null
+        }
+      ];
+
+      const { error: scoresError } = await supabase
+        .from('ai_scores')
+        .insert(scoreRows);
+
+      if (scoresError) throw scoresError;
 
       // 5. Save Capital Analysis
-      /*
-      await supabase.from('ai_capital_analysis').insert({
-        analysis_run_id: run.id,
-        material_score: analysis.capitalDistribution.material,
-        social_score: analysis.capitalDistribution.social,
-        cultural_score: analysis.capitalDistribution.cultural,
-        symbolic_score: analysis.capitalDistribution.symbolic,
-        technological_score: analysis.capitalDistribution.technological,
-        evidence: analysis.capitalEvidence as unknown as Json
-      });
-      */
+      const capitalEvidence = analysis.capitalEvidence as unknown as Record<
+        string,
+        Json
+      >;
 
-      // 6. Save Visual Metrics & Hotspots
-      /*
-      await supabase.from('ai_visual_metrics').insert({
-        analysis_run_id: run.id,
-        whitespace_score: analysis.visualAnalysis.whitespaceScore,
-        fixation_score: analysis.visualAnalysis.fixationScore,
-        typography_score: analysis.visualAnalysis.typographyScore,
-        hierarchy_score: analysis.visualAnalysis.hierarchyScore,
-        color_harmony_score: analysis.visualAnalysis.colorHarmonyScore,
-        hotspots: analysis.visualHotspots as unknown as Json
-      });
-      */
+      const capitalRows: Database['public']['Tables']['ai_capital_analysis']['Insert'][] =
+        [
+          'material',
+          'social',
+          'cultural',
+          'symbolic',
+          'technological'
+        ].map((capitalType) => ({
+          analysis_id: analysisId,
+          capital_type: capitalType,
+          evidence: capitalEvidence[capitalType] ?? null
+        }));
 
-      // 7. Save Detected Entities (Highlights)
-      /*
-      const entities = analysis.skillHighlights.map(h => ({
-        analysis_run_id: run.id,
-        type: h.type,
-        name: h.name,
-        confidence: 1.0, // Default for now
-        bounding_box: { ymin: h.ymin, xmin: h.xmin, ymax: h.ymax, xmax: h.xmax }
-      }));
+      const { error: capitalError } = await supabase
+        .from('ai_capital_analysis')
+        .insert(capitalRows);
 
-      await supabase.from('ai_detected_entities').insert(entities);
-      */
+      if (capitalError) throw capitalError;
 
-      return mockRunId;
+      // 6. Save Semantic Metrics
+      const semanticMetricRows: Database['public']['Tables']['ai_semantic_metrics']['Insert'][] =
+        [
+          {
+            metric_name: 'skill_composition',
+            metric_value: analysis.skillComposition as unknown as Json
+          },
+          {
+            metric_name: 'visual_metrics',
+            metric_value: analysis.visualAnalysis as unknown as Json
+          }
+        ].map((metric) => ({
+          analysis_id: analysisId,
+          metric_name: metric.metric_name,
+          metric_value: metric.metric_value
+        }));
 
+      const { error: metricsError } = await supabase
+        .from('ai_semantic_metrics')
+        .insert(semanticMetricRows);
+
+      if (metricsError) throw metricsError;
+
+      // 7. Save Recommendations
+      const recommendationRows: Database['public']['Tables']['ai_recommendations']['Insert'][] =
+        [
+          ...analysis.keyStrengths.map((text) => ({
+            category: 'strength',
+            text
+          })),
+          ...analysis.improvementAreas.map((text) => ({
+            category: 'improvement',
+            text
+          }))
+        ].map((row) => ({
+          analysis_id: analysisId,
+          category: row.category,
+          text: row.text
+        }));
+
+      if (recommendationRows.length > 0) {
+        const { error: recommendationsError } = await supabase
+          .from('ai_recommendations')
+          .insert(recommendationRows);
+
+        if (recommendationsError) throw recommendationsError;
+      }
+
+      return analysisId;
     } catch (error) {
-      console.error("Database save failed:", error);
+      console.error('Database save failed:', error);
       throw error;
     }
   },
@@ -117,22 +189,21 @@ export const databaseService = {
    * Fetches a past analysis by ID.
    */
   async getAnalysis(analysisId: string) {
-    /*
     const { data, error } = await supabase
-      .from('analysis_runs')
-      .select(`
+      .from('ai_analysis')
+      .select(
+        `
         *,
         scores:ai_scores(*),
         capital:ai_capital_analysis(*),
-        visual:ai_visual_metrics(*),
-        entities:ai_detected_entities(*)
-      `)
+        recommendations:ai_recommendations(*),
+        semantic_metrics:ai_semantic_metrics(*)
+      `
+      )
       .eq('id', analysisId)
       .single();
-      
+
     if (error) throw error;
     return data;
-    */
-    return null;
   }
 };

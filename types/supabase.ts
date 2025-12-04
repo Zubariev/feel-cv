@@ -4,176 +4,206 @@ export type Json =
   | boolean
   | null
   | { [key: string]: Json | undefined }
-  | Json[]
+  | Json[];
 
 export interface Database {
   public: {
     Tables: {
       documents: {
         Row: {
-          id: string
-          user_id: string
-          filename: string
-          mime_type: string
-          storage_path: string
-          created_at: string
-          updated_at: string
-        }
+          id: string;
+          user_id: string;
+          original_filename: string;
+          mime_type: string;
+          file_extension: string;
+          storage_bucket: string;
+          storage_path: string;
+          file_size: number | null;
+          uploaded_at: string;
+          updated_at: string;
+        };
         Insert: {
-          id?: string
-          user_id: string
-          filename: string
-          mime_type: string
-          storage_path: string
-          created_at?: string
-          updated_at?: string
-        }
+          id?: string;
+          user_id: string;
+          original_filename: string;
+          mime_type: string;
+          file_extension: string;
+          storage_bucket?: string;
+          storage_path: string;
+          file_size?: number | null;
+          uploaded_at?: string;
+          updated_at?: string;
+        };
         Update: {
-          id?: string
-          user_id?: string
-          filename?: string
-          mime_type?: string
-          storage_path?: string
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      analysis_runs: {
+          id?: string;
+          user_id?: string;
+          original_filename?: string;
+          mime_type?: string;
+          file_extension?: string;
+          storage_bucket?: string;
+          storage_path?: string;
+          file_size?: number | null;
+          uploaded_at?: string;
+          updated_at?: string;
+        };
+      };
+      ai_analysis: {
         Row: {
-          id: string
-          document_id: string
-          run_at: string
-          model_version: string
-        }
+          id: string;
+          user_id: string;
+          document_id: string;
+          started_at: string;
+          finished_at: string | null;
+          model_used: string | null;
+          version: string | null;
+          overall_score: number | null;
+        };
         Insert: {
-          id?: string
-          document_id: string
-          run_at?: string
-          model_version?: string
-        }
+          id?: string;
+          user_id: string;
+          document_id: string;
+          started_at?: string;
+          finished_at?: string | null;
+          model_used?: string | null;
+          version?: string | null;
+          overall_score?: number | null;
+        };
         Update: {
-          id?: string
-          document_id?: string
-          run_at?: string
-          model_version?: string
-        }
-      }
+          id?: string;
+          user_id?: string;
+          document_id?: string;
+          started_at?: string;
+          finished_at?: string | null;
+          model_used?: string | null;
+          version?: string | null;
+          overall_score?: number | null;
+        };
+      };
       ai_scores: {
         Row: {
-          id: string
-          analysis_run_id: string
-          readability_score: number
-          market_signaling_score: number
-          ats_friendliness_index: number
-          overall_score: number
-        }
+          id: string;
+          analysis_id: string;
+          category: string;
+          score: number | null;
+          details: Json | null;
+        };
         Insert: {
-          id?: string
-          analysis_run_id: string
-          readability_score: number
-          market_signaling_score: number
-          ats_friendliness_index: number
-          overall_score: number
-        }
+          id?: string;
+          analysis_id: string;
+          category: string;
+          score?: number | null;
+          details?: Json | null;
+        };
         Update: {
-          id?: string
-          analysis_run_id?: string
-          readability_score?: number
-          market_signaling_score?: number
-          ats_friendliness_index?: number
-          overall_score?: number
-        }
-      }
+          id?: string;
+          analysis_id?: string;
+          category?: string;
+          score?: number | null;
+          details?: Json | null;
+        };
+      };
       ai_capital_analysis: {
         Row: {
-          id: string
-          analysis_run_id: string
-          material_score: number
-          social_score: number
-          cultural_score: number
-          symbolic_score: number
-          technological_score: number
-          evidence: Json
-        }
+          id: string;
+          analysis_id: string;
+          capital_type: string;
+          evidence: Json;
+        };
         Insert: {
-          id?: string
-          analysis_run_id: string
-          material_score: number
-          social_score: number
-          cultural_score: number
-          symbolic_score: number
-          technological_score: number
-          evidence: Json
-        }
+          id?: string;
+          analysis_id: string;
+          capital_type: string;
+          evidence: Json;
+        };
         Update: {
-          id?: string
-          analysis_run_id?: string
-          material_score?: number
-          social_score?: number
-          cultural_score?: number
-          symbolic_score?: number
-          technological_score?: number
-          evidence?: Json
-        }
-      }
-      ai_visual_metrics: {
+          id?: string;
+          analysis_id?: string;
+          capital_type?: string;
+          evidence?: Json;
+        };
+      };
+      ai_recommendations: {
         Row: {
-          id: string
-          analysis_run_id: string
-          whitespace_score: number
-          fixation_score: number
-          typography_score: number
-          hierarchy_score: number
-          color_harmony_score: number
-          hotspots: Json
-        }
+          id: string;
+          analysis_id: string;
+          category: string;
+          text: string;
+        };
         Insert: {
-          id?: string
-          analysis_run_id: string
-          whitespace_score: number
-          fixation_score: number
-          typography_score: number
-          hierarchy_score: number
-          color_harmony_score: number
-          hotspots: Json
-        }
+          id?: string;
+          analysis_id: string;
+          category: string;
+          text: string;
+        };
         Update: {
-          id?: string
-          analysis_run_id?: string
-          whitespace_score?: number
-          fixation_score?: number
-          typography_score?: number
-          hierarchy_score?: number
-          color_harmony_score?: number
-          hotspots?: Json
-        }
-      }
-      ai_detected_entities: {
+          id?: string;
+          analysis_id?: string;
+          category?: string;
+          text?: string;
+        };
+      };
+      ai_semantic_metrics: {
         Row: {
-          id: string
-          analysis_run_id: string
-          type: string
-          name: string
-          confidence: number
-          bounding_box: Json
-        }
+          id: string;
+          analysis_id: string;
+          metric_name: string;
+          metric_value: Json;
+        };
         Insert: {
-          id?: string
-          analysis_run_id: string
-          type: string
-          name: string
-          confidence: number
-          bounding_box: Json
-        }
+          id?: string;
+          analysis_id: string;
+          metric_name: string;
+          metric_value: Json;
+        };
         Update: {
-          id?: string
-          analysis_run_id?: string
-          type?: string
-          name?: string
-          confidence?: number
-          bounding_box?: Json
-        }
-      }
-    }
-  }
+          id?: string;
+          analysis_id?: string;
+          metric_name?: string;
+          metric_value?: Json;
+        };
+      };
+      generated_images: {
+        Row: {
+          id: string;
+          analysis_id: string;
+          user_id: string;
+          document_id: string;
+          image_type: string;
+          storage_bucket: string;
+          storage_path: string;
+          width: number | null;
+          height: number | null;
+          checksum: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          analysis_id: string;
+          user_id: string;
+          document_id: string;
+          image_type: string;
+          storage_bucket?: string;
+          storage_path: string;
+          width?: number | null;
+          height?: number | null;
+          checksum?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          analysis_id?: string;
+          user_id?: string;
+          document_id?: string;
+          image_type?: string;
+          storage_bucket?: string;
+          storage_path?: string;
+          width?: number | null;
+          height?: number | null;
+          checksum?: string | null;
+          created_at?: string;
+        };
+      };
+    };
+  };
 }
+

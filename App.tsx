@@ -141,8 +141,8 @@ export default function App() {
                 <BrainCircuit className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold tracking-tight">CV Intelligence Engine</h1>
-              <p className="text-xs text-slate-400 font-medium">Bourdieu Capital & Visual Signal Extraction</p>
+              <h1 className="text-xl font-bold tracking-tight">CVSense</h1>
+              <p className="text-xs text-slate-400 font-medium">5 types of capital & Visual Signal Extraction</p>
             </div>
           </div>
           {result && (

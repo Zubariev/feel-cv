@@ -2,7 +2,7 @@ import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { AnalysisResult } from "../types";
 
 const SYSTEM_INSTRUCTION = `
-You are the "CV Intelligence Engine", an expert AI combining Data Science, HR analytics, and Document Vision.
+You are the "CVSense", an expert AI combining Data Science, HR analytics, and Document Vision.
 Your task is to analyze resume images to extract sociological signals (Bourdieu Capital), professional metrics, and **precise visual layout data**.
 
 ### 1. NLP & Content Analysis

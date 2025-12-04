@@ -36,7 +36,7 @@ export const LandingPage: React.FC<Props> = ({ onStart }) => {
           </div>
           
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-slate-400">
-            CV Intelligence Engine
+            CVSense
           </h1>
           
           <p className="text-xl md:text-2xl text-slate-400 max-w-3xl mb-10 leading-relaxed font-light">
@@ -48,7 +48,7 @@ export const LandingPage: React.FC<Props> = ({ onStart }) => {
             onClick={onStart}
             className="group relative inline-flex items-center gap-3 px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-full transition-all duration-300 shadow-[0_0_20px_rgba(79,70,229,0.5)] hover:shadow-[0_0_30px_rgba(79,70,229,0.6)]"
           >
-            Launch Intelligence Engine
+            Launch CVSense
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </button>
           
@@ -115,7 +115,7 @@ export const LandingPage: React.FC<Props> = ({ onStart }) => {
                   Bourdieu's Theory of Capital
                 </h2>
                 <p className="text-slate-600 mb-6 leading-relaxed">
-                  The world's first resume engine built on sociological market theory. We interpret your professional history through 5 distinct forms of capital to measure your true leverage in the talent market.
+                  CVSense is built on sociological market theory. We interpret your professional history through 5 distinct forms of capital to measure your true leverage in the talent market.
                 </p>
                 <button onClick={onStart} className="text-indigo-600 font-semibold flex items-center hover:gap-2 transition-all">
                   Analyze your capital <ArrowRight className="w-4 h-4 ml-2" />
@@ -192,7 +192,7 @@ export const LandingPage: React.FC<Props> = ({ onStart }) => {
         <div className="max-w-4xl mx-auto px-4">
           <h2 className="text-4xl font-bold text-slate-900 mb-6">The job market is noisy.</h2>
           <p className="text-xl text-slate-600 mb-10 leading-relaxed">
-             Recruiters skim. ATS filters misread. The <span className="text-indigo-600 font-semibold">CV Intelligence Engine</span> exposes these invisible dynamics and shows you how to optimize with scientific precision.
+             Recruiters skim. ATS filters misread. The <span className="text-indigo-600 font-semibold">CVSense</span> exposes these invisible dynamics and shows you how to optimize with scientific precision.
           </p>
           <button 
             onClick={onStart}

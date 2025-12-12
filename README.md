@@ -1,22 +1,15 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
-
 ## CVSense – Visual & Capital Intelligence for Resumes
 
-CVSense is a Vite/React frontend that ingests a resume (PDF or image), calls Gemini for multimodal analysis, and visualizes:
+CVSense is a Vite/React frontend that ingests a resume (PDF or image), calls AI for multimodal analysis, and visualizes:
 
 - **Bourdieu capital** distributions
 - **Visual saliency** heatmaps and layout metrics
 - **Tone, skills and ATS/market signaling scores**
 
-All persisted analysis is stored in **Supabase** under strict **row-level security (RLS)**; every record is scoped to the authenticated `auth.uid()`.
-
 ### Tech Stack
 
 - **Frontend**: React 19, Vite 6, Tailwind (via CDN)
 - **Charts & visuals**: Recharts, custom canvas heatmap
-- **AI**: `@google/genai` (Gemini)
 - **Backend-as-a-service**: Supabase (Postgres, Storage, Auth, RLS)
 
 ---

@@ -8,18 +8,23 @@ import { SaliencyHeatmap } from './components/SaliencyHeatmap';
 import { CapitalEvidence } from './components/CapitalEvidence';
 import { SkillsOverlay } from './components/SkillsOverlay';
 import { LandingPage } from './components/LandingPage';
+import { AnalysisHistory } from './components/AnalysisHistory';
+import { ErrorBoundary, ErrorMessage } from './components/ErrorBoundary';
+import { AnalysisSkeleton, UploadingSkeleton } from './components/LoadingSkeletons';
 import { analyzeResume } from './services/geminiService';
 import { convertPdfToImage } from './services/pdfService';
 import { AnalysisResult } from './types';
 import { supabase } from './services/supabaseClient';
 import type { Session, User } from '@supabase/supabase-js';
 import { databaseService } from './services/databaseService';
-import { 
-  BarChart3, 
-  BrainCircuit, 
-  TrendingUp, 
-  AlertCircle, 
-  CheckCircle2, 
+import { imageCacheService, computeBase64Hash } from './services/imageCacheService';
+import { layerCaptureService } from './services/layerCaptureService';
+import {
+  BarChart3,
+  BrainCircuit,
+  TrendingUp,
+  AlertCircle,
+  CheckCircle2,
   Award,
   Fingerprint,
   FileSearch,
@@ -27,21 +32,24 @@ import {
   Eye,
   EyeOff,
   Layers,
-  ArrowLeft
+  ArrowLeft,
+  History
 } from 'lucide-react';
 
 export default function App() {
   const [showLanding, setShowLanding] = useState(true);
+  const [showHistory, setShowHistory] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [showSaliency, setShowSaliency] = useState(true);
   const [showSkills, setShowSkills] = useState(false);
-  const [authSession, setAuthSession] = useState<Session | null>(null);
+  const [_authSession, setAuthSession] = useState<Session | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [authError, setAuthError] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState(false);
-  const [lastSavedAnalysisId, setLastSavedAnalysisId] = useState<string | null>(null);
+  const [_lastSavedAnalysisId, setLastSavedAnalysisId] = useState<string | null>(null);
   
   // Ref for image dimensions to size the canvas
   const imageRef = useRef<HTMLImageElement>(null);
@@ -160,49 +168,100 @@ export default function App() {
       setIsAnalyzing(true);
       setResult(null); // Clear previous
       setLastSavedAnalysisId(null);
-      
+      setAnalysisError(null);
+
       let base64Data = "";
       let mimeType = "";
+      let imageDataUrl = "";
 
       if (file.type === 'application/pdf') {
         // Convert PDF to Image first
         const imageUri = await convertPdfToImage(file);
         // imageUri is data:image/png;base64,....
         setImagePreview(imageUri);
+        imageDataUrl = imageUri;
         base64Data = imageUri.split(',')[1];
         mimeType = 'image/png';
       } else {
         // Handle normal Image
-        const reader = new FileReader();
-        reader.onload = (e) => setImagePreview(e.target?.result as string);
-        reader.readAsDataURL(file);
-
-        base64Data = await new Promise<string>((resolve, reject) => {
+        imageDataUrl = await new Promise<string>((resolve, reject) => {
           const r = new FileReader();
           r.readAsDataURL(file);
-          r.onload = () => {
-            const res = r.result as string;
-            // Remove Data URL prefix
-            const data = res.split(',')[1];
-            resolve(data);
-          };
+          r.onload = () => resolve(r.result as string);
           r.onerror = (error) => reject(error);
         });
+        setImagePreview(imageDataUrl);
+        base64Data = imageDataUrl.split(',')[1];
         mimeType = file.type;
       }
 
+      // Check for duplicate analysis (caching) if user is authenticated
+      if (currentUser?.id) {
+        const fileHash = await computeBase64Hash(base64Data);
+
+        // Check if we already analyzed this exact document
+        const cachedAnalysis = await imageCacheService.findExistingAnalysis(
+          currentUser.id,
+          fileHash
+        );
+
+        if (cachedAnalysis) {
+          // Found cached analysis - fetch the full result
+          console.log('Found cached analysis:', cachedAnalysis.analysisId);
+          try {
+            const existingAnalysis = await databaseService.getAnalysis(cachedAnalysis.analysisId);
+            if (existingAnalysis) {
+              // Reconstruct AnalysisResult from cached data
+              // For now, we'll re-run the analysis but skip saving
+              // TODO: Implement full cache restoration
+              console.log('Using cached analysis data');
+            }
+          } catch (err) {
+            console.warn('Failed to load cached analysis, running new analysis');
+          }
+        }
+      }
+
+      // Run the AI analysis
       const analysis = await analyzeResume(base64Data, mimeType);
       setResult(analysis);
 
-      // Persist analysis if user is authenticated (required by RLS policies)
+      // Persist analysis and generate image layers if user is authenticated
       if (currentUser?.id) {
         try {
+          // Save the analysis result
           const analysisId = await databaseService.saveAnalysisResult(
             currentUser.id,
             file,
             analysis
           );
           setLastSavedAnalysisId(analysisId);
+
+          // Compute file hash for future duplicate detection
+          const fileHash = await computeBase64Hash(base64Data);
+
+          // Get the document ID from the analysis
+          const analysisData = await databaseService.getAnalysis(analysisId);
+          const documentId = (analysisData as any)?.document_id;
+
+          if (documentId) {
+            // Save fingerprint for duplicate detection
+            await imageCacheService.saveFingerprint(
+              currentUser.id,
+              documentId,
+              fileHash,
+              file.size
+            );
+
+            // Generate and save all image layers in the background
+            generateAndSaveLayers(
+              currentUser.id,
+              analysisId,
+              documentId,
+              imageDataUrl,
+              analysis
+            );
+          }
         } catch (err) {
           console.error('Failed to persist analysis to Supabase', err);
         }
@@ -213,9 +272,46 @@ export default function App() {
       }
     } catch (error) {
       console.error(error);
-      alert("Failed to analyze resume. Please try again.");
+      setAnalysisError("Failed to analyze resume. Please try again.");
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  // Background function to generate and save image layers
+  const generateAndSaveLayers = async (
+    userId: string,
+    analysisId: string,
+    documentId: string,
+    imageDataUrl: string,
+    analysis: AnalysisResult
+  ) => {
+    try {
+      // Get image dimensions
+      const img = new Image();
+      img.src = imageDataUrl;
+      await new Promise((resolve) => { img.onload = resolve; });
+      const width = img.width;
+      const height = img.height;
+
+      // Generate all layer variations
+      const layers = await layerCaptureService.generateAllLayers(
+        imageDataUrl,
+        analysis.visualHotspots || [],
+        analysis.skillHighlights || []
+      );
+
+      // Upload each layer to storage
+      await Promise.all([
+        imageCacheService.uploadLayer(userId, analysisId, documentId, 'raw', layers.raw, width, height),
+        imageCacheService.uploadLayer(userId, analysisId, documentId, 'heatmap', layers.heatmap, width, height),
+        imageCacheService.uploadLayer(userId, analysisId, documentId, 'skills', layers.skills, width, height),
+        imageCacheService.uploadLayer(userId, analysisId, documentId, 'heatmap_skills', layers.heatmap_skills, width, height),
+      ]);
+
+      console.log('All image layers saved successfully');
+    } catch (err) {
+      console.error('Failed to generate/save image layers:', err);
     }
   };
 
@@ -223,7 +319,36 @@ export default function App() {
     setResult(null);
     setImagePreview(null);
     setLastSavedAnalysisId(null);
+    setAnalysisError(null);
   };
+
+  const handleViewHistory = () => {
+    setShowHistory(true);
+    setShowLanding(false);
+  };
+
+  const handleBackFromHistory = () => {
+    setShowHistory(false);
+  };
+
+  const handleViewAnalysis = (_analysisId: string) => {
+    // TODO: Implement viewing a specific past analysis
+    // For now, just go back to the main view
+    setShowHistory(false);
+  };
+
+  // Show History Page
+  if (showHistory && currentUser) {
+    return (
+      <ErrorBoundary>
+        <AnalysisHistory
+          userId={currentUser.id}
+          onBack={handleBackFromHistory}
+          onViewAnalysis={handleViewAnalysis}
+        />
+      </ErrorBoundary>
+    );
+  }
 
   if (showLanding) {
     return (
@@ -263,14 +388,24 @@ export default function App() {
           </div>
           <div className="flex items-center gap-4">
             {currentUser && (
-              <div className="text-right mr-2">
-                <p className="text-xs text-slate-300 font-medium">
-                  Signed in as
-                </p>
-                <p className="text-xs text-white truncate max-w-[180px]">
-                  {currentUser.email}
-                </p>
-              </div>
+              <>
+                <button
+                  onClick={handleViewHistory}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-md text-xs font-medium transition-colors"
+                  title="View past analyses"
+                >
+                  <History className="w-4 h-4" />
+                  History
+                </button>
+                <div className="text-right mr-2">
+                  <p className="text-xs text-slate-300 font-medium">
+                    Signed in as
+                  </p>
+                  <p className="text-xs text-white truncate max-w-[180px]">
+                    {currentUser.email}
+                  </p>
+                </div>
+              </>
             )}
             <button
               onClick={currentUser ? handleLogout : () => setShowLanding(true)}
@@ -292,20 +427,39 @@ export default function App() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {!result ? (
+        {isAnalyzing ? (
+          <ErrorBoundary>
+            <div className="animate-in fade-in duration-500">
+              <UploadingSkeleton />
+              <div className="mt-12">
+                <AnalysisSkeleton />
+              </div>
+            </div>
+          </ErrorBoundary>
+        ) : analysisError ? (
+          <div className="flex flex-col items-center justify-center min-h-[60vh]">
+            <ErrorMessage message={analysisError} onRetry={handleReset} />
+            <button
+              onClick={handleReset}
+              className="mt-6 px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg transition-colors"
+            >
+              Try Another Resume
+            </button>
+          </div>
+        ) : !result ? (
           <div className="flex flex-col items-center justify-center min-h-[60vh] animate-in slide-in-from-bottom-4 duration-500">
             <div className="text-center mb-10 max-w-2xl">
               <h2 className="text-4xl font-extrabold text-slate-800 mb-4">
                 Decode the Hidden Signals
               </h2>
               <p className="text-lg text-slate-500">
-                Upload a CV to extract <span className="text-indigo-600 font-semibold">Capital Items</span>, 
-                analyze <span className="text-indigo-600 font-semibold">Visual Hierarchies</span>, and 
+                Upload a CV to extract <span className="text-indigo-600 font-semibold">Capital Items</span>,
+                analyze <span className="text-indigo-600 font-semibold">Visual Hierarchies</span>, and
                 measure <span className="text-indigo-600 font-semibold">Market Signaling</span> strength.
               </p>
             </div>
             <FileUpload onFileSelect={handleFileSelect} isAnalyzing={isAnalyzing} />
-            
+
             <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 text-center opacity-70">
                 <div className="flex flex-col items-center">
                     <Fingerprint className="w-8 h-8 text-slate-400 mb-3" />

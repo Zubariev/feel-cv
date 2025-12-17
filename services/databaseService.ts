@@ -205,5 +205,92 @@ export const databaseService = {
 
     if (error) throw error;
     return data;
+  },
+
+  /**
+   * Lists all analyses for a user, with document info.
+   */
+  async listUserAnalyses(userId: string) {
+    const { data, error } = await supabase
+      .from('ai_analysis')
+      .select(
+        `
+        id,
+        created_at,
+        overall_score,
+        model_used,
+        document:documents(
+          id,
+          original_filename,
+          mime_type,
+          file_size,
+          storage_path
+        ),
+        scores:ai_scores(category, score)
+      `
+      )
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data;
+  },
+
+  /**
+   * Deletes an analysis and its associated document.
+   */
+  async deleteAnalysis(analysisId: string, userId: string) {
+    // First get the document info to delete the file from storage
+    const { data: analysis, error: fetchError } = await supabase
+      .from('ai_analysis')
+      .select('document_id, document:documents(storage_path)')
+      .eq('id', analysisId)
+      .eq('user_id', userId)
+      .single();
+
+    if (fetchError) throw fetchError;
+
+    // Delete from storage if we have a path
+    const storagePath = (analysis?.document as any)?.storage_path;
+    if (storagePath) {
+      await supabase.storage
+        .from('user_uploads_raw')
+        .remove([storagePath]);
+    }
+
+    // Delete analysis (cascades to related tables via FK)
+    const { error: deleteError } = await supabase
+      .from('ai_analysis')
+      .delete()
+      .eq('id', analysisId)
+      .eq('user_id', userId);
+
+    if (deleteError) throw deleteError;
+
+    // Delete document record
+    if (analysis?.document_id) {
+      await supabase
+        .from('documents')
+        .delete()
+        .eq('id', analysis.document_id)
+        .eq('user_id', userId);
+    }
+
+    return true;
+  },
+
+  /**
+   * Gets a signed URL for a document file.
+   */
+  async getDocumentUrl(storagePath: string): Promise<string | null> {
+    const { data, error } = await supabase.storage
+      .from('user_uploads_raw')
+      .createSignedUrl(storagePath, 3600); // 1 hour expiry
+
+    if (error) {
+      console.error('Failed to get signed URL:', error);
+      return null;
+    }
+    return data.signedUrl;
   }
 };

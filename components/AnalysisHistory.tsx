@@ -9,7 +9,8 @@ import {
   Activity,
   FileSearch,
   AlertCircle,
-  ArrowLeft
+  ArrowLeft,
+  GitCompare
 } from 'lucide-react';
 import { databaseService } from '../services/databaseService';
 import { HistoryListSkeleton } from './LoadingSkeletons';
@@ -34,9 +35,10 @@ interface Props {
   userId: string;
   onBack: () => void;
   onViewAnalysis: (analysisId: string) => void;
+  onStartComparison?: () => void;
 }
 
-export const AnalysisHistory: React.FC<Props> = ({ userId, onBack, onViewAnalysis }) => {
+export const AnalysisHistory: React.FC<Props> = ({ userId, onBack, onViewAnalysis, onStartComparison }) => {
   const [analyses, setAnalyses] = useState<AnalysisHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -118,7 +120,7 @@ export const AnalysisHistory: React.FC<Props> = ({ userId, onBack, onViewAnalysi
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-1">
             <div className="bg-indigo-500 p-2 rounded-lg">
               <History className="w-5 h-5 text-white" />
             </div>
@@ -127,6 +129,15 @@ export const AnalysisHistory: React.FC<Props> = ({ userId, onBack, onViewAnalysi
               <p className="text-xs text-slate-400">View and manage your past resume analyses</p>
             </div>
           </div>
+          {onStartComparison && analyses.length >= 2 && (
+            <button
+              onClick={onStartComparison}
+              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-lg transition-colors"
+            >
+              <GitCompare className="w-4 h-4" />
+              Compare CVs
+            </button>
+          )}
         </div>
       </header>
 

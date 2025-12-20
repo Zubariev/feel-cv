@@ -25,7 +25,11 @@ export const databaseService = {
       const fileExtension =
         file.name.includes('.') ? file.name.split('.').pop()!.toLowerCase() : '';
 
-      const storagePath = `${userId}/${crypto.randomUUID()}_${file.name}`;
+      // Sanitize filename for storage (remove special characters, keep alphanumeric, dots, underscores, hyphens)
+      const sanitizedFilename = file.name
+        .replace(/[^a-zA-Z0-9._-]/g, '_')
+        .replace(/_+/g, '_');
+      const storagePath = `${userId}/${crypto.randomUUID()}_${sanitizedFilename}`;
 
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('user_uploads_raw')
@@ -140,6 +144,21 @@ export const databaseService = {
           {
             metric_name: 'visual_metrics',
             metric_value: analysis.visualAnalysis as unknown as Json
+          },
+          {
+            metric_name: 'tone_profile',
+            metric_value: analysis.toneProfile as unknown as Json
+          },
+          {
+            metric_name: 'capital_distribution',
+            metric_value: analysis.capitalDistribution as unknown as Json
+          },
+          {
+            metric_name: 'top_skills',
+            metric_value: {
+              hard: analysis.topHardSkills,
+              soft: analysis.topSoftSkills
+            } as unknown as Json
           }
         ].map((metric) => ({
           analysis_id: analysisId,
@@ -191,20 +210,117 @@ export const databaseService = {
   async getAnalysis(analysisId: string) {
     const { data, error } = await supabase
       .from('ai_analysis')
-      .select(
-        `
-        *,
-        scores:ai_scores(*),
-        capital:ai_capital_analysis(*),
-        recommendations:ai_recommendations(*),
-        semantic_metrics:ai_semantic_metrics(*)
-      `
-      )
+      .select('*, ai_scores(*), ai_capital_analysis(*), ai_recommendations(*), ai_semantic_metrics(*)')
       .eq('id', analysisId)
       .single();
 
     if (error) throw error;
-    return data;
+
+    // Transform to expected format
+    return data ? {
+      ...data,
+      scores: (data as any).ai_scores,
+      capital: (data as any).ai_capital_analysis,
+      recommendations: (data as any).ai_recommendations,
+      semantic_metrics: (data as any).ai_semantic_metrics
+    } : null;
+  },
+
+  /**
+   * Reconstructs a full AnalysisResult from database records.
+   * Used for comparison feature.
+   */
+  async getFullAnalysisResult(analysisId: string): Promise<AnalysisResult | null> {
+    const data = await this.getAnalysis(analysisId);
+    if (!data) return null;
+
+    // Helper to find a score by category
+    const findScore = (category: string): number => {
+      const score = (data.scores as any[])?.find((s) => s.category === category);
+      return score?.score ?? 0;
+    };
+
+    // Helper to find a semantic metric by name
+    const findMetric = (metricName: string): any => {
+      const metric = (data.semantic_metrics as any[])?.find(
+        (m) => m.metric_name === metricName
+      );
+      return metric?.metric_value ?? null;
+    };
+
+    // Build capital evidence from capital analysis records
+    const capitalEvidence: AnalysisResult['capitalEvidence'] = {
+      material: [],
+      social: [],
+      cultural: [],
+      symbolic: [],
+      technological: []
+    };
+    (data.capital as any[])?.forEach((c) => {
+      const type = c.capital_type as keyof typeof capitalEvidence;
+      if (type in capitalEvidence && Array.isArray(c.evidence)) {
+        capitalEvidence[type] = c.evidence;
+      }
+    });
+
+    // Extract recommendations
+    const keyStrengths: string[] = [];
+    const improvementAreas: string[] = [];
+    (data.recommendations as any[])?.forEach((r) => {
+      if (r.category === 'strength') {
+        keyStrengths.push(r.text);
+      } else if (r.category === 'improvement') {
+        improvementAreas.push(r.text);
+      }
+    });
+
+    // Get parsed metrics from semantic_metrics
+    const skillComposition = findMetric('skill_composition') || {
+      hardSkills: 0,
+      softSkills: 0,
+      education: 0,
+      impact: 0
+    };
+    const visualAnalysis = findMetric('visual_metrics') || {
+      whitespaceScore: 0,
+      typographyScore: 0,
+      hierarchyScore: 0,
+      colorHarmonyScore: 0,
+      fixationScore: 0
+    };
+    const toneProfile = findMetric('tone_profile') || {
+      formal: 0,
+      professional: 0,
+      confident: 0,
+      assertive: 0,
+      approachable: 0
+    };
+    const capitalDistribution = findMetric('capital_distribution') || {
+      material: 0,
+      social: 0,
+      cultural: 0,
+      symbolic: 0,
+      technological: 0
+    };
+    const topSkills = findMetric('top_skills') || { hard: [], soft: [] };
+
+    return {
+      overallScore: findScore('overall'),
+      readabilityScore: findScore('readability'),
+      marketSignalingScore: findScore('market_signaling'),
+      atsFriendlinessIndex: findScore('ats_friendliness'),
+      capitalDistribution,
+      capitalEvidence,
+      toneProfile,
+      skillComposition,
+      visualAnalysis,
+      visualHotspots: [], // Not stored in DB, only used during initial display
+      skillHighlights: [], // Not stored in DB, only used during initial display
+      topHardSkills: topSkills.hard || [],
+      topSoftSkills: topSkills.soft || [],
+      keyStrengths,
+      improvementAreas
+    };
   },
 
   /**
@@ -213,27 +329,19 @@ export const databaseService = {
   async listUserAnalyses(userId: string) {
     const { data, error } = await supabase
       .from('ai_analysis')
-      .select(
-        `
-        id,
-        created_at,
-        overall_score,
-        model_used,
-        document:documents(
-          id,
-          original_filename,
-          mime_type,
-          file_size,
-          storage_path
-        ),
-        scores:ai_scores(category, score)
-      `
-      )
+      .select('id, started_at, overall_score, model_used, document_id, documents(id, original_filename, mime_type, file_size, storage_path), ai_scores(category, score)')
       .eq('user_id', userId)
-      .order('created_at', { ascending: false });
+      .order('started_at', { ascending: false });
 
     if (error) throw error;
-    return data;
+
+    // Transform the data to match expected format (map started_at to created_at for compatibility)
+    return data?.map(item => ({
+      ...item,
+      created_at: (item as any).started_at,
+      document: (item as any).documents,
+      scores: (item as any).ai_scores
+    }));
   },
 
   /**
@@ -243,7 +351,7 @@ export const databaseService = {
     // First get the document info to delete the file from storage
     const { data: analysis, error: fetchError } = await supabase
       .from('ai_analysis')
-      .select('document_id, document:documents(storage_path)')
+      .select('document_id, documents(storage_path)')
       .eq('id', analysisId)
       .eq('user_id', userId)
       .single();
@@ -251,7 +359,7 @@ export const databaseService = {
     if (fetchError) throw fetchError;
 
     // Delete from storage if we have a path
-    const storagePath = (analysis?.document as any)?.storage_path;
+    const storagePath = (analysis as any)?.documents?.storage_path;
     if (storagePath) {
       await supabase.storage
         .from('user_uploads_raw')

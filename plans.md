@@ -54,19 +54,20 @@ CVSense is an AI-powered resume analysis platform that evaluates resumes through
 
 | Plan | Price | Target Audience | Analyses | Comparisons |
 |------|-------|-----------------|----------|-------------|
-| **Starter** | €9/month | Job seekers | 5/month | 1/month |
-| **Professional** | €19/month | Serious job hunters | 10/month | 4/month |
-| **Premium** | €29/month | PhD students, Career switchers, Power users | 30/month | 10/month |
+| **Explorer** | €9/month | Job seekers | 5/month | 1/month |
+| **Career Builder** | €19/month | Serious job hunters | 10/month | 5/month |
+| **Career Accelerator** | €29/month | PhD students, Career switchers, Power users | 30/month | Unlimited |
 
 ### One-Time Purchase
 - **1 CV Deep Analysis** — €3.99
 
 ---
 
-## Current Progress (As of December 17, 2025)
+## Current Progress (As of December 20, 2025)
 
 ### Completed Features
 
+#### Core Analysis
 - [x] User authentication (Sign up, Login, Logout via Supabase Auth)
 - [x] Session persistence and user identification
 - [x] Resume upload (PDF, PNG, JPG) with drag-and-drop
@@ -81,58 +82,141 @@ CVSense is an AI-powered resume analysis platform that evaluates resumes through
 - [x] Market Signaling Score
 - [x] ATS Friendliness Index
 - [x] Strategic Insights (Strengths & Improvement Areas)
+
+#### Visualization & Dashboard
 - [x] Interactive Dashboard with toggleable overlays
 - [x] Capital Radar Chart visualization
 - [x] Tone Analysis Bar Chart
 - [x] Skill Composition Bar Chart
 - [x] Capital Evidence Cards
+- [x] Visual Metrics grid display
+
+#### Data Persistence
 - [x] Database schema with RLS policies (Supabase PostgreSQL)
 - [x] File storage (Supabase Storage bucket)
 - [x] Analysis persistence to database
-- [x] **Past analyses history page** ✅ (Dec 17)
-- [x] **Error boundary components** ✅ (Dec 17)
-- [x] **Loading skeletons** ✅ (Dec 17)
-- [x] **Security: .env.local properly gitignored** ✅ (Dec 17)
-- [x] **Analysis caching with image layers** ✅ (Dec 17)
+- [x] Past analyses history page
+- [x] Analysis caching with image layers
+- [x] Document fingerprinting for duplicate detection
 
-### Not Yet Implemented
+#### Comparison Feature
+- [x] Side-by-side CV comparison dashboard
+- [x] Delta indicators for score changes
+- [x] Comparison capital radar (overlaid)
+- [x] Strengths/improvements diff view
+- [x] Skills changes tracking
 
-- [ ] Unit tests
-- [ ] E2E tests
-- [ ] CI/CD pipeline
-- [ ] Vector search for skill similarity
-- [ ] Comparative analysis (side-by-side)
-- [ ] Industry benchmarking
-- [ ] Admin analytics dashboard
-- [ ] Mobile responsive optimization
-- [ ] Landing page SEO optimization
-- [ ] Social sharing features
-- [ ] Pricing/subscription tiers UI
-- [ ] Payment integration (Fondy/LiqPay/Paddle)
-- [ ] Custom domain setup
-- [ ] Production deployment
+#### Billing System (NEW - Dec 18-20)
+- [x] Complete billing database schema (plans, subscriptions, one_time_purchases, usage_counters)
+- [x] RLS policies for all billing tables
+- [x] Entitlements service with `get_user_entitlements()` RPC
+- [x] Usage tracking with lazy reset pattern
+- [x] Fondy webhook handler (Edge Function)
+- [x] Payment service for checkout initiation
+- [x] Upgrade modal component
+- [x] Usage meter components
+- [x] Payment success page
+- [x] Pricing section on landing page
+- [x] Feature gating for analysis and comparison
+
+#### Pages & Legal
+- [x] Landing page with value proposition
+- [x] About page
+- [x] Contact page
+- [x] Privacy Policy page
+- [x] Terms of Use page
+- [x] Cookie Policy page
+- [x] GDPR Compliance page
+- [x] AI Ethical Policy page
+- [x] Footer with navigation
+
+#### Quality & UX
+- [x] Error boundary components
+- [x] Loading skeletons
+- [x] Security: .env.local properly gitignored
 
 ---
 
-## TODO Tasks - Week of December 16-22, 2025
+## Critical Issues Identified (Code Review - Dec 20, 2025)
 
-### Priority 1: Critical for Launch
+### CRITICAL SEVERITY - Must Fix Before Production
 
-- [x] **Security Fix**: Ensure `.env.local` is properly gitignored ✅
-- [x] **Past Analyses Page**: Build UI to view and manage previous analysis history ✅
-- [x] **Error Handling**: Add error boundary components and user-friendly error messages ✅
-- [x] **Loading States**: Implement loading skeletons for better UX during analysis ✅
+| Issue | Location | Risk | Priority |
+|-------|----------|------|----------|
+| **Gemini API Key Exposed** | `.env.local` line 1, `geminiService.ts:151` | API key visible in frontend bundle, can be extracted and abused | P0 |
+| **Fondy Payment Not Signed Server-Side** | `paymentService.ts:128-132` | Payment requests sent without signature from frontend | P0 |
+| **Webhook Signature Bypass** | `fondy-webhook/index.ts:190-195` | Returns `true` if env var missing instead of throwing error | P0 |
+| **Missing RLS for Document Tables** | `document_fingerprints`, `document_layers` | Tables referenced in code but no migrations/RLS found | P0 |
+| **Plan Prices in 3 Locations** | `paymentService.ts`, `PricingSection.tsx`, `billing_system.sql` | Price mismatch risk if one location updated | P0 |
 
-### Priority 2: High Value Features
+### HIGH SEVERITY - Fix Before Launch
 
-- [ ] **Mobile Responsive**: Optimize dashboard layout for tablet and mobile screens
-- [x] **Analysis Caching**: Prevent duplicate analyses of same document ✅ (Dec 17)
+| Issue | Location | Risk | Priority |
+|-------|----------|------|----------|
+| **usageLimitService Uses localStorage** | `usageLimitService.ts:29-32` | Defaults to unlimited plan, user can manipulate | P1 |
+| **App.tsx Monolith** | `App.tsx` (1000+ lines) | 14+ state variables, multiple concerns mixed, hard to maintain | P1 |
+| **No Input Validation** | `FileUpload.tsx:17-21` | No file size limit, no magic byte verification | P1 |
+| **PDF.js CDN Without SRI** | `pdfService.ts:15` | CDN could be compromised, no integrity hash | P1 |
+| **No TypeScript Strict Mode** | `tsconfig.json` | Missing `strict: true`, allows implicit `any` | P1 |
+| **Race Condition in Analysis** | `App.tsx:312-360` | Usage recorded async, display before persistence | P1 |
 
-### Priority 3: Quality & Testing
+### MEDIUM SEVERITY - Address Post-Launch
 
-- [ ] **Unit Tests**: Add tests for geminiService and databaseService
-- [ ] **Component Tests**: Add tests for key React components
-- [ ] **Manual QA**: Test full user flow on different browsers
+| Issue | Location | Risk | Priority |
+|-------|----------|------|----------|
+| **No Test Coverage** | Entire codebase | Zero unit/integration tests | P2 |
+| **No CI/CD Pipeline** | Root directory | Manual deployment only | P2 |
+| **No Error Tracking** | `ErrorBoundary.tsx` | Logs to console only, no Sentry integration | P2 |
+| **Canvas Not Accessible** | `SaliencyHeatmap.tsx`, `SkillsOverlay.tsx` | No ARIA labels, screen readers can't interpret | P2 |
+| **No Toast Notifications** | `App.tsx` | Silent success operations, user feedback missing | P2 |
+| **RLS Subquery Performance** | `20240101000005_rls_policies.sql:36-39` | Indirect ownership checks may cause N+1 | P2 |
+
+---
+
+## Immediate Action Items (Dec 20-22)
+
+### Security Fixes (BLOCKING LAUNCH)
+
+- [ ] **Move Gemini API to Edge Function**
+  - Create `/supabase/functions/analyze-resume/index.ts`
+  - Proxy requests through backend
+  - Add rate limiting per user
+  - Revoke and regenerate exposed API key
+
+- [ ] **Create Payment Signing Edge Function**
+  - Create `/supabase/functions/fondy-create-order/index.ts`
+  - Sign requests with `FONDY_MERCHANT_SECRET` server-side
+  - Never expose merchant secret to frontend
+  - Update `paymentService.ts` to call Edge Function
+
+- [ ] **Fix Webhook Signature Validation**
+  - Change `fondy-webhook/index.ts` line 194: throw error instead of `return true`
+  - Add validation that plan_code exists before subscription creation
+
+- [ ] **Verify/Create Missing Tables**
+  - Check if `document_fingerprints` and `document_layers` exist
+  - Create migration with proper RLS if missing
+  - Add to `20240101000009_document_cache.sql`
+
+- [ ] **Centralize Plan Prices**
+  - Fetch prices from database `plans` table at runtime
+  - Remove hardcoded prices from `paymentService.ts` and `PricingSection.tsx`
+  - Single source of truth: database
+
+### Code Quality Fixes
+
+- [ ] **Delete `usageLimitService.ts`**
+  - All usage tracking now uses `entitlementsService.ts`
+  - Remove any references in codebase
+
+- [ ] **Add File Validation**
+  - Max file size: 10MB
+  - Verify file magic bytes (PDF: `%PDF`, PNG: `\x89PNG`, etc.)
+  - Client-side check + server-side validation
+
+- [ ] **Enable TypeScript Strict Mode**
+  - Add `"strict": true` to `tsconfig.json`
+  - Fix resulting type errors
 
 ---
 
@@ -140,23 +224,26 @@ CVSense is an AI-powered resume analysis platform that evaluates resumes through
 
 ### Priority 1: Launch Preparation
 
-- [ ] **Production Deployment**: Deploy to Vercel/Netlify with environment variables
+- [ ] **Production Deployment**: Deploy to Vercel with environment variables
 - [ ] **Custom Domain**: Configure custom domain and SSL
-- [ ] **Performance Audit**: Run Lighthouse and optimize scores
-- [ ] **Analytics Setup**: Add Google Analytics or Plausible for usage tracking
-- [ ] **Payment Integration**: Integrate Fondy/LiqPay or Paddle for subscriptions
+- [ ] **Performance Audit**: Run Lighthouse, target 90+ scores
+- [ ] **Analytics Setup**: Add Plausible or PostHog for usage tracking
+- [ ] **Error Tracking**: Integrate Sentry for frontend error monitoring
 
-### Priority 2: Polish & UX
+### Priority 2: Testing
 
-- [ ] **Landing Page**: Enhance messaging based on user understanding (reduce anxiety, build trust)
-- [ ] **Onboarding Flow**: Add first-time user tutorial/walkthrough
-- [ ] **Pricing Page**: Display subscription tiers with clear value propositions
+- [ ] **Critical Path Tests**: Add Vitest tests for:
+  - Signature verification function
+  - Entitlement calculations
+  - Usage recording logic
+  - Plan price validation
+- [ ] **E2E Smoke Test**: One test covering: signup → upload → analyze → view history
 
-### Priority 3: Documentation
+### Priority 3: Polish
 
-- [ ] **README Update**: Complete documentation for developers
-- [ ] **Privacy Policy**: Create privacy policy page
-- [ ] **Terms of Service**: Create terms of service page
+- [ ] **Mobile Responsive**: Fix FileUpload height, VisualMetrics grid on mobile
+- [ ] **Accessibility**: Add ARIA labels to canvas elements
+- [ ] **Toast Notifications**: Add success feedback for uploads, analysis completion
 
 ---
 
@@ -164,12 +251,97 @@ CVSense is an AI-powered resume analysis platform that evaluates resumes through
 
 ### Launch Week Checklist
 
-- [ ] **Final QA**: Complete end-to-end testing on production
-- [ ] **Monitoring Setup**: Configure error tracking (Sentry) and uptime monitoring
-- [ ] **Backup Strategy**: Verify database backup procedures
-- [ ] **Load Testing**: Ensure system handles expected traffic
+- [ ] **Final Security Audit**: Verify all API keys rotated and secured
+- [ ] **Monitoring Setup**: Sentry dashboard, uptime monitoring (UptimeRobot)
+- [ ] **Backup Strategy**: Verify Supabase backup procedures
+- [ ] **Load Testing**: Ensure system handles 100 concurrent users
+- [ ] **Payment Test**: Complete end-to-end payment flow in production
 - [ ] **Social Media**: Prepare launch announcements
 - [ ] **Launch Day (Jan 1)**: Go live and monitor closely
+
+---
+
+## Technical Debt Registry
+
+### Critical Debt (Blocks Scale)
+
+| ID | Description | Location | Effort | Impact |
+|----|-------------|----------|--------|--------|
+| TD-001 | App.tsx monolith needs decomposition | `App.tsx` | Large | High |
+| TD-002 | No test coverage | All services | Large | High |
+| TD-003 | Canvas operations recreated per render | `SaliencyHeatmap.tsx` | Medium | Medium |
+| TD-004 | No lazy loading for routes | `App.tsx` imports | Medium | Medium |
+
+### Medium Debt (Affects Quality)
+
+| ID | Description | Location | Effort | Impact |
+|----|-------------|----------|--------|--------|
+| TD-005 | Type casting with `as any` | `databaseService.ts:113, 339` | Small | Low |
+| TD-006 | Silent error fallbacks | `App.tsx:301-303` | Small | Medium |
+| TD-007 | No retry logic for API calls | `geminiService.ts` | Medium | Medium |
+| TD-008 | Subscription expiry not automated | Missing cron job | Medium | Medium |
+
+### Low Debt (Nice to Have)
+
+| ID | Description | Location | Effort | Impact |
+|----|-------------|----------|--------|--------|
+| TD-009 | No bundle size monitoring | `vite.config.ts` | Small | Low |
+| TD-010 | RLS subquery performance | `20240101000005_rls_policies.sql` | Medium | Low |
+| TD-011 | PDF.js should be lazy loaded | `pdfService.ts` | Small | Low |
+
+---
+
+## Architecture Recommendations
+
+### Immediate Refactoring (Q1 2026)
+
+1. **Extract Custom Hooks from App.tsx**
+   ```
+   useAuth() - Authentication state and handlers
+   useEntitlements() - Already exists in context, use it
+   useAnalysis() - File handling, analysis orchestration
+   useComparison() - Comparison logic
+   usePayment() - Payment flow
+   ```
+
+2. **Implement Code Splitting**
+   ```typescript
+   // vite.config.ts
+   build: {
+     rollupOptions: {
+       output: {
+         manualChunks: {
+           'vendor-charts': ['recharts'],
+           'vendor-auth': ['@supabase/supabase-js'],
+           'vendor-ai': ['@google/genai']
+         }
+       }
+     }
+   }
+   ```
+
+3. **Add React.lazy for Routes**
+   ```typescript
+   const LandingPage = lazy(() => import('./components/LandingPage'));
+   const ComparisonDashboard = lazy(() => import('./components/ComparisonDashboard'));
+   const AnalysisHistory = lazy(() => import('./components/AnalysisHistory'));
+   ```
+
+### Backend Evolution (Q2 2026)
+
+1. **Move All AI Calls to Edge Functions**
+   - Gemini API behind Supabase Edge Function
+   - Rate limiting per user/IP
+   - Request logging for debugging
+
+2. **Add Webhook Retry Queue**
+   - If Fondy webhook fails, queue for retry
+   - Exponential backoff with max 5 attempts
+
+3. **Subscription Lifecycle Automation**
+   - Cron job to mark expired subscriptions
+   - Email notifications before expiry
+   - Grace period handling
 
 ---
 
@@ -179,17 +351,18 @@ CVSense is an AI-powered resume analysis platform that evaluates resumes through
 - User feedback collection and bug fixes
 - Performance optimization based on real usage
 - A/B testing for conversion optimization
-- Comparison analysis feature (1-4 comparisons based on plan)
+- Complete test coverage (target: 60%)
 
 ### February 2026
 - Vector search for skill similarity
-- Comparative analysis feature
-- Industry benchmarking
+- Industry benchmarking ("How does your CV compare to others in your field?")
+- Email notifications (analysis complete, subscription expiring)
 
 ### March 2026
 - Premium tier advanced features
 - Team/enterprise features exploration
 - Internationalization (multi-language support)
+- Annual billing option
 
 ---
 
@@ -212,18 +385,8 @@ CVSense is an AI-powered resume analysis platform that evaluates resumes through
 | 500 users | Mixed | €5,000 | ~€450 | **~€4,550** |
 
 ### Break-even
-- Minimum viable: ~15 Starter subscribers (€135/month)
+- Minimum viable: ~15 Explorer subscribers (€135/month)
 - Comfortable: ~50 mixed subscribers (€400-500/month)
-
----
-
-## Technical Debt & Known Issues
-
-1. **CDN Dependencies**: Consider bundling Tailwind and pdf.js instead of CDN imports
-2. **Gemini Model Version**: Verify consistent model version between code and database
-3. **Missing Tests**: No test coverage currently exists
-4. **No CI/CD**: Manual deployment process
-5. **TypeScript types**: Supabase generated types need regeneration
 
 ---
 
@@ -233,21 +396,46 @@ CVSense is an AI-powered resume analysis platform that evaluates resumes through
 - Daily Active Users (DAU)
 - Resume analyses per day
 - Analysis completion rate
+- Comparison feature adoption rate
 - Average session duration
-- Error rate
+- Error rate by feature
 
 ### Business Metrics
 - Conversion rate (visitor → signup → paid)
+- Plan distribution (Explorer vs Builder vs Accelerator)
+- One-time to subscription conversion
 - User retention rate (monthly)
 - Churn rate
 - Average Revenue Per User (ARPU)
+- Customer Lifetime Value (LTV)
 - Customer Acquisition Cost (CAC)
+
+### Technical Metrics
+- API latency (Gemini, Supabase)
+- Error rates by endpoint
+- Edge Function cold start times
+- Bundle size over time
+
+---
+
+## Security Checklist (Pre-Launch)
+
+- [ ] All API keys rotated and stored in Supabase secrets
+- [ ] Gemini API proxied through Edge Function
+- [ ] Fondy payment signed server-side
+- [ ] Webhook signature verification mandatory
+- [ ] RLS enabled on ALL tables
+- [ ] No secrets in frontend bundle
+- [ ] HTTPS enforced on custom domain
+- [ ] Rate limiting on public endpoints
+- [ ] Input validation on file uploads
+- [ ] Error messages don't leak internal details
 
 ---
 
 ## Team & Resources
 
-- **Development**: [Your Name]
+- **Development**: Solo founder
 - **Design**: [TBD]
 - **Marketing**: [TBD]
 
@@ -255,11 +443,21 @@ CVSense is an AI-powered resume analysis platform that evaluates resumes through
 
 ## Notes
 
-- Launch is in **15 days** (as of Dec 17, 2025)
-- Focus on stability and core features over new features
+- Launch is in **12 days** (as of Dec 20, 2025)
+- **CRITICAL**: Security fixes must be completed before any production deployment
+- Focus on stability and security over new features
 - Prioritize user experience and reliability
 - Remember: We sell **confidence and support**, not just analytics
 
 ---
 
-*Last Updated: December 17, 2025*
+## Review History
+
+| Date | Reviewer | Focus Areas | Status |
+|------|----------|-------------|--------|
+| Dec 17, 2025 | Initial | Feature completion | Done |
+| Dec 20, 2025 | Comprehensive Code Review | Architecture, Security, Performance, Billing | Done |
+
+---
+
+*Last Updated: December 20, 2025*

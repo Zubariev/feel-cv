@@ -22,35 +22,65 @@ Our response to user requests:
 
 
 Subscription Model
-Starter / Casual Plan — €9 / month
+Explorer Plan — €9 / month
 For job seekers
 5 analyses per month
 1 comparison analysis
+"€1.80 per analysis (vs €3.99 one-time)"
 
-Professional Plan — €19 / month
+Career Builder Plan — €19 / month
 For serious job hunters
 10 analyses per month
-4 comparison analysis
+5 comparison analysis
+"⭐ Most Popular"
 
-Premium Plan — €29 / month
+Career Accelerator Plan — €29 / month
 For PhD students, Junior data scientists, Career switchers, Power users
 30 analyses per month
-10 comparison analysis
+Unlimited comparisons
+"€0.97 per analysis. Best value"
 
 One-Time Purchase Model (one scan)
-1 CV Deep Analysis — €3,99
+1 CV Intelligence Report — €3,99
+“Includes full AI analysis + market signaling breakdown. Most users upgrade after first scan.”
 
+Pricing Page Layout (Conversion-Optimized)
+Order matters.
+
+1️⃣ One-Time Scan (small, left or top)
+“Try once. Full power. No commitment.”
+
+2️⃣ Subscription Plans (center)
+Career Builder highlighted
+Per-analysis pricing visible
+“Most Popular” badge
+
+3️⃣ Premium at the right
+Positioned as “for serious candidates”
+
+Note: Never hide the one-time option — it builds trust.
+
+With this setup:
+One-time → subscription conversion: 15–30%
+Average ARPU: €14–18
+Monthly churn: low (job-seeking is time-bound but intense)
 
 Below is expenses for product — explicitly taking into account:
 
 ### Payment Processing
 Online payments system (Stripe doesn't work for Ukraine business) - search for solution
-- **LiqPay** (PrivatBank) - 2.75% + UAH commission, works in Ukraine
 - **Fondy** - 2.5-3% commission, supports EUR, works for Ukrainian businesses
-- **Wayforpay** - 2.5% commission, EUR support
+Fondy (EUR + USD enabled)
+Can auto-convert to UAH
+Ukrainian bank with EUR account
 - **Paddle** - 5% + $0.50 per transaction (handles VAT/taxes globally, good for SaaS)
-- **Gumroad** - 10% flat fee (simple but expensive)
-- Estimated monthly payment fees: ~€50-150 (depending on volume)
+RECOMMENDED PAYMENT STRATEGY
+Phase 1 (Launch – first 3 months)
+👉 Fondy (EUR + USD enabled)
+Phase 2 (After traction, 100+ paying users)
+👉 Add Paddle as an alternative checkout for EU/US
+Later: Paddle for EU/US checkout
+If >30% of users are foreign → keep EUR account
 
 ### API Costs (Gemini)
 Gemini 2.0 Flash / Gemini 2.5 Pro API costs:
@@ -72,12 +102,12 @@ Supabase storage + database + vector search:
 ### Hosting
 - **Vercel** (Free tier): Sufficient for launch
 - **Vercel Pro**: $20/month (if needed for higher limits)
-- **Netlify**: Similar pricing
 - Estimated monthly: €0-20
 
 ### Domain & SSL
+Cloudflare Registrar
 - Domain (.com/.io): €10-50/year
-- SSL: Free (Let's Encrypt via Vercel/Netlify)
+- SSL: ???
 - Estimated monthly: ~€2-5
 
 ### Total Monthly Expenses Estimate

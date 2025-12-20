@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FileUpload } from './components/FileUpload';
 import { CapitalRadar } from './components/CapitalRadar';
 import { ToneAnalysis } from './components/ToneAnalysis';
@@ -13,12 +13,27 @@ import { ErrorBoundary, ErrorMessage } from './components/ErrorBoundary';
 import { AnalysisSkeleton, UploadingSkeleton } from './components/LoadingSkeletons';
 import { analyzeResume } from './services/geminiService';
 import { convertPdfToImage } from './services/pdfService';
-import { AnalysisResult } from './types';
+import { AnalysisResult, ComparisonResult, EntitlementSnapshot, PlanCode } from './types';
 import { supabase } from './services/supabaseClient';
 import type { Session, User } from '@supabase/supabase-js';
 import { databaseService } from './services/databaseService';
 import { imageCacheService, computeBase64Hash } from './services/imageCacheService';
 import { layerCaptureService } from './services/layerCaptureService';
+import { comparisonService } from './services/comparisonService';
+import { entitlementsService } from './services/entitlementsService';
+import { paymentService } from './services/paymentService';
+import { ComparisonSelector } from './components/ComparisonSelector';
+import { ComparisonDashboard } from './components/ComparisonDashboard';
+import { UpgradeModal } from './components/UpgradeModal';
+import { UsageSummary } from './components/UsageMeter';
+import { AboutPage } from './components/AboutPage';
+import { ContactPage } from './components/ContactPage';
+import { PrivacyPolicyPage } from './components/PrivacyPolicyPage';
+import { TermsOfUsePage } from './components/TermsOfUsePage';
+import { CookiePolicyPage } from './components/CookiePolicyPage';
+import { GDPRCompliancePage } from './components/GDPRCompliancePage';
+import { AIEthicalPolicyPage } from './components/AIEthicalPolicyPage';
+import { PaymentSuccessPage } from './components/PaymentSuccessPage';
 import {
   BarChart3,
   BrainCircuit,
@@ -50,7 +65,27 @@ export default function App() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState(false);
   const [_lastSavedAnalysisId, setLastSavedAnalysisId] = useState<string | null>(null);
-  
+
+  // Comparison feature state
+  const [showComparisonSelector, setShowComparisonSelector] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
+  const [comparisonResult, setComparisonResult] = useState<ComparisonResult | null>(null);
+  const [comparisonBaseAnalysis, setComparisonBaseAnalysis] = useState<AnalysisResult | null>(null);
+  const [comparisonCompareAnalysis, setComparisonCompareAnalysis] = useState<AnalysisResult | null>(null);
+
+  // Page navigation state
+  const [currentPage, setCurrentPage] = useState<'about' | 'contact' | 'privacy' | 'terms' | 'cookies' | 'gdpr' | 'ai-ethics' | null>(null);
+
+  // Payment success state
+  const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
+
+  // Entitlements state
+  const [entitlements, setEntitlements] = useState<EntitlementSnapshot | null>(null);
+  const [entitlementsLoading, setEntitlementsLoading] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [blockedAction, setBlockedAction] = useState<'analyze' | 'compare'>('analyze');
+  const [paymentLoading, setPaymentLoading] = useState(false);
+
   // Ref for image dimensions to size the canvas
   const imageRef = useRef<HTMLImageElement>(null);
   const [imgDims, setImgDims] = useState({ w: 0, h: 0 });
@@ -116,6 +151,44 @@ export default function App() {
     };
   }, []);
 
+  // Fetch entitlements when user changes
+  const refreshEntitlements = useCallback(async () => {
+    if (!currentUser) {
+      setEntitlements(null);
+      return;
+    }
+
+    setEntitlementsLoading(true);
+    try {
+      const snapshot = await entitlementsService.getEntitlements(currentUser.id);
+      setEntitlements(snapshot);
+    } catch (err) {
+      console.error('Failed to fetch entitlements:', err);
+    } finally {
+      setEntitlementsLoading(false);
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    refreshEntitlements();
+  }, [refreshEntitlements]);
+
+  // Detect payment success URL
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path === '/payment/success') {
+      setShowPaymentSuccess(true);
+      setShowLanding(false);
+      // Clean up the URL without page reload
+      window.history.replaceState({}, '', '/');
+    }
+  }, []);
+
+  const handlePaymentSuccessContinue = () => {
+    setShowPaymentSuccess(false);
+    setShowLanding(false);
+  };
+
   const handleLogin = async (email: string, password: string) => {
     setAuthError(null);
     setAuthLoading(true);
@@ -164,6 +237,15 @@ export default function App() {
   };
 
   const handleFileSelect = async (file: File) => {
+    // Check entitlements before analyzing
+    if (currentUser && entitlements) {
+      if (!entitlements.can.analyze_cv) {
+        setBlockedAction('analyze');
+        setShowUpgradeModal(true);
+        return;
+      }
+    }
+
     try {
       setIsAnalyzing(true);
       setResult(null); // Clear previous
@@ -229,6 +311,16 @@ export default function App() {
       // Persist analysis and generate image layers if user is authenticated
       if (currentUser?.id) {
         try {
+          // Record usage (deducts from subscription or one-time purchases)
+          const usageResult = await entitlementsService.recordAnalysisUsage(currentUser.id);
+          if (!usageResult.success) {
+            console.warn('Failed to record usage:', usageResult.error);
+            // Don't block the analysis, just log the warning
+          }
+
+          // Refresh entitlements to update UI
+          await refreshEntitlements();
+
           // Save the analysis result
           const analysisId = await databaseService.saveAnalysisResult(
             currentUser.id,
@@ -331,11 +423,267 @@ export default function App() {
     setShowHistory(false);
   };
 
-  const handleViewAnalysis = (_analysisId: string) => {
-    // TODO: Implement viewing a specific past analysis
-    // For now, just go back to the main view
+  const handleViewAnalysis = async (analysisId: string) => {
+    setShowHistory(false);
+    setShowLanding(false);
+    setIsAnalyzing(true);
+    setResult(null);
+    setImagePreview(null);
+
+    try {
+      // Load the full analysis result from database
+      const analysisResult = await databaseService.getFullAnalysisResult(analysisId);
+      if (!analysisResult) {
+        setAnalysisError('Failed to load analysis data.');
+        setIsAnalyzing(false);
+        return;
+      }
+
+      // Get the analysis record to find the document storage path
+      const analysisData = await databaseService.getAnalysis(analysisId);
+      const documentId = (analysisData as any)?.document_id;
+
+      // Try to load the document image from storage
+      let imageUrl: string | null = null;
+      if (documentId && currentUser) {
+        // Get document info
+        const analyses = await databaseService.listUserAnalyses(currentUser.id);
+        const analysisInfo = (analyses as any[])?.find((a) => a.id === analysisId);
+        const storagePath = analysisInfo?.document?.storage_path;
+
+        if (storagePath) {
+          imageUrl = await databaseService.getDocumentUrl(storagePath);
+        }
+      }
+
+      // Set the state to display the analysis
+      setResult(analysisResult);
+      setImagePreview(imageUrl);
+      setIsAnalyzing(false);
+    } catch (err) {
+      console.error('Failed to load analysis:', err);
+      setAnalysisError('Failed to load analysis. Please try again.');
+      setIsAnalyzing(false);
+    }
+  };
+
+  // Comparison feature handlers
+  const handleStartComparison = () => {
+    setShowComparisonSelector(true);
     setShowHistory(false);
   };
+
+  const handleCompare = async (baseId: string, compareId: string) => {
+    if (!currentUser) return;
+
+    // Check entitlements
+    if (entitlements && !entitlements.can.compare_cvs) {
+      setBlockedAction('compare');
+      setShowUpgradeModal(true);
+      return;
+    }
+
+    try {
+      // Load both full analyses
+      const [baseResult, compareResult] = await Promise.all([
+        databaseService.getFullAnalysisResult(baseId),
+        databaseService.getFullAnalysisResult(compareId)
+      ]);
+
+      if (!baseResult || !compareResult) {
+        setAnalysisError('Failed to load analysis data. Please try again.');
+        return;
+      }
+
+      // Get metadata for names/dates
+      const analyses = await databaseService.listUserAnalyses(currentUser.id);
+      const baseInfo = (analyses as any[])?.find((a) => a.id === baseId);
+      const compareInfo = (analyses as any[])?.find((a) => a.id === compareId);
+
+      // Compute comparison
+      const comparison = comparisonService.compareAnalyses(
+        baseResult,
+        compareResult,
+        baseId,
+        compareId,
+        baseInfo?.document?.original_filename || 'Base',
+        compareInfo?.document?.original_filename || 'Compare',
+        baseInfo?.created_at || '',
+        compareInfo?.created_at || ''
+      );
+
+      // Record usage
+      const usageResult = await entitlementsService.recordComparisonUsage(currentUser.id);
+      if (!usageResult.success) {
+        console.warn('Failed to record comparison usage:', usageResult.error);
+      }
+
+      // Refresh entitlements to update UI
+      await refreshEntitlements();
+
+      // Show comparison view
+      setComparisonResult(comparison);
+      setComparisonBaseAnalysis(baseResult);
+      setComparisonCompareAnalysis(compareResult);
+      setShowComparisonSelector(false);
+      setShowComparison(true);
+    } catch (err) {
+      console.error('Comparison failed:', err);
+      setAnalysisError('Failed to compare analyses. Please try again.');
+    }
+  };
+
+  const handleBackFromComparison = () => {
+    setShowComparison(false);
+    setComparisonResult(null);
+    setComparisonBaseAnalysis(null);
+    setComparisonCompareAnalysis(null);
+    setShowHistory(true);
+  };
+
+  const handleCancelComparison = () => {
+    setShowComparisonSelector(false);
+    setShowHistory(true);
+  };
+
+  // Payment flow handler
+  const handleSelectPlan = async (planCode: PlanCode) => {
+    if (!currentUser || !planCode) return;
+
+    setPaymentLoading(true);
+    try {
+      const { checkoutUrl } = await paymentService.createPayment({
+        userId: currentUser.id,
+        userEmail: currentUser.email || '',
+        planCode,
+      });
+
+      // Close the modal and redirect to payment
+      setShowUpgradeModal(false);
+      paymentService.redirectToCheckout(checkoutUrl);
+    } catch (err) {
+      console.error('Failed to create payment:', err);
+      setAnalysisError('Failed to start payment. Please try again.');
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
+  // Page navigation handlers
+  const handleNavigate = (page: 'about' | 'contact' | 'privacy' | 'terms' | 'cookies' | 'gdpr' | 'ai-ethics') => {
+    setCurrentPage(page);
+    setShowLanding(false);
+    setShowHistory(false);
+    setShowComparison(false);
+    setShowComparisonSelector(false);
+  };
+
+  const handleBackFromPage = () => {
+    setCurrentPage(null);
+    setShowLanding(true);
+  };
+
+  // Show Payment Success Page
+  if (showPaymentSuccess) {
+    return (
+      <ErrorBoundary>
+        <PaymentSuccessPage
+          onContinue={handlePaymentSuccessContinue}
+          onRefreshEntitlements={refreshEntitlements}
+        />
+      </ErrorBoundary>
+    );
+  }
+
+  // Show About Page
+  if (currentPage === 'about') {
+    return (
+      <ErrorBoundary>
+        <AboutPage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+      </ErrorBoundary>
+    );
+  }
+
+  // Show Contact Page
+  if (currentPage === 'contact') {
+    return (
+      <ErrorBoundary>
+        <ContactPage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+      </ErrorBoundary>
+    );
+  }
+
+  // Show Privacy Policy Page
+  if (currentPage === 'privacy') {
+    return (
+      <ErrorBoundary>
+        <PrivacyPolicyPage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+      </ErrorBoundary>
+    );
+  }
+
+  // Show Terms of Use Page
+  if (currentPage === 'terms') {
+    return (
+      <ErrorBoundary>
+        <TermsOfUsePage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+      </ErrorBoundary>
+    );
+  }
+
+  // Show Cookie Policy Page
+  if (currentPage === 'cookies') {
+    return (
+      <ErrorBoundary>
+        <CookiePolicyPage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+      </ErrorBoundary>
+    );
+  }
+
+  // Show GDPR Compliance Page
+  if (currentPage === 'gdpr') {
+    return (
+      <ErrorBoundary>
+        <GDPRCompliancePage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+      </ErrorBoundary>
+    );
+  }
+
+  // Show AI Ethical Policy Page
+  if (currentPage === 'ai-ethics') {
+    return (
+      <ErrorBoundary>
+        <AIEthicalPolicyPage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+      </ErrorBoundary>
+    );
+  }
+
+  // Show Comparison Dashboard
+  if (showComparison && comparisonResult && comparisonBaseAnalysis && comparisonCompareAnalysis) {
+    return (
+      <ErrorBoundary>
+        <ComparisonDashboard
+          comparison={comparisonResult}
+          baseAnalysis={comparisonBaseAnalysis}
+          compareAnalysis={comparisonCompareAnalysis}
+          onBack={handleBackFromComparison}
+        />
+      </ErrorBoundary>
+    );
+  }
+
+  // Show Comparison Selector
+  if (showComparisonSelector && currentUser) {
+    return (
+      <ErrorBoundary>
+        <ComparisonSelector
+          userId={currentUser.id}
+          onCompare={handleCompare}
+          onCancel={handleCancelComparison}
+        />
+      </ErrorBoundary>
+    );
+  }
 
   // Show History Page
   if (showHistory && currentUser) {
@@ -345,6 +693,7 @@ export default function App() {
           userId={currentUser.id}
           onBack={handleBackFromHistory}
           onViewAnalysis={handleViewAnalysis}
+          onStartComparison={handleStartComparison}
         />
       </ErrorBoundary>
     );
@@ -361,6 +710,8 @@ export default function App() {
         onLogout={handleLogout}
         authError={authError}
         authLoading={authLoading}
+        onNavigate={handleNavigate}
+        onSelectPlan={(planId) => handleSelectPlan(planId as PlanCode)}
       />
     );
   }
@@ -606,6 +957,20 @@ export default function App() {
                   </div>
                 </div>
               </div>
+
+              {/* Usage Meter */}
+              {currentUser && entitlements && (
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                  <UsageSummary
+                    analysesUsed={entitlements.usage.analyses_used}
+                    analysesLimit={entitlements.limits.analyses_per_month}
+                    comparisonsUsed={entitlements.usage.comparisons_used}
+                    comparisonsLimit={entitlements.limits.comparisons_per_month}
+                    isUnlimitedComparisons={entitlements.limits.unlimited_comparisons}
+                    planName={entitlements.plan.name}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Main Dashboard */}
@@ -704,6 +1069,17 @@ export default function App() {
           </div>
         )}
       </main>
+
+      {/* Upgrade Modal */}
+      {entitlements && (
+        <UpgradeModal
+          isOpen={showUpgradeModal}
+          onClose={() => setShowUpgradeModal(false)}
+          entitlements={entitlements}
+          blockedAction={blockedAction}
+          onSelectPlan={handleSelectPlan}
+        />
+      )}
     </div>
   );
 }

@@ -145,9 +145,6 @@ export const UploadingSkeleton: React.FC = () => (
       <div className="absolute inset-0 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin" />
     </div>
     <h3 className="text-xl font-semibold text-slate-800 mb-2">Analyzing your resume...</h3>
-    <p className="text-slate-500 text-center max-w-md">
-      Our AI is extracting capital signals, analyzing visual hierarchy, and generating saliency maps.
-    </p>
     <div className="mt-6 flex flex-wrap justify-center gap-3">
       {['Extracting text', 'Visual analysis', 'Capital mapping', 'Signal scoring'].map((step, i) => (
         <span

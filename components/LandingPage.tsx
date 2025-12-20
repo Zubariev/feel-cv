@@ -18,6 +18,8 @@ import {
   UserCheck,
   LogOut
 } from 'lucide-react';
+import { PricingSection } from './PricingSection';
+import { Footer } from './Footer';
 
 interface Props {
   onStart: () => void;
@@ -28,6 +30,8 @@ interface Props {
   onLogout: () => Promise<void> | void;
   authError?: string | null;
   authLoading?: boolean;
+  onNavigate: (page: 'about' | 'contact' | 'privacy' | 'terms' | 'cookies' | 'gdpr' | 'ai-ethics') => void;
+  onSelectPlan?: (planId: string) => void;
 }
 
 export const LandingPage: React.FC<Props> = ({
@@ -39,6 +43,8 @@ export const LandingPage: React.FC<Props> = ({
   onLogout,
   authError,
   authLoading,
+  onNavigate,
+  onSelectPlan,
 }) => {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
@@ -111,7 +117,7 @@ export const LandingPage: React.FC<Props> = ({
           </p>
 
           <p className="text-xl md:text-2xl text-slate-400 max-w-4xl mb-12 leading-relaxed font-light">
-            We give you the <span className="text-indigo-400 font-medium">confidence</span> and <span className="text-indigo-400 font-medium">support</span> to understand exactly how recruiters, AI systems, and hiring managers see you.
+            We give you the <span className="text-indigo-400 font-medium">confidence</span> and <span className="text-indigo-400 font-medium">support</span> to understand exactly how recruiters, AI systems, and hiring managers see your CV.
           </p>
 
           <div className="flex flex-col md:flex-row items-center gap-6">
@@ -163,7 +169,7 @@ export const LandingPage: React.FC<Props> = ({
               Job Hunting is Stressful. We Understand.
             </h2>
             <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
-              Behind every job posting are real people—recruiters with limited time, ATS systems with rigid rules, and hiring managers with specific expectations. You shouldn't have to figure this out alone.
+              Behind every job posting are real people - recruiters with limited time, ATS systems with rigid rules, and hiring managers with specific expectations. You shouldn't have to figure this out alone.
             </p>
           </div>
 
@@ -257,6 +263,18 @@ export const LandingPage: React.FC<Props> = ({
           </div>
         </div>
       </section>
+
+      {/* Pricing Section */}
+      <PricingSection
+        onSelectPlan={(planId) => {
+          if (isAuthenticated && onSelectPlan) {
+            onSelectPlan(planId);
+          } else {
+            scrollToAuth();
+          }
+        }}
+        isAuthenticated={isAuthenticated}
+      />
 
       {/* Prominent Sign-In CTA for non-authenticated users */}
       {!isAuthenticated && (
@@ -463,7 +481,7 @@ export const LandingPage: React.FC<Props> = ({
         </div>
       </section>
 
-      {/* Footer / Final CTA */}
+      {/* Final CTA */}
       <section className="py-28 bg-gradient-to-b from-white to-slate-50 text-center">
         <div className="max-w-screen-lg mx-auto px-6">
           <div className="inline-block px-5 py-2.5 rounded-full bg-indigo-50 text-indigo-600 text-base font-medium mb-8">
@@ -484,6 +502,9 @@ export const LandingPage: React.FC<Props> = ({
           </button>
         </div>
       </section>
+
+      {/* Footer */}
+      <Footer onNavigate={onNavigate} />
 
     </div>
   );

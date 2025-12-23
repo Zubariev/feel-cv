@@ -9,7 +9,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { databaseService } from '../services/databaseService';
-import { usageLimitService } from '../services/usageLimitService';
+import { useEntitlements } from '../contexts/EntitlementsContext';
 import { HistoryListSkeleton } from './LoadingSkeletons';
 
 interface AnalysisItem {
@@ -35,7 +35,9 @@ export const ComparisonSelector: React.FC<Props> = ({ userId, onCompare, onCance
   const [error, setError] = useState<string | null>(null);
   const [comparing, setComparing] = useState(false);
 
-  const { remaining, limit } = usageLimitService.canCompare(userId);
+  const { comparisonsRemaining, isUnlimitedComparisons, entitlements } = useEntitlements();
+  const remaining = comparisonsRemaining ?? 0;
+  const limit = isUnlimitedComparisons ? Infinity : (entitlements.limits.comparisons_per_month ?? 0);
 
   useEffect(() => {
     const fetchAnalyses = async () => {

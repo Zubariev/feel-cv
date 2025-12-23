@@ -200,6 +200,7 @@ CREATE POLICY "Service role can insert payment events"
 -- ============================================================================
 
 -- Function to get current entitlements for a user
+-- NOTE: Uses explicit column aliases to avoid conflicts from s.*, p.* (both have id, created_at, updated_at)
 CREATE OR REPLACE FUNCTION get_user_entitlements(p_user_id UUID)
 RETURNS JSONB
 LANGUAGE plpgsql
@@ -207,14 +208,22 @@ SECURITY DEFINER
 AS $$
 DECLARE
   v_subscription RECORD;
-  v_plan RECORD;
   v_usage RECORD;
-  v_one_time_available INTEGER;
+  v_one_time_available INTEGER := 0;
   v_now TIMESTAMPTZ := NOW();
-  v_result JSONB;
 BEGIN
-  -- Get active subscription
-  SELECT s.*, p.*
+  -- Get active subscription with explicit column aliases (avoids s.*, p.* conflicts)
+  SELECT
+    s.id as subscription_id,
+    s.plan_code,
+    s.status,
+    s.current_period_start,
+    s.current_period_end,
+    s.cancel_at_period_end,
+    p.name as plan_name,
+    p.analyses_per_month,
+    p.comparisons_per_month,
+    p.is_unlimited_comparisons
   INTO v_subscription
   FROM subscriptions s
   JOIN plans p ON s.plan_code = p.plan_code
@@ -223,112 +232,59 @@ BEGIN
     AND s.current_period_end > v_now
   LIMIT 1;
 
-  -- Get or create usage counter for current period
-  IF v_subscription IS NOT NULL THEN
-    SELECT * INTO v_usage
-    FROM usage_counters
-    WHERE user_id = p_user_id
-      AND period_start = v_subscription.current_period_start;
+  -- No subscription found
+  IF v_subscription IS NULL THEN
+    -- Count one-time purchases
+    SELECT COALESCE(SUM(analyses_granted - analyses_used), 0)::INTEGER
+    INTO v_one_time_available
+    FROM one_time_purchases
+    WHERE user_id = p_user_id AND is_fully_used = FALSE;
 
-    -- Create usage counter if it doesn't exist
-    IF v_usage IS NULL THEN
-      INSERT INTO usage_counters (user_id, period_start, period_end, analyses_used, comparisons_used)
-      VALUES (p_user_id, v_subscription.current_period_start, v_subscription.current_period_end, 0, 0)
-      RETURNING * INTO v_usage;
-    END IF;
-  END IF;
-
-  -- Count available one-time analyses
-  SELECT COALESCE(SUM(analyses_granted - analyses_used), 0)::INTEGER
-  INTO v_one_time_available
-  FROM one_time_purchases
-  WHERE user_id = p_user_id
-    AND is_fully_used = FALSE;
-
-  -- Build result
-  IF v_subscription IS NOT NULL THEN
-    v_result := jsonb_build_object(
-      'has_subscription', TRUE,
-      'plan', jsonb_build_object(
-        'code', v_subscription.plan_code,
-        'name', v_subscription.name,
-        'is_subscription', TRUE
-      ),
-      'limits', jsonb_build_object(
-        'analyses_per_month', v_subscription.analyses_per_month,
-        'comparisons_per_month', v_subscription.comparisons_per_month,
-        'unlimited_comparisons', v_subscription.is_unlimited_comparisons
-      ),
-      'usage', jsonb_build_object(
-        'analyses_used', COALESCE(v_usage.analyses_used, 0),
-        'comparisons_used', COALESCE(v_usage.comparisons_used, 0)
-      ),
-      'remaining', jsonb_build_object(
-        'analyses', CASE
-          WHEN v_subscription.analyses_per_month IS NULL THEN NULL
-          ELSE GREATEST(0, v_subscription.analyses_per_month - COALESCE(v_usage.analyses_used, 0))
-        END,
-        'comparisons', CASE
-          WHEN v_subscription.is_unlimited_comparisons THEN NULL
-          WHEN v_subscription.comparisons_per_month IS NULL THEN NULL
-          ELSE GREATEST(0, v_subscription.comparisons_per_month - COALESCE(v_usage.comparisons_used, 0))
-        END
-      ),
-      'one_time', jsonb_build_object(
-        'available_scans', v_one_time_available
-      ),
-      'can', jsonb_build_object(
-        'analyze_cv', (
-          v_subscription.analyses_per_month IS NULL OR
-          COALESCE(v_usage.analyses_used, 0) < v_subscription.analyses_per_month OR
-          v_one_time_available > 0
-        ),
-        'compare_cvs', (
-          v_subscription.is_unlimited_comparisons OR
-          v_subscription.comparisons_per_month IS NULL OR
-          COALESCE(v_usage.comparisons_used, 0) < v_subscription.comparisons_per_month
-        )
-      ),
-      'subscription', jsonb_build_object(
-        'status', v_subscription.status,
-        'current_period_end', v_subscription.current_period_end,
-        'cancel_at_period_end', v_subscription.cancel_at_period_end
-      )
-    );
-  ELSE
-    -- No active subscription
-    v_result := jsonb_build_object(
+    RETURN jsonb_build_object(
       'has_subscription', FALSE,
-      'plan', jsonb_build_object(
-        'code', NULL,
-        'name', NULL,
-        'is_subscription', FALSE
-      ),
-      'limits', jsonb_build_object(
-        'analyses_per_month', NULL,
-        'comparisons_per_month', NULL,
-        'unlimited_comparisons', FALSE
-      ),
-      'usage', jsonb_build_object(
-        'analyses_used', 0,
-        'comparisons_used', 0
-      ),
-      'remaining', jsonb_build_object(
-        'analyses', v_one_time_available,
-        'comparisons', 0
-      ),
-      'one_time', jsonb_build_object(
-        'available_scans', v_one_time_available
-      ),
-      'can', jsonb_build_object(
-        'analyze_cv', v_one_time_available > 0,
-        'compare_cvs', FALSE
-      ),
+      'plan', jsonb_build_object('code', NULL, 'name', NULL, 'is_subscription', FALSE),
+      'limits', jsonb_build_object('analyses_per_month', NULL, 'comparisons_per_month', NULL, 'unlimited_comparisons', FALSE),
+      'usage', jsonb_build_object('analyses_used', 0, 'comparisons_used', 0),
+      'remaining', jsonb_build_object('analyses', v_one_time_available, 'comparisons', 0),
+      'one_time', jsonb_build_object('available_scans', v_one_time_available),
+      'can', jsonb_build_object('analyze_cv', v_one_time_available > 0, 'compare_cvs', FALSE),
       'subscription', NULL
     );
   END IF;
 
-  RETURN v_result;
+  -- Has subscription - get or create usage counter
+  SELECT * INTO v_usage
+  FROM usage_counters
+  WHERE user_id = p_user_id AND period_start = v_subscription.current_period_start;
+
+  IF v_usage IS NULL THEN
+    INSERT INTO usage_counters (user_id, period_start, period_end, analyses_used, comparisons_used)
+    VALUES (p_user_id, v_subscription.current_period_start, v_subscription.current_period_end, 0, 0)
+    RETURNING * INTO v_usage;
+  END IF;
+
+  -- Count one-time purchases
+  SELECT COALESCE(SUM(analyses_granted - analyses_used), 0)::INTEGER
+  INTO v_one_time_available
+  FROM one_time_purchases
+  WHERE user_id = p_user_id AND is_fully_used = FALSE;
+
+  RETURN jsonb_build_object(
+    'has_subscription', TRUE,
+    'plan', jsonb_build_object('code', v_subscription.plan_code, 'name', v_subscription.plan_name, 'is_subscription', TRUE),
+    'limits', jsonb_build_object('analyses_per_month', v_subscription.analyses_per_month, 'comparisons_per_month', v_subscription.comparisons_per_month, 'unlimited_comparisons', v_subscription.is_unlimited_comparisons),
+    'usage', jsonb_build_object('analyses_used', COALESCE(v_usage.analyses_used, 0), 'comparisons_used', COALESCE(v_usage.comparisons_used, 0)),
+    'remaining', jsonb_build_object(
+      'analyses', CASE WHEN v_subscription.analyses_per_month IS NULL THEN NULL ELSE GREATEST(0, v_subscription.analyses_per_month - COALESCE(v_usage.analyses_used, 0)) END,
+      'comparisons', CASE WHEN v_subscription.is_unlimited_comparisons THEN NULL ELSE GREATEST(0, COALESCE(v_subscription.comparisons_per_month, 0) - COALESCE(v_usage.comparisons_used, 0)) END
+    ),
+    'one_time', jsonb_build_object('available_scans', v_one_time_available),
+    'can', jsonb_build_object(
+      'analyze_cv', v_subscription.analyses_per_month IS NULL OR COALESCE(v_usage.analyses_used, 0) < v_subscription.analyses_per_month OR v_one_time_available > 0,
+      'compare_cvs', v_subscription.is_unlimited_comparisons OR v_subscription.comparisons_per_month IS NULL OR COALESCE(v_usage.comparisons_used, 0) < COALESCE(v_subscription.comparisons_per_month, 0)
+    ),
+    'subscription', jsonb_build_object('status', v_subscription.status, 'current_period_end', v_subscription.current_period_end, 'cancel_at_period_end', v_subscription.cancel_at_period_end)
+  );
 END;
 $$;
 

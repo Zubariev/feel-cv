@@ -61,43 +61,47 @@ export const imageCacheService = {
     userId: string,
     fileHash: string
   ): Promise<CachedAnalysis | null> {
-    const { data: fingerprint, error } = await supabase
-      .from('document_fingerprints')
-      .select(`
-        document_id,
-        documents:document_id (
-          id,
-          ai_analysis (
-            id
-          )
-        )
-      `)
-      .eq('user_id', userId)
-      .eq('file_hash', fileHash)
-      .single();
+    try {
+      // First get the fingerprint
+      const { data: fingerprint, error: fpError } = await supabase
+        .from('document_fingerprints')
+        .select('document_id')
+        .eq('user_id', userId)
+        .eq('file_hash', fileHash)
+        .single();
 
-    if (error || !fingerprint) {
+      if (fpError || !fingerprint) {
+        // No cached version found or table doesn't exist - this is fine
+        return null;
+      }
+
+      // Get the analysis for this document
+      const { data: analysis, error: analysisError } = await supabase
+        .from('ai_analysis')
+        .select('id')
+        .eq('document_id', fingerprint.document_id)
+        .single();
+
+      if (analysisError || !analysis) {
+        return null;
+      }
+
+      // Fetch all layers for this analysis
+      const { data: layers } = await supabase
+        .from('document_layers')
+        .select('*')
+        .eq('analysis_id', analysis.id);
+
+      return {
+        analysisId: analysis.id,
+        documentId: fingerprint.document_id,
+        layers: (layers as DocumentLayer[]) || []
+      };
+    } catch (err) {
+      // Cache check failed - just proceed without caching
+      console.warn('Cache check failed, proceeding without cache:', err);
       return null;
     }
-
-    const doc = fingerprint.documents as any;
-    if (!doc?.ai_analysis?.[0]?.id) {
-      return null;
-    }
-
-    const analysisId = doc.ai_analysis[0].id;
-
-    // Fetch all layers for this analysis
-    const { data: layers } = await supabase
-      .from('document_layers')
-      .select('*')
-      .eq('analysis_id', analysisId);
-
-    return {
-      analysisId,
-      documentId: fingerprint.document_id,
-      layers: (layers as DocumentLayer[]) || []
-    };
   },
 
   /**

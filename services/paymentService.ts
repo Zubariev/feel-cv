@@ -1,13 +1,13 @@
 /**
  * Payment Service
  *
- * Handles payment initiation with Fondy.
- * Creates payment orders and redirects users to Fondy checkout.
+ * Handles payment initiation through the secure Edge Function.
+ * All payment signing is done server-side - merchant secrets are never exposed to frontend.
  *
  * Flow:
  * 1. User clicks "Subscribe" or "Buy"
  * 2. Frontend calls paymentService.createPayment()
- * 3. Backend creates Fondy order with metadata
+ * 3. Edge Function fetches price from DB and signs request
  * 4. User is redirected to Fondy checkout
  * 5. After payment, Fondy sends webhook to our backend
  * 6. Webhook creates/updates subscription in Supabase
@@ -15,21 +15,15 @@
  */
 
 import type { PlanCode } from '../types';
+import { supabase } from './supabaseClient';
 
-// Plan prices in cents (Fondy requires cents)
-const PLAN_PRICES: Record<NonNullable<PlanCode>, number> = {
-  'one-time': 399,         // €3.99
-  'explorer': 900,         // €9.00
-  'career-builder': 1900,  // €19.00
-  'career-accelerator': 2900, // €29.00
-};
+// Access Vite env safely
+const rawEnv = (typeof import.meta !== 'undefined'
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ? ((import.meta as any).env as Record<string, string | boolean | undefined>)
+  : undefined) || {};
 
-const PLAN_NAMES: Record<NonNullable<PlanCode>, string> = {
-  'one-time': 'CVSense Single Scan',
-  'explorer': 'CVSense Explorer (Monthly)',
-  'career-builder': 'CVSense Career Builder (Monthly)',
-  'career-accelerator': 'CVSense Career Accelerator (Monthly)',
-};
+const supabaseUrl = rawEnv.VITE_SUPABASE_URL as string | undefined;
 
 interface CreatePaymentParams {
   userId: string;
@@ -37,21 +31,14 @@ interface CreatePaymentParams {
   planCode: NonNullable<PlanCode>;
 }
 
-interface FondyOrderResponse {
-  response: {
-    checkout_url?: string;
-    payment_id?: string;
-    order_id?: string;
-    response_status: 'success' | 'failure';
-    response_description?: string;
-    error_code?: number;
-    error_message?: string;
-  };
+interface CreateOrderResponse {
+  checkoutUrl: string;
+  orderId: string;
 }
 
 export const paymentService = {
   /**
-   * Create a Fondy payment order and get the checkout URL.
+   * Create a Fondy payment order through the secure Edge Function.
    *
    * @param params - Payment parameters including user info and plan
    * @returns Checkout URL to redirect user to
@@ -61,102 +48,42 @@ export const paymentService = {
     userEmail,
     planCode,
   }: CreatePaymentParams): Promise<{ checkoutUrl: string; orderId: string }> {
-    const merchantId = import.meta.env.VITE_FONDY_MERCHANT_ID;
+    // Get current session for authorization
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-    if (!merchantId) {
-      throw new Error('Fondy merchant ID not configured');
+    if (sessionError || !session) {
+      throw new Error('You must be logged in to make a payment');
     }
 
-    const amount = PLAN_PRICES[planCode];
-    const productName = PLAN_NAMES[planCode];
-    const isSubscription = planCode !== 'one-time';
+    if (!supabaseUrl) {
+      throw new Error('Supabase URL not configured');
+    }
 
-    // Generate unique order ID
-    const orderId = `order_${Date.now()}_${userId.slice(0, 8)}`;
-
-    // Merchant data to pass through webhook
-    const merchantData = JSON.stringify({
-      user_id: userId,
-      plan_code: planCode,
-      product_type: isSubscription ? 'subscription' : 'one_time',
-    });
-
-    // Build Fondy order request
-    const orderData = {
-      order_id: orderId,
-      merchant_id: parseInt(merchantId, 10),
-      order_desc: productName,
-      amount,
-      currency: 'EUR',
-      sender_email: userEmail,
-      merchant_data: merchantData,
-      response_url: `${window.location.origin}/payment/success`,
-      server_callback_url: `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fondy-webhook`,
-      lang: 'en',
-      lifetime: 900, // 15 minutes
-      // For subscriptions, set up recurring
-      ...(isSubscription && {
-        recurring_data: {
-          start_time: new Date().toISOString(),
-          amount,
-          every: 1,
-          period: 'month',
+    const response = await fetch(
+      `${supabaseUrl}/functions/v1/fondy-create-order`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
         },
-      }),
-    };
-
-    // Create signature (in production, this should be done server-side)
-    // For now, we'll use a server endpoint or Edge Function
-    const response = await this.callFondyApi(orderData);
-
-    if (response.response.response_status !== 'success' || !response.response.checkout_url) {
-      throw new Error(response.response.error_message || 'Failed to create payment');
-    }
-
-    return {
-      checkoutUrl: response.response.checkout_url,
-      orderId,
-    };
-  },
-
-  /**
-   * Call Fondy API to create an order.
-   * In production, this should go through a backend endpoint for signature security.
-   */
-  async callFondyApi(orderData: Record<string, unknown>): Promise<FondyOrderResponse> {
-    // For development/demo, use Fondy's test endpoint
-    // In production, this should be a Supabase Edge Function that signs the request
-    const fondyApiUrl = 'https://pay.fondy.eu/api/checkout/url/';
-
-    // NOTE: In production, never expose merchant secret to frontend!
-    // This should be done via a Supabase Edge Function
-    const response = await fetch(fondyApiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        request: orderData,
-      }),
-    });
+        body: JSON.stringify({
+          planCode,
+          userEmail,
+        }),
+      }
+    );
 
     if (!response.ok) {
-      throw new Error(`Fondy API error: ${response.status}`);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Failed to create payment');
     }
 
-    return response.json();
-  },
-
-  /**
-   * Get the price for a plan.
-   */
-  getPlanPrice(planCode: NonNullable<PlanCode>): { amount: number; formatted: string } {
-    const cents = PLAN_PRICES[planCode];
-    const euros = cents / 100;
+    const data: CreateOrderResponse = await response.json();
 
     return {
-      amount: euros,
-      formatted: `€${euros.toFixed(2)}`,
+      checkoutUrl: data.checkoutUrl,
+      orderId: data.orderId,
     };
   },
 
@@ -183,11 +110,8 @@ export const paymentService = {
    * Open Fondy checkout in a new window or redirect.
    */
   redirectToCheckout(checkoutUrl: string): void {
-    // Option 1: Full page redirect
+    // Full page redirect
     window.location.href = checkoutUrl;
-
-    // Option 2: Open in new window (uncomment if preferred)
-    // window.open(checkoutUrl, '_blank', 'width=500,height=700');
   },
 };
 

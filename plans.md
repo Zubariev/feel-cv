@@ -177,47 +177,58 @@ CVSense is an AI-powered resume analysis platform that evaluates resumes through
 
 ### Security Fixes (BLOCKING LAUNCH)
 
-- [ ] **Move Gemini API to Edge Function**
+- [x] **Move Gemini API to Edge Function** *(Completed Dec 21, 2025)*
   - Create `/supabase/functions/analyze-resume/index.ts`
   - Proxy requests through backend
   - Add rate limiting per user
   - Revoke and regenerate exposed API key
 
-- [ ] **Create Payment Signing Edge Function**
+- [x] **Create Payment Signing Edge Function** *(Completed Dec 21, 2025)*
   - Create `/supabase/functions/fondy-create-order/index.ts`
   - Sign requests with `FONDY_MERCHANT_SECRET` server-side
   - Never expose merchant secret to frontend
   - Update `paymentService.ts` to call Edge Function
 
-- [ ] **Fix Webhook Signature Validation**
+- [x] **Fix Webhook Signature Validation** *(Completed Dec 21, 2025)*
   - Change `fondy-webhook/index.ts` line 194: throw error instead of `return true`
   - Add validation that plan_code exists before subscription creation
 
-- [ ] **Verify/Create Missing Tables**
+- [x] **Verify/Create Missing Tables** *(Completed Dec 21, 2025 - Already existed)*
   - Check if `document_fingerprints` and `document_layers` exist
   - Create migration with proper RLS if missing
   - Add to `20240101000009_document_cache.sql`
 
-- [ ] **Centralize Plan Prices**
+- [x] **Centralize Plan Prices** *(Completed Dec 21, 2025)*
   - Fetch prices from database `plans` table at runtime
   - Remove hardcoded prices from `paymentService.ts` and `PricingSection.tsx`
   - Single source of truth: database
 
 ### Code Quality Fixes
 
-- [ ] **Delete `usageLimitService.ts`**
+- [x] **Delete `usageLimitService.ts`** *(Completed Dec 21, 2025)*
   - All usage tracking now uses `entitlementsService.ts`
   - Remove any references in codebase
 
-- [ ] **Add File Validation**
+- [x] **Add File Validation** *(Completed Dec 21, 2025)*
   - Max file size: 10MB
   - Verify file magic bytes (PDF: `%PDF`, PNG: `\x89PNG`, etc.)
   - Client-side check + server-side validation
 
-- [ ] **Enable TypeScript Strict Mode**
+- [x] **Enable TypeScript Strict Mode** *(Completed Dec 21, 2025)*
   - Add `"strict": true` to `tsconfig.json`
   - Fix resulting type errors
 
+
+Next Steps
+
+  Before deploying to production, you should:
+  1. Set these Supabase secrets:
+    - GEMINI_API_KEY
+    - FONDY_MERCHANT_ID
+    - FONDY_MERCHANT_SECRET
+  2. Regenerate Supabase types:
+  supabase gen types typescript --local > types/supabase.ts
+  3. Revoke and regenerate the exposed Gemini API key
 ---
 
 ## TODO Tasks - Week of December 23-29, 2025
@@ -457,7 +468,8 @@ CVSense is an AI-powered resume analysis platform that evaluates resumes through
 |------|----------|-------------|--------|
 | Dec 17, 2025 | Initial | Feature completion | Done |
 | Dec 20, 2025 | Comprehensive Code Review | Architecture, Security, Performance, Billing | Done |
+| Dec 21, 2025 | Security Implementation | Edge Functions, Webhook Fixes, File Validation, Strict Mode | Done |
 
 ---
 
-*Last Updated: December 20, 2025*
+*Last Updated: December 21, 2025*

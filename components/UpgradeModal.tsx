@@ -76,7 +76,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
   // Plans to show based on current plan
   const getRecommendedPlans = () => {
     if (!hasSubscription) {
-      return ['one-time', 'explorer', 'career-builder'] as PlanCode[];
+      return ['one-time', 'explorer', 'career-builder', 'career-accelerator'] as PlanCode[];
     }
     if (currentPlan === 'explorer') {
       return ['career-builder', 'career-accelerator'] as PlanCode[];

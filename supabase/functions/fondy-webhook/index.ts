@@ -156,6 +156,15 @@ serve(async (req: Request) => {
       });
     }
 
+    // Validate plan_code for subscriptions
+    if (merchantData.product_type === 'subscription' && !merchantData.plan_code) {
+      console.error('Missing plan_code for subscription purchase');
+      return new Response(JSON.stringify({ error: 'Missing plan_code for subscription' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     // Process based on product type
     let result;
     if (merchantData.product_type === 'subscription') {
@@ -190,8 +199,8 @@ async function verifyFondySignature(payload: FondyWebhookPayload): Promise<boole
   const merchantSecret = Deno.env.get('FONDY_MERCHANT_SECRET');
 
   if (!merchantSecret) {
-    console.warn('FONDY_MERCHANT_SECRET not set - skipping signature verification in development');
-    return true; // Skip in development
+    console.error('CRITICAL: FONDY_MERCHANT_SECRET not configured - rejecting webhook');
+    throw new Error('Webhook signature verification failed: merchant secret not configured');
   }
 
   // Build signature string from all fields except 'signature' and empty values

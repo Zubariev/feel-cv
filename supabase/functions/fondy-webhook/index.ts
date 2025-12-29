@@ -185,6 +185,41 @@ serve(async (req: Request) => {
 
   } catch (error) {
     console.error('Webhook error:', error);
+
+    // Queue for retry if this is a processing error (not validation error)
+    try {
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+      // Parse payload for retry queue
+      const contentType = req.headers.get('content-type') || '';
+      let retryPayload;
+      try {
+        if (contentType.includes('application/json')) {
+          retryPayload = await req.clone().json();
+        } else {
+          const formData = await req.clone().formData();
+          retryPayload = Object.fromEntries(formData.entries());
+        }
+      } catch {
+        retryPayload = { raw_error: 'Failed to parse webhook payload' };
+      }
+
+      // Queue for retry with exponential backoff
+      await supabase.rpc('queue_webhook_retry', {
+        p_webhook_type: 'fondy',
+        p_payload: retryPayload,
+        p_error: error instanceof Error ? error.message : 'Unknown error',
+        p_order_id: retryPayload?.order_id || null,
+        p_user_id: null, // Will be extracted during retry
+      });
+
+      console.log('Webhook queued for retry');
+    } catch (queueError) {
+      console.error('Failed to queue webhook for retry:', queueError);
+    }
+
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

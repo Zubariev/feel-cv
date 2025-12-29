@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import { FileUpload } from './components/FileUpload';
 import { CapitalRadar } from './components/CapitalRadar';
 import { ToneAnalysis } from './components/ToneAnalysis';
@@ -7,8 +7,6 @@ import { VisualMetrics } from './components/VisualMetrics';
 import { SaliencyHeatmap } from './components/SaliencyHeatmap';
 import { CapitalEvidence } from './components/CapitalEvidence';
 import { SkillsOverlay } from './components/SkillsOverlay';
-import { LandingPage } from './components/LandingPage';
-import { AnalysisHistory } from './components/AnalysisHistory';
 import { ErrorBoundary, ErrorMessage } from './components/ErrorBoundary';
 import { AnalysisSkeleton, UploadingSkeleton } from './components/LoadingSkeletons';
 import { analyzeResume } from './services/geminiService';
@@ -22,18 +20,35 @@ import { layerCaptureService } from './services/layerCaptureService';
 import { comparisonService } from './services/comparisonService';
 import { entitlementsService } from './services/entitlementsService';
 import { paymentService } from './services/paymentService';
-import { ComparisonSelector } from './components/ComparisonSelector';
-import { ComparisonDashboard } from './components/ComparisonDashboard';
 import { UpgradeModal } from './components/UpgradeModal';
 import { UsageSummary } from './components/UsageMeter';
-import { AboutPage } from './components/AboutPage';
-import { ContactPage } from './components/ContactPage';
-import { PrivacyPolicyPage } from './components/PrivacyPolicyPage';
-import { TermsOfUsePage } from './components/TermsOfUsePage';
-import { CookiePolicyPage } from './components/CookiePolicyPage';
-import { GDPRCompliancePage } from './components/GDPRCompliancePage';
-import { AIEthicalPolicyPage } from './components/AIEthicalPolicyPage';
-import { PaymentSuccessPage } from './components/PaymentSuccessPage';
+import { EmbeddedCheckout } from './components/EmbeddedCheckout';
+import { useToast } from './components/Toast';
+
+// Lazy-loaded page components for code splitting
+const LandingPage = lazy(() => import('./components/LandingPage').then(m => ({ default: m.LandingPage })));
+const AnalysisHistory = lazy(() => import('./components/AnalysisHistory').then(m => ({ default: m.AnalysisHistory })));
+const ComparisonSelector = lazy(() => import('./components/ComparisonSelector').then(m => ({ default: m.ComparisonSelector })));
+const ComparisonDashboard = lazy(() => import('./components/ComparisonDashboard').then(m => ({ default: m.ComparisonDashboard })));
+const AboutPage = lazy(() => import('./components/AboutPage').then(m => ({ default: m.AboutPage })));
+const ContactPage = lazy(() => import('./components/ContactPage').then(m => ({ default: m.ContactPage })));
+const PrivacyPolicyPage = lazy(() => import('./components/PrivacyPolicyPage').then(m => ({ default: m.PrivacyPolicyPage })));
+const TermsOfUsePage = lazy(() => import('./components/TermsOfUsePage').then(m => ({ default: m.TermsOfUsePage })));
+const CookiePolicyPage = lazy(() => import('./components/CookiePolicyPage').then(m => ({ default: m.CookiePolicyPage })));
+const GDPRCompliancePage = lazy(() => import('./components/GDPRCompliancePage').then(m => ({ default: m.GDPRCompliancePage })));
+const AIEthicalPolicyPage = lazy(() => import('./components/AIEthicalPolicyPage').then(m => ({ default: m.AIEthicalPolicyPage })));
+const PaymentSuccessPage = lazy(() => import('./components/PaymentSuccessPage').then(m => ({ default: m.PaymentSuccessPage })));
+
+// Simple loading fallback for lazy components
+const PageLoader = () => (
+  <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+    <div className="text-center">
+      <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
+      <p className="text-slate-500 text-sm">Loading...</p>
+    </div>
+  </div>
+);
+
 import {
   BarChart3,
   BrainCircuit,
@@ -52,6 +67,7 @@ import {
 } from 'lucide-react';
 
 export default function App() {
+  const { showToast } = useToast();
   const [showLanding, setShowLanding] = useState(true);
   const [showHistory, setShowHistory] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -60,6 +76,13 @@ export default function App() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [showSaliency, setShowSaliency] = useState(true);
   const [showSkills, setShowSkills] = useState(false);
+  // Cached layer images for past analyses
+  const [cachedLayerUrls, setCachedLayerUrls] = useState<{
+    raw: string | null;
+    heatmap: string | null;
+    skills: string | null;
+    heatmap_skills: string | null;
+  } | null>(null);
   const [_authSession, setAuthSession] = useState<Session | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -85,6 +108,16 @@ export default function App() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [blockedAction, setBlockedAction] = useState<'analyze' | 'compare'>('analyze');
   const [paymentLoading, setPaymentLoading] = useState(false);
+
+  // Embedded checkout state
+  const [showEmbeddedCheckout, setShowEmbeddedCheckout] = useState(false);
+  const [checkoutData, setCheckoutData] = useState<{
+    checkoutUrl: string;
+    orderId: string;
+    planName: string;
+    planCode: PlanCode;
+    amount: string;
+  } | null>(null);
 
   // Ref for image dimensions to size the canvas
   const imageRef = useRef<HTMLImageElement>(null);
@@ -196,10 +229,14 @@ export default function App() {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         setAuthError(error.message);
+        showToast({ type: 'error', title: 'Login Failed', message: error.message });
+      } else {
+        showToast({ type: 'success', title: 'Welcome Back', message: 'You have signed in successfully.' });
       }
     } catch (err: any) {
       console.error('Login error', err);
       setAuthError('Unexpected error during login. Please try again.');
+      showToast({ type: 'error', title: 'Login Failed', message: 'Please try again.' });
     } finally {
       setAuthLoading(false);
     }
@@ -212,12 +249,15 @@ export default function App() {
       const { error } = await supabase.auth.signUp({ email, password });
       if (error) {
         setAuthError(error.message);
+        showToast({ type: 'error', title: 'Signup Failed', message: error.message });
       } else {
         setAuthError('Check your email to confirm your account before signing in.');
+        showToast({ type: 'info', title: 'Check Your Email', message: 'Please confirm your account before signing in.' });
       }
     } catch (err: any) {
       console.error('Signup error', err);
       setAuthError('Unexpected error during signup. Please try again.');
+      showToast({ type: 'error', title: 'Signup Failed', message: 'Please try again.' });
     } finally {
       setAuthLoading(false);
     }
@@ -308,6 +348,13 @@ export default function App() {
       const analysis = await analyzeResume(base64Data, mimeType);
       setResult(analysis);
 
+      // Show success toast
+      showToast({
+        type: 'success',
+        title: 'Analysis Complete',
+        message: `Overall score: ${analysis.overallScore}/100`,
+      });
+
       // Persist analysis and generate image layers if user is authenticated
       if (currentUser?.id) {
         try {
@@ -365,6 +412,11 @@ export default function App() {
     } catch (error) {
       console.error(error);
       setAnalysisError("Failed to analyze resume. Please try again.");
+      showToast({
+        type: 'error',
+        title: 'Analysis Failed',
+        message: 'Please try again or contact support if the issue persists.',
+      });
     } finally {
       setIsAnalyzing(false);
     }
@@ -412,6 +464,7 @@ export default function App() {
     setImagePreview(null);
     setLastSavedAnalysisId(null);
     setAnalysisError(null);
+    setCachedLayerUrls(null);
   };
 
   const handleViewHistory = () => {
@@ -429,6 +482,7 @@ export default function App() {
     setIsAnalyzing(true);
     setResult(null);
     setImagePreview(null);
+    setCachedLayerUrls(null);
 
     try {
       // Load the full analysis result from database
@@ -439,20 +493,50 @@ export default function App() {
         return;
       }
 
-      // Get the analysis record to find the document storage path
-      const analysisData = await databaseService.getAnalysis(analysisId);
-      const documentId = (analysisData as any)?.document_id;
-
-      // Try to load the document image from storage
+      // Try to load cached image layers
       let imageUrl: string | null = null;
-      if (documentId && currentUser) {
-        // Get document info
-        const analyses = await databaseService.listUserAnalyses(currentUser.id);
-        const analysisInfo = (analyses as any[])?.find((a) => a.id === analysisId);
-        const storagePath = analysisInfo?.document?.storage_path;
+      const cachedLayers = await imageCacheService.getLayers(analysisId);
 
-        if (storagePath) {
-          imageUrl = await databaseService.getDocumentUrl(storagePath);
+      // Load all layer URLs in parallel
+      const layerUrls: { raw: string | null; heatmap: string | null; skills: string | null; heatmap_skills: string | null } = {
+        raw: null,
+        heatmap: null,
+        skills: null,
+        heatmap_skills: null
+      };
+
+      if (cachedLayers.length > 0) {
+        const layerPromises = cachedLayers.map(async (layer) => {
+          const url = await imageCacheService.getLayerUrl(layer);
+          return { type: layer.layer_type, url };
+        });
+
+        const resolvedLayers = await Promise.all(layerPromises);
+        resolvedLayers.forEach(({ type, url }) => {
+          if (type === 'raw' || type === 'heatmap' || type === 'skills' || type === 'heatmap_skills') {
+            layerUrls[type] = url;
+          }
+        });
+
+        imageUrl = layerUrls.raw;
+        setCachedLayerUrls(layerUrls);
+      }
+
+      // Fallback: If no cached layers, try to load from original document
+      if (!imageUrl && currentUser) {
+        const analysisData = await databaseService.getAnalysis(analysisId);
+        const documentId = (analysisData as any)?.document_id;
+
+        if (documentId) {
+          const analyses = await databaseService.listUserAnalyses(currentUser.id);
+          const analysisInfo = (analyses as any[])?.find((a) => a.id === analysisId);
+          const storagePath = analysisInfo?.document?.storage_path;
+          const mimeType = analysisInfo?.document?.mime_type;
+
+          // Only use direct URL for image files, not PDFs
+          if (storagePath && mimeType && mimeType.startsWith('image/')) {
+            imageUrl = await databaseService.getDocumentUrl(storagePath);
+          }
         }
       }
 
@@ -546,27 +630,84 @@ export default function App() {
     setShowHistory(true);
   };
 
+  // Plan display info helper
+  const getPlanDisplayInfo = (planCode: PlanCode): { name: string; amount: string } => {
+    switch (planCode) {
+      case 'one-time':
+        return { name: 'Single CV Analysis', amount: '€3.99' };
+      case 'explorer':
+        return { name: 'Explorer Plan', amount: '€9/month' };
+      case 'career-builder':
+        return { name: 'Career Builder Plan', amount: '€19/month' };
+      case 'career-accelerator':
+        return { name: 'Career Accelerator Plan', amount: '€29/month' };
+      default:
+        return { name: 'CVSense Plan', amount: '' };
+    }
+  };
+
   // Payment flow handler
   const handleSelectPlan = async (planCode: PlanCode) => {
     if (!currentUser || !planCode) return;
 
     setPaymentLoading(true);
     try {
-      const { checkoutUrl } = await paymentService.createPayment({
+      const { checkoutUrl, orderId } = await paymentService.createPayment({
         userId: currentUser.id,
         userEmail: currentUser.email || '',
         planCode,
       });
 
-      // Close the modal and redirect to payment
+      const planInfo = getPlanDisplayInfo(planCode);
+
+      // Close the upgrade modal and show embedded checkout
       setShowUpgradeModal(false);
-      paymentService.redirectToCheckout(checkoutUrl);
+      setCheckoutData({
+        checkoutUrl,
+        orderId,
+        planName: planInfo.name,
+        planCode,
+        amount: planInfo.amount,
+      });
+      setShowEmbeddedCheckout(true);
     } catch (err) {
       console.error('Failed to create payment:', err);
       setAnalysisError('Failed to start payment. Please try again.');
     } finally {
       setPaymentLoading(false);
     }
+  };
+
+  // Handle successful payment from embedded checkout
+  const handlePaymentSuccess = async () => {
+    setShowEmbeddedCheckout(false);
+    setCheckoutData(null);
+    setShowPaymentSuccess(true);
+    showToast({
+      type: 'success',
+      title: 'Payment Successful',
+      message: 'Your plan has been activated!',
+    });
+    // Refresh entitlements after a short delay to allow webhook processing
+    setTimeout(() => refreshEntitlements(), 2000);
+  };
+
+  // Handle payment error from embedded checkout
+  const handlePaymentError = (error: string) => {
+    setShowEmbeddedCheckout(false);
+    setCheckoutData(null);
+    setAnalysisError(`Payment failed: ${error}`);
+    showToast({
+      type: 'error',
+      title: 'Payment Failed',
+      message: error || 'Please try again or use a different payment method.',
+    });
+  };
+
+  // Handle embedded checkout close
+  const handleCheckoutClose = () => {
+    setShowEmbeddedCheckout(false);
+    setCheckoutData(null);
   };
 
   // Page navigation handlers
@@ -587,10 +728,12 @@ export default function App() {
   if (showPaymentSuccess) {
     return (
       <ErrorBoundary>
-        <PaymentSuccessPage
-          onContinue={handlePaymentSuccessContinue}
-          onRefreshEntitlements={refreshEntitlements}
-        />
+        <Suspense fallback={<PageLoader />}>
+          <PaymentSuccessPage
+            onContinue={handlePaymentSuccessContinue}
+            onRefreshEntitlements={refreshEntitlements}
+          />
+        </Suspense>
       </ErrorBoundary>
     );
   }
@@ -599,7 +742,9 @@ export default function App() {
   if (currentPage === 'about') {
     return (
       <ErrorBoundary>
-        <AboutPage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+        <Suspense fallback={<PageLoader />}>
+          <AboutPage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+        </Suspense>
       </ErrorBoundary>
     );
   }
@@ -608,7 +753,9 @@ export default function App() {
   if (currentPage === 'contact') {
     return (
       <ErrorBoundary>
-        <ContactPage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+        <Suspense fallback={<PageLoader />}>
+          <ContactPage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+        </Suspense>
       </ErrorBoundary>
     );
   }
@@ -617,7 +764,9 @@ export default function App() {
   if (currentPage === 'privacy') {
     return (
       <ErrorBoundary>
-        <PrivacyPolicyPage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+        <Suspense fallback={<PageLoader />}>
+          <PrivacyPolicyPage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+        </Suspense>
       </ErrorBoundary>
     );
   }
@@ -626,7 +775,9 @@ export default function App() {
   if (currentPage === 'terms') {
     return (
       <ErrorBoundary>
-        <TermsOfUsePage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+        <Suspense fallback={<PageLoader />}>
+          <TermsOfUsePage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+        </Suspense>
       </ErrorBoundary>
     );
   }
@@ -635,7 +786,9 @@ export default function App() {
   if (currentPage === 'cookies') {
     return (
       <ErrorBoundary>
-        <CookiePolicyPage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+        <Suspense fallback={<PageLoader />}>
+          <CookiePolicyPage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+        </Suspense>
       </ErrorBoundary>
     );
   }
@@ -644,7 +797,9 @@ export default function App() {
   if (currentPage === 'gdpr') {
     return (
       <ErrorBoundary>
-        <GDPRCompliancePage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+        <Suspense fallback={<PageLoader />}>
+          <GDPRCompliancePage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+        </Suspense>
       </ErrorBoundary>
     );
   }
@@ -653,7 +808,9 @@ export default function App() {
   if (currentPage === 'ai-ethics') {
     return (
       <ErrorBoundary>
-        <AIEthicalPolicyPage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+        <Suspense fallback={<PageLoader />}>
+          <AIEthicalPolicyPage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+        </Suspense>
       </ErrorBoundary>
     );
   }
@@ -662,12 +819,14 @@ export default function App() {
   if (showComparison && comparisonResult && comparisonBaseAnalysis && comparisonCompareAnalysis) {
     return (
       <ErrorBoundary>
-        <ComparisonDashboard
-          comparison={comparisonResult}
-          baseAnalysis={comparisonBaseAnalysis}
-          compareAnalysis={comparisonCompareAnalysis}
-          onBack={handleBackFromComparison}
-        />
+        <Suspense fallback={<PageLoader />}>
+          <ComparisonDashboard
+            comparison={comparisonResult}
+            baseAnalysis={comparisonBaseAnalysis}
+            compareAnalysis={comparisonCompareAnalysis}
+            onBack={handleBackFromComparison}
+          />
+        </Suspense>
       </ErrorBoundary>
     );
   }
@@ -676,11 +835,13 @@ export default function App() {
   if (showComparisonSelector && currentUser) {
     return (
       <ErrorBoundary>
-        <ComparisonSelector
-          userId={currentUser.id}
-          onCompare={handleCompare}
-          onCancel={handleCancelComparison}
-        />
+        <Suspense fallback={<PageLoader />}>
+          <ComparisonSelector
+            userId={currentUser.id}
+            onCompare={handleCompare}
+            onCancel={handleCancelComparison}
+          />
+        </Suspense>
       </ErrorBoundary>
     );
   }
@@ -689,30 +850,34 @@ export default function App() {
   if (showHistory && currentUser) {
     return (
       <ErrorBoundary>
-        <AnalysisHistory
-          userId={currentUser.id}
-          onBack={handleBackFromHistory}
-          onViewAnalysis={handleViewAnalysis}
-          onStartComparison={handleStartComparison}
-        />
+        <Suspense fallback={<PageLoader />}>
+          <AnalysisHistory
+            userId={currentUser.id}
+            onBack={handleBackFromHistory}
+            onViewAnalysis={handleViewAnalysis}
+            onStartComparison={handleStartComparison}
+          />
+        </Suspense>
       </ErrorBoundary>
     );
   }
 
   if (showLanding) {
     return (
-      <LandingPage
-        onStart={() => setShowLanding(false)}
-        isAuthenticated={!!currentUser}
-        userEmail={currentUser?.email ?? undefined}
-        onLogin={handleLogin}
-        onSignup={handleSignup}
-        onLogout={handleLogout}
-        authError={authError}
-        authLoading={authLoading}
-        onNavigate={handleNavigate}
-        onSelectPlan={(planId) => handleSelectPlan(planId as PlanCode)}
-      />
+      <Suspense fallback={<PageLoader />}>
+        <LandingPage
+          onStart={() => setShowLanding(false)}
+          isAuthenticated={!!currentUser}
+          userEmail={currentUser?.email ?? undefined}
+          onLogin={handleLogin}
+          onSignup={handleSignup}
+          onLogout={handleLogout}
+          authError={authError}
+          authLoading={authLoading}
+          onNavigate={handleNavigate}
+          onSelectPlan={(planId) => handleSelectPlan(planId as PlanCode)}
+        />
+      </Suspense>
     );
   }
 
@@ -859,26 +1024,36 @@ export default function App() {
                 
                 {imagePreview && (
                   <div className="relative rounded-lg overflow-hidden border border-slate-100 shadow-inner group bg-slate-100">
-                     <img 
+                     <img
                         ref={imageRef}
-                        src={imagePreview} 
+                        src={
+                          // Use cached layer images if available, otherwise use base imagePreview
+                          cachedLayerUrls
+                            ? (showSaliency && showSkills && cachedLayerUrls.heatmap_skills)
+                              || (showSaliency && !showSkills && cachedLayerUrls.heatmap)
+                              || (!showSaliency && showSkills && cachedLayerUrls.skills)
+                              || cachedLayerUrls.raw
+                              || imagePreview
+                            : imagePreview
+                        }
                         onLoad={handleImageLoad}
-                        alt="Resume Preview" 
-                        className="w-full h-auto block" 
+                        alt="Resume Preview"
+                        className="w-full h-auto block"
                      />
-                     
-                     {showSkills && result.skillHighlights && (
+
+                     {/* Only render on-the-fly overlays when no cached layers (i.e., fresh analysis) */}
+                     {!cachedLayerUrls && showSkills && result.skillHighlights && result.skillHighlights.length > 0 && (
                         <SkillsOverlay highlights={result.skillHighlights} />
                      )}
 
-                     {showSaliency && result.visualHotspots && (
-                         <SaliencyHeatmap 
-                            hotspots={result.visualHotspots} 
+                     {!cachedLayerUrls && showSaliency && result.visualHotspots && result.visualHotspots.length > 0 && (
+                         <SaliencyHeatmap
+                            hotspots={result.visualHotspots}
                             width={imgDims.w}
                             height={imgDims.h}
                          />
                      )}
-                     
+
                      {showSaliency && (
                         <div className="absolute bottom-4 left-4 right-4 bg-slate-900/80 backdrop-blur-sm p-3 rounded-lg border border-white/10 shadow-xl z-30 animate-in fade-in duration-300">
                             <div className="flex items-center justify-between mb-2">
@@ -1078,6 +1253,21 @@ export default function App() {
           entitlements={entitlements}
           blockedAction={blockedAction}
           onSelectPlan={handleSelectPlan}
+        />
+      )}
+
+      {/* Embedded Checkout Modal */}
+      {checkoutData && (
+        <EmbeddedCheckout
+          isOpen={showEmbeddedCheckout}
+          onClose={handleCheckoutClose}
+          checkoutUrl={checkoutData.checkoutUrl}
+          orderId={checkoutData.orderId}
+          planName={checkoutData.planName}
+          planCode={checkoutData.planCode}
+          amount={checkoutData.amount}
+          onSuccess={handlePaymentSuccess}
+          onError={handlePaymentError}
         />
       )}
     </div>

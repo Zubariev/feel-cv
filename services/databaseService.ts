@@ -159,6 +159,14 @@ export const databaseService = {
               hard: analysis.topHardSkills,
               soft: analysis.topSoftSkills
             } as unknown as Json
+          },
+          {
+            metric_name: 'visual_hotspots',
+            metric_value: analysis.visualHotspots as unknown as Json
+          },
+          {
+            metric_name: 'skill_highlights',
+            metric_value: analysis.skillHighlights as unknown as Json
           }
         ].map((metric) => ({
           analysis_id: analysisId,
@@ -303,6 +311,8 @@ export const databaseService = {
       technological: 0
     };
     const topSkills = findMetric('top_skills') || { hard: [], soft: [] };
+    const visualHotspots = findMetric('visual_hotspots') || [];
+    const skillHighlights = findMetric('skill_highlights') || [];
 
     return {
       overallScore: findScore('overall'),
@@ -314,8 +324,8 @@ export const databaseService = {
       toneProfile,
       skillComposition,
       visualAnalysis,
-      visualHotspots: [], // Not stored in DB, only used during initial display
-      skillHighlights: [], // Not stored in DB, only used during initial display
+      visualHotspots,
+      skillHighlights,
       topHardSkills: topSkills.hard || [],
       topSoftSkills: topSkills.soft || [],
       keyStrengths,

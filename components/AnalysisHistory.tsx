@@ -194,9 +194,6 @@ export const AnalysisHistory: React.FC<Props> = ({ userId, onBack, onViewAnalysi
                         {analysis.document?.file_size && (
                           <span>{formatFileSize(analysis.document.file_size)}</span>
                         )}
-                        <span className="text-xs bg-slate-100 px-2 py-0.5 rounded">
-                          {analysis.model_used}
-                        </span>
                       </div>
 
                       {/* Scores */}

@@ -30,7 +30,7 @@ interface Props {
   onLogout: () => Promise<void> | void;
   authError?: string | null;
   authLoading?: boolean;
-  onNavigate: (page: 'about' | 'contact' | 'privacy' | 'terms' | 'cookies' | 'gdpr' | 'ai-ethics') => void;
+  onNavigate: (page: 'about' | 'contact' | 'privacy' | 'terms' | 'cookies' | 'gdpr' | 'ai-ethics' | 'blog' | 'cv-analysis' | 'cv-comparison' | 'eye-tracking' | 'capital-theory' | 'ats-score' | 'market-signaling') => void;
   onSelectPlan?: (planId: string) => void;
 }
 
@@ -60,9 +60,16 @@ export const LandingPage: React.FC<Props> = ({
   };
 
   const scrollToAuth = () => {
+    console.log('[LandingPage] scrollToAuth called');
     const authSection = document.getElementById('auth-section');
+    console.log('[LandingPage] auth-section element found:', !!authSection);
     if (authSection) {
       authSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Also add a visual indicator
+      authSection.classList.add('ring-4', 'ring-amber-400');
+      setTimeout(() => authSection.classList.remove('ring-4', 'ring-amber-400'), 2000);
+    } else {
+      console.warn('[LandingPage] auth-section not found - user may already be authenticated');
     }
   };
 
@@ -267,9 +274,14 @@ export const LandingPage: React.FC<Props> = ({
       {/* Pricing Section */}
       <PricingSection
         onSelectPlan={(planId) => {
+          console.log('[LandingPage] onSelectPlan called with planId:', planId);
+          console.log('[LandingPage] isAuthenticated:', isAuthenticated);
+          console.log('[LandingPage] onSelectPlan prop exists:', !!onSelectPlan);
           if (isAuthenticated && onSelectPlan) {
+            console.log('[LandingPage] Calling parent onSelectPlan...');
             onSelectPlan(planId);
           } else {
+            console.log('[LandingPage] Scrolling to auth section...');
             scrollToAuth();
           }
         }}

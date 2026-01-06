@@ -73,8 +73,12 @@ export const PricingSection: React.FC<PricingProps> = ({
   }, []);
 
   const handlePlanSelect = (planId: string) => {
+    console.log('[PricingSection] handlePlanSelect called with planId:', planId);
+    console.log('[PricingSection] onSelectPlan exists:', !!onSelectPlan);
     if (onSelectPlan) {
       onSelectPlan(planId);
+    } else {
+      console.warn('[PricingSection] onSelectPlan is not defined!');
     }
   };
 
@@ -351,7 +355,7 @@ export const PricingSection: React.FC<PricingProps> = ({
         {/* FAQ Preview */}
         <div className="mt-20 max-w-3xl mx-auto">
           <h3 className="text-2xl font-bold text-slate-900 text-center mb-8">
-            Common Questions
+            FAQ
           </h3>
           <div className="space-y-4">
             <FaqItem

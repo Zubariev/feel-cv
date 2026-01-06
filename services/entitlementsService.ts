@@ -58,19 +58,21 @@ export const entitlementsService = {
    */
   async getEntitlements(userId: string): Promise<EntitlementSnapshot> {
     try {
+      console.log('[Entitlements] Fetching entitlements for user:', userId);
       const { data, error } = await supabase.rpc('get_user_entitlements', {
         p_user_id: userId
       });
 
       if (error) {
-        console.error('Error fetching entitlements:', error);
+        console.error('[Entitlements] RPC error fetching entitlements:', error);
         return DEFAULT_ENTITLEMENTS;
       }
 
+      console.log('[Entitlements] Fetched entitlements:', JSON.stringify(data));
       // The RPC returns JSONB which is already parsed
       return data as EntitlementSnapshot;
     } catch (err) {
-      console.error('Unexpected error fetching entitlements:', err);
+      console.error('[Entitlements] Unexpected error fetching entitlements:', err);
       return DEFAULT_ENTITLEMENTS;
     }
   },
@@ -84,12 +86,13 @@ export const entitlementsService = {
    */
   async recordAnalysisUsage(userId: string): Promise<UsageIncrementResult> {
     try {
+      console.log('[Entitlements] Recording analysis usage for user:', userId);
       const { data, error } = await supabase.rpc('increment_analysis_usage', {
         p_user_id: userId
       });
 
       if (error) {
-        console.error('Error recording analysis usage:', error);
+        console.error('[Entitlements] RPC error recording analysis usage:', error);
         return {
           success: false,
           error: 'database_error',
@@ -97,9 +100,10 @@ export const entitlementsService = {
         };
       }
 
+      console.log('[Entitlements] RPC response:', JSON.stringify(data));
       return data as UsageIncrementResult;
     } catch (err) {
-      console.error('Unexpected error recording analysis usage:', err);
+      console.error('[Entitlements] Unexpected error recording analysis usage:', err);
       return {
         success: false,
         error: 'unexpected_error',
@@ -117,12 +121,13 @@ export const entitlementsService = {
    */
   async recordComparisonUsage(userId: string): Promise<UsageIncrementResult> {
     try {
+      console.log('[Entitlements] Recording comparison usage for user:', userId);
       const { data, error } = await supabase.rpc('increment_comparison_usage', {
         p_user_id: userId
       });
 
       if (error) {
-        console.error('Error recording comparison usage:', error);
+        console.error('[Entitlements] RPC error recording comparison usage:', error);
         return {
           success: false,
           error: 'database_error',
@@ -130,9 +135,10 @@ export const entitlementsService = {
         };
       }
 
+      console.log('[Entitlements] Comparison RPC response:', JSON.stringify(data));
       return data as UsageIncrementResult;
     } catch (err) {
-      console.error('Unexpected error recording comparison usage:', err);
+      console.error('[Entitlements] Unexpected error recording comparison usage:', err);
       return {
         success: false,
         error: 'unexpected_error',

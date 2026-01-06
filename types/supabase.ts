@@ -204,6 +204,45 @@ export interface Database {
         };
       };
     };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      get_user_entitlements: {
+        Args: { p_user_id: string };
+        Returns: Json;
+      };
+      increment_analysis_usage: {
+        Args: { p_user_id: string };
+        Returns: Json;
+      };
+      increment_comparison_usage: {
+        Args: { p_user_id: string };
+        Returns: Json;
+      };
+      create_or_renew_subscription: {
+        Args: {
+          p_user_id: string;
+          p_plan_code: string;
+          p_provider?: string;
+          p_provider_subscription_id?: string;
+          p_provider_customer_id?: string;
+        };
+        Returns: Json;
+      };
+      record_one_time_purchase: {
+        Args: {
+          p_user_id: string;
+          p_payment_reference: string;
+          p_amount?: number;
+          p_analyses_granted?: number;
+        };
+        Returns: Json;
+      };
+    };
+    Enums: {
+      [_ in never]: never;
+    };
   };
 }
 

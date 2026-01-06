@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 
 interface Props {
-  onNavigate: (page: 'about' | 'contact' | 'privacy' | 'terms' | 'cookies' | 'gdpr' | 'ai-ethics') => void;
+  onNavigate: (page: 'about' | 'contact' | 'privacy' | 'terms' | 'cookies' | 'gdpr' | 'ai-ethics' | 'blog' | 'cv-analysis' | 'cv-comparison' | 'eye-tracking' | 'capital-theory' | 'ats-score' | 'market-signaling') => void;
 }
 
 export const Footer: React.FC<Props> = ({ onNavigate }) => {
@@ -20,7 +20,7 @@ export const Footer: React.FC<Props> = ({ onNavigate }) => {
     <footer className="bg-slate-900 text-slate-300">
       {/* Main Footer Content */}
       <div className="max-w-screen-xl mx-auto px-6 sm:px-8 lg:px-12 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-12">
           {/* Brand Column */}
           <div className="lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
@@ -88,6 +88,14 @@ export const Footer: React.FC<Props> = ({ onNavigate }) => {
               </li>
               <li>
                 <button
+                  onClick={() => onNavigate('blog')}
+                  className="text-sm text-slate-400 hover:text-indigo-400 transition-colors"
+                >
+                  Blog
+                </button>
+              </li>
+              <li>
+                <button
                   onClick={() => onNavigate('contact')}
                   className="text-sm text-slate-400 hover:text-indigo-400 transition-colors"
                 >
@@ -102,13 +110,60 @@ export const Footer: React.FC<Props> = ({ onNavigate }) => {
                   Pricing
                 </a>
               </li>
+            </ul>
+          </div>
+
+          {/* Features */}
+          <div>
+            <h3 className="text-white font-semibold mb-4">Features</h3>
+            <ul className="space-y-3">
               <li>
-                <a
-                  href="#features"
+                <button
+                  onClick={() => onNavigate('cv-analysis')}
                   className="text-sm text-slate-400 hover:text-indigo-400 transition-colors"
                 >
-                  Features
-                </a>
+                  CV Analysis
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate('cv-comparison')}
+                  className="text-sm text-slate-400 hover:text-indigo-400 transition-colors"
+                >
+                  CV Comparison
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate('eye-tracking')}
+                  className="text-sm text-slate-400 hover:text-indigo-400 transition-colors"
+                >
+                  Eye-Tracking Heatmaps
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate('capital-theory')}
+                  className="text-sm text-slate-400 hover:text-indigo-400 transition-colors"
+                >
+                  Capital Theory
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate('ats-score')}
+                  className="text-sm text-slate-400 hover:text-indigo-400 transition-colors"
+                >
+                  ATS Compatibility
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate('market-signaling')}
+                  className="text-sm text-slate-400 hover:text-indigo-400 transition-colors"
+                >
+                  Market Signaling
+                </button>
               </li>
             </ul>
           </div>

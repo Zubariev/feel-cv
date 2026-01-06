@@ -24,6 +24,7 @@ const rawEnv = (typeof import.meta !== 'undefined'
   : undefined) || {};
 
 const supabaseUrl = rawEnv.VITE_SUPABASE_URL as string | undefined;
+const supabaseAnonKey = rawEnv.VITE_SUPABASE_ANON_KEY as string | undefined;
 
 interface CreatePaymentParams {
   userId: string;
@@ -55,9 +56,18 @@ export const paymentService = {
       throw new Error('You must be logged in to make a payment');
     }
 
-    if (!supabaseUrl) {
-      throw new Error('Supabase URL not configured');
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error('Supabase configuration missing');
     }
+
+    console.log('[PaymentService] Creating payment with:', {
+      supabaseUrl,
+      hasAnonKey: !!supabaseAnonKey,
+      hasAccessToken: !!session.access_token,
+      tokenPreview: session.access_token?.substring(0, 20) + '...',
+      planCode,
+      userEmail,
+    });
 
     const response = await fetch(
       `${supabaseUrl}/functions/v1/fondy-create-order`,
@@ -66,6 +76,7 @@ export const paymentService = {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`,
+          'apikey': supabaseAnonKey,
         },
         body: JSON.stringify({
           planCode,
@@ -75,8 +86,19 @@ export const paymentService = {
     );
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || 'Failed to create payment');
+      const errorText = await response.text();
+      console.error('[PaymentService] Error response:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText,
+      });
+      let errorData: { error?: string } = {};
+      try {
+        errorData = JSON.parse(errorText);
+      } catch (e) {
+        // Not JSON
+      }
+      throw new Error(errorData.error || `Failed to create payment: ${response.status}`);
     }
 
     const data: CreateOrderResponse = await response.json();

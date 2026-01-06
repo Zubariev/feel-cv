@@ -13,7 +13,7 @@ import { Footer } from './Footer';
 
 interface Props {
   onBack: () => void;
-  onNavigate: (page: 'about' | 'contact' | 'privacy' | 'terms' | 'cookies' | 'gdpr' | 'ai-ethics') => void;
+  onNavigate: (page: 'about' | 'contact' | 'privacy' | 'terms' | 'cookies' | 'gdpr' | 'ai-ethics' | 'blog' | 'cv-analysis' | 'cv-comparison' | 'eye-tracking' | 'capital-theory' | 'ats-score' | 'market-signaling') => void;
 }
 
 export const ContactPage: React.FC<Props> = ({ onBack, onNavigate }) => {

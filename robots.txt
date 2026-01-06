@@ -1,0 +1,38 @@
+User-agent: *
+# Allow all public pages
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+# Disallow private/authenticated areas
+Disallow: /dashboard
+Disallow: /app
+Disallow: /auth
+Disallow: /login
+Disallow: /signup
+Disallow: /settings
+Disallow: /account
+Disallow: /billing
+Disallow: /api/
+Disallow: /_next/
+Disallow: /private/
+
+# Prevent indexing of temporary or internal routes
+Disallow: /tmp/
+Disallow: /test/
+Disallow: /debug/
+
+# Allow assets
+Allow: /assets/
+Allow: /images/
+Allow: /fonts/
+
+# Sitemap location
+Sitemap: https://cvsense.ai/sitemap.xml

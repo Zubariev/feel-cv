@@ -21,10 +21,12 @@
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-// CORS headers
+// CORS headers - must include all necessary headers for preflight
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, Accept',
+  'Access-Control-Max-Age': '86400',
 };
 
 interface CreateOrderRequest {
@@ -52,30 +54,62 @@ interface FondyOrderResponse {
 }
 
 /**
+ * Convert an object to Python dict string format.
+ * Fondy uses Python internally and expects this exact format for nested objects.
+ * Example: {'key': 'value', 'num': '123'}
+ */
+function toPythonDictString(obj: Record<string, unknown>): string {
+  const pairs = Object.entries(obj).map(([key, value]) => {
+    // All values must be strings in single quotes
+    return `'${key}': '${String(value)}'`;
+  });
+  return `{${pairs.join(', ')}}`;
+}
+
+/**
  * Generate Fondy signature for a request.
- * Fondy uses SHA1 hash of sorted parameters joined with '|'
+ * Fondy signature algorithm:
+ * 1. Sort parameters by KEY name alphabetically
+ * 2. Take their values (convert nested objects to Python dict format)
+ * 3. Filter out empty values
+ * 4. Prepend merchant secret
+ * 5. Join with '|' and SHA1 hash
  */
 async function generateFondySignature(
   params: Record<string, unknown>,
   merchantSecret: string
 ): Promise<string> {
-  // Collect all non-empty values
-  const values: string[] = [];
+  // Keys to exclude from signature
+  const excludeFromSignature = ['signature', 'response_signature_string'];
 
-  for (const [key, value] of Object.entries(params)) {
-    if (value !== '' && value !== undefined && value !== null && key !== 'signature') {
-      values.push(String(value));
+  // Get all keys, exclude special ones, sort alphabetically
+  const sortedKeys = Object.keys(params)
+    .filter(key => !excludeFromSignature.includes(key))
+    .sort();
+
+  // Collect values in sorted key order
+  const values: string[] = [];
+  for (const key of sortedKeys) {
+    const value = params[key];
+    if (value !== '' && value !== undefined && value !== null) {
+      if (key === 'recurring_data' && typeof value === 'object') {
+        // recurring_data needs Python dict format for signature
+        values.push(toPythonDictString(value as Record<string, unknown>));
+      } else {
+        // For primitives, convert to string
+        values.push(String(value));
+      }
     }
   }
-
-  // Sort alphabetically
-  values.sort();
 
   // Prepend merchant secret
   values.unshift(merchantSecret);
 
   // Join with '|' and hash with SHA1
   const signatureString = values.join('|');
+  console.log('[fondy-create-order] Signature keys:', sortedKeys);
+  console.log('[fondy-create-order] Signature string (redacted):', signatureString.replace(merchantSecret, '***'));
+
   const encoder = new TextEncoder();
   const data = encoder.encode(signatureString);
   const hashBuffer = await crypto.subtle.digest('SHA-1', data);
@@ -84,14 +118,18 @@ async function generateFondySignature(
 }
 
 serve(async (req: Request) => {
+  console.log('[fondy-create-order] Request received:', req.method);
+
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
+    console.log('[fondy-create-order] Handling OPTIONS preflight');
     return new Response('ok', { headers: corsHeaders });
   }
 
   try {
     // Only accept POST requests
     if (req.method !== 'POST') {
+      console.log('[fondy-create-order] Method not allowed:', req.method);
       return new Response(JSON.stringify({ error: 'Method not allowed' }), {
         status: 405,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -100,27 +138,42 @@ serve(async (req: Request) => {
 
     // Get authorization header
     const authHeader = req.headers.get('authorization');
+    console.log('[fondy-create-order] Auth header present:', !!authHeader);
+
     if (!authHeader) {
+      console.log('[fondy-create-order] Missing authorization header');
       return new Response(JSON.stringify({ error: 'Missing authorization header' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
+    // Extract JWT token from Bearer header
+    const token = authHeader.replace('Bearer ', '');
+    console.log('[fondy-create-order] Token extracted, length:', token.length);
+
     // Verify user is authenticated
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { authorization: authHeader } },
-    });
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    console.log('[fondy-create-order] Supabase URL:', supabaseUrl);
+    console.log('[fondy-create-order] Anon key present:', !!supabaseAnonKey);
+
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+    // Use getUser with the token directly
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    console.log('[fondy-create-order] Auth result:', { user: user?.id, error: authError?.message });
+
     if (authError || !user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      console.log('[fondy-create-order] Auth failed:', authError?.message);
+      return new Response(JSON.stringify({ error: 'Unauthorized', details: authError?.message }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    console.log('[fondy-create-order] User authenticated:', user.id);
 
     // Parse request body
     const { planCode, userEmail }: CreateOrderRequest = await req.json();

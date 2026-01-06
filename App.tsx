@@ -12,6 +12,7 @@ import { AnalysisSkeleton, UploadingSkeleton } from './components/LoadingSkeleto
 import { analyzeResume } from './services/geminiService';
 import { convertPdfToImage } from './services/pdfService';
 import { AnalysisResult, ComparisonResult, EntitlementSnapshot, PlanCode } from './types';
+import { getPostBySlug } from './data/blogData';
 import { supabase } from './services/supabaseClient';
 import type { Session, User } from '@supabase/supabase-js';
 import { databaseService } from './services/databaseService';
@@ -38,6 +39,16 @@ const CookiePolicyPage = lazy(() => import('./components/CookiePolicyPage').then
 const GDPRCompliancePage = lazy(() => import('./components/GDPRCompliancePage').then(m => ({ default: m.GDPRCompliancePage })));
 const AIEthicalPolicyPage = lazy(() => import('./components/AIEthicalPolicyPage').then(m => ({ default: m.AIEthicalPolicyPage })));
 const PaymentSuccessPage = lazy(() => import('./components/PaymentSuccessPage').then(m => ({ default: m.PaymentSuccessPage })));
+const BlogPage = lazy(() => import('./components/BlogPage').then(m => ({ default: m.BlogPage })));
+const BlogPostPage = lazy(() => import('./components/BlogPostPage').then(m => ({ default: m.BlogPostPage })));
+
+// Feature pages
+const CVAnalysisPage = lazy(() => import('./components/features/CVAnalysisPage').then(m => ({ default: m.CVAnalysisPage })));
+const CVComparisonPage = lazy(() => import('./components/features/CVComparisonPage').then(m => ({ default: m.CVComparisonPage })));
+const EyeTrackingPage = lazy(() => import('./components/features/EyeTrackingPage').then(m => ({ default: m.EyeTrackingPage })));
+const CapitalTheoryPage = lazy(() => import('./components/features/CapitalTheoryPage').then(m => ({ default: m.CapitalTheoryPage })));
+const ATSScorePage = lazy(() => import('./components/features/ATSScorePage').then(m => ({ default: m.ATSScorePage })));
+const MarketSignalingPage = lazy(() => import('./components/features/MarketSignalingPage').then(m => ({ default: m.MarketSignalingPage })));
 
 // Simple loading fallback for lazy components
 const PageLoader = () => (
@@ -97,7 +108,8 @@ export default function App() {
   const [comparisonCompareAnalysis, setComparisonCompareAnalysis] = useState<AnalysisResult | null>(null);
 
   // Page navigation state
-  const [currentPage, setCurrentPage] = useState<'about' | 'contact' | 'privacy' | 'terms' | 'cookies' | 'gdpr' | 'ai-ethics' | null>(null);
+  const [currentPage, setCurrentPage] = useState<'about' | 'contact' | 'privacy' | 'terms' | 'cookies' | 'gdpr' | 'ai-ethics' | 'blog' | 'cv-analysis' | 'cv-comparison' | 'eye-tracking' | 'capital-theory' | 'ats-score' | 'market-signaling' | null>(null);
+  const [selectedBlogPost, setSelectedBlogPost] = useState<string | null>(null);
 
   // Payment success state
   const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
@@ -360,13 +372,20 @@ export default function App() {
         try {
           // Record usage (deducts from subscription or one-time purchases)
           const usageResult = await entitlementsService.recordAnalysisUsage(currentUser.id);
+          console.log('Usage recording result:', JSON.stringify(usageResult));
           if (!usageResult.success) {
-            console.warn('Failed to record usage:', usageResult.error);
-            // Don't block the analysis, just log the warning
+            console.error('Failed to record usage:', usageResult.error, usageResult.message);
+            // Show a warning toast but don't block the analysis
+            showToast({
+              type: 'warning',
+              title: 'Usage Tracking Issue',
+              message: 'Analysis complete, but usage count may not be updated.',
+            });
           }
 
           // Refresh entitlements to update UI
           await refreshEntitlements();
+          console.log('Entitlements refreshed after analysis');
 
           // Save the analysis result
           const analysisId = await databaseService.saveAnalysisResult(
@@ -598,12 +617,19 @@ export default function App() {
 
       // Record usage
       const usageResult = await entitlementsService.recordComparisonUsage(currentUser.id);
+      console.log('Comparison usage recording result:', JSON.stringify(usageResult));
       if (!usageResult.success) {
-        console.warn('Failed to record comparison usage:', usageResult.error);
+        console.error('Failed to record comparison usage:', usageResult.error, usageResult.message);
+        showToast({
+          type: 'warning',
+          title: 'Usage Tracking Issue',
+          message: 'Comparison complete, but usage count may not be updated.',
+        });
       }
 
       // Refresh entitlements to update UI
       await refreshEntitlements();
+      console.log('Entitlements refreshed after comparison');
 
       // Show comparison view
       setComparisonResult(comparison);
@@ -648,9 +674,26 @@ export default function App() {
 
   // Payment flow handler
   const handleSelectPlan = async (planCode: PlanCode) => {
-    if (!currentUser || !planCode) return;
+    console.log('[App] handleSelectPlan called with planCode:', planCode);
+    console.log('[App] currentUser:', currentUser?.id);
+
+    if (!currentUser) {
+      console.warn('[App] No current user - cannot proceed with payment');
+      showToast({
+        type: 'error',
+        title: 'Please Sign In',
+        message: 'You need to be signed in to purchase a plan.',
+      });
+      return;
+    }
+
+    if (!planCode) {
+      console.warn('[App] No plan code provided');
+      return;
+    }
 
     setPaymentLoading(true);
+    console.log('[App] Starting payment creation...');
     try {
       const { checkoutUrl, orderId } = await paymentService.createPayment({
         userId: currentUser.id,
@@ -658,6 +701,7 @@ export default function App() {
         planCode,
       });
 
+      console.log('[App] Payment created successfully:', { checkoutUrl, orderId });
       const planInfo = getPlanDisplayInfo(planCode);
 
       // Close the upgrade modal and show embedded checkout
@@ -671,8 +715,12 @@ export default function App() {
       });
       setShowEmbeddedCheckout(true);
     } catch (err) {
-      console.error('Failed to create payment:', err);
-      setAnalysisError('Failed to start payment. Please try again.');
+      console.error('[App] Failed to create payment:', err);
+      showToast({
+        type: 'error',
+        title: 'Payment Error',
+        message: err instanceof Error ? err.message : 'Failed to start payment. Please try again.',
+      });
     } finally {
       setPaymentLoading(false);
     }
@@ -711,17 +759,29 @@ export default function App() {
   };
 
   // Page navigation handlers
-  const handleNavigate = (page: 'about' | 'contact' | 'privacy' | 'terms' | 'cookies' | 'gdpr' | 'ai-ethics') => {
+  const handleNavigate = (page: 'about' | 'contact' | 'privacy' | 'terms' | 'cookies' | 'gdpr' | 'ai-ethics' | 'blog' | 'cv-analysis' | 'cv-comparison' | 'eye-tracking' | 'capital-theory' | 'ats-score' | 'market-signaling') => {
     setCurrentPage(page);
     setShowLanding(false);
     setShowHistory(false);
     setShowComparison(false);
     setShowComparisonSelector(false);
+    if (page !== 'blog') {
+      setSelectedBlogPost(null);
+    }
   };
 
   const handleBackFromPage = () => {
     setCurrentPage(null);
+    setSelectedBlogPost(null);
     setShowLanding(true);
+  };
+
+  const handleSelectBlogPost = (slug: string) => {
+    setSelectedBlogPost(slug);
+  };
+
+  const handleBackToBlog = () => {
+    setSelectedBlogPost(null);
   };
 
   // Show Payment Success Page
@@ -815,6 +875,149 @@ export default function App() {
     );
   }
 
+  // Show Blog Post Page (individual post)
+  if (currentPage === 'blog' && selectedBlogPost) {
+    const post = getPostBySlug(selectedBlogPost);
+    if (post) {
+      return (
+        <ErrorBoundary>
+          <Suspense fallback={<PageLoader />}>
+            <BlogPostPage
+              post={post}
+              onBack={handleBackFromPage}
+              onBackToBlog={handleBackToBlog}
+              onNavigate={handleNavigate}
+              onSelectPost={handleSelectBlogPost}
+            />
+          </Suspense>
+        </ErrorBoundary>
+      );
+    }
+  }
+
+  // Show Blog Page (listing)
+  if (currentPage === 'blog') {
+    return (
+      <ErrorBoundary>
+        <Suspense fallback={<PageLoader />}>
+          <BlogPage
+            onBack={handleBackFromPage}
+            onNavigate={handleNavigate}
+            onSelectPost={handleSelectBlogPost}
+          />
+        </Suspense>
+      </ErrorBoundary>
+    );
+  }
+
+  // Show CV Analysis Feature Page
+  if (currentPage === 'cv-analysis') {
+    return (
+      <ErrorBoundary>
+        <Suspense fallback={<PageLoader />}>
+          <CVAnalysisPage
+            onBack={handleBackFromPage}
+            onNavigate={handleNavigate}
+            onStartAnalysis={() => {
+              setCurrentPage(null);
+              setShowLanding(false);
+            }}
+          />
+        </Suspense>
+      </ErrorBoundary>
+    );
+  }
+
+  // Show CV Comparison Feature Page
+  if (currentPage === 'cv-comparison') {
+    return (
+      <ErrorBoundary>
+        <Suspense fallback={<PageLoader />}>
+          <CVComparisonPage
+            onBack={handleBackFromPage}
+            onNavigate={handleNavigate}
+            onStartAnalysis={() => {
+              setCurrentPage(null);
+              setShowLanding(false);
+            }}
+          />
+        </Suspense>
+      </ErrorBoundary>
+    );
+  }
+
+  // Show Eye-Tracking Feature Page
+  if (currentPage === 'eye-tracking') {
+    return (
+      <ErrorBoundary>
+        <Suspense fallback={<PageLoader />}>
+          <EyeTrackingPage
+            onBack={handleBackFromPage}
+            onNavigate={handleNavigate}
+            onStartAnalysis={() => {
+              setCurrentPage(null);
+              setShowLanding(false);
+            }}
+          />
+        </Suspense>
+      </ErrorBoundary>
+    );
+  }
+
+  // Show Capital Theory Feature Page
+  if (currentPage === 'capital-theory') {
+    return (
+      <ErrorBoundary>
+        <Suspense fallback={<PageLoader />}>
+          <CapitalTheoryPage
+            onBack={handleBackFromPage}
+            onNavigate={handleNavigate}
+            onStartAnalysis={() => {
+              setCurrentPage(null);
+              setShowLanding(false);
+            }}
+          />
+        </Suspense>
+      </ErrorBoundary>
+    );
+  }
+
+  // Show ATS Score Feature Page
+  if (currentPage === 'ats-score') {
+    return (
+      <ErrorBoundary>
+        <Suspense fallback={<PageLoader />}>
+          <ATSScorePage
+            onBack={handleBackFromPage}
+            onNavigate={handleNavigate}
+            onStartAnalysis={() => {
+              setCurrentPage(null);
+              setShowLanding(false);
+            }}
+          />
+        </Suspense>
+      </ErrorBoundary>
+    );
+  }
+
+  // Show Market Signaling Feature Page
+  if (currentPage === 'market-signaling') {
+    return (
+      <ErrorBoundary>
+        <Suspense fallback={<PageLoader />}>
+          <MarketSignalingPage
+            onBack={handleBackFromPage}
+            onNavigate={handleNavigate}
+            onStartAnalysis={() => {
+              setCurrentPage(null);
+              setShowLanding(false);
+            }}
+          />
+        </Suspense>
+      </ErrorBoundary>
+    );
+  }
+
   // Show Comparison Dashboard
   if (showComparison && comparisonResult && comparisonBaseAnalysis && comparisonCompareAnalysis) {
     return (
@@ -864,20 +1067,37 @@ export default function App() {
 
   if (showLanding) {
     return (
-      <Suspense fallback={<PageLoader />}>
-        <LandingPage
-          onStart={() => setShowLanding(false)}
-          isAuthenticated={!!currentUser}
-          userEmail={currentUser?.email ?? undefined}
-          onLogin={handleLogin}
-          onSignup={handleSignup}
-          onLogout={handleLogout}
-          authError={authError}
-          authLoading={authLoading}
-          onNavigate={handleNavigate}
-          onSelectPlan={(planId) => handleSelectPlan(planId as PlanCode)}
-        />
-      </Suspense>
+      <>
+        <Suspense fallback={<PageLoader />}>
+          <LandingPage
+            onStart={() => setShowLanding(false)}
+            isAuthenticated={!!currentUser}
+            userEmail={currentUser?.email ?? undefined}
+            onLogin={handleLogin}
+            onSignup={handleSignup}
+            onLogout={handleLogout}
+            authError={authError}
+            authLoading={authLoading}
+            onNavigate={handleNavigate}
+            onSelectPlan={(planId) => handleSelectPlan(planId as PlanCode)}
+          />
+        </Suspense>
+
+        {/* Embedded Checkout Modal - must be rendered on landing page too */}
+        {checkoutData && (
+          <EmbeddedCheckout
+            isOpen={showEmbeddedCheckout}
+            onClose={handleCheckoutClose}
+            checkoutUrl={checkoutData.checkoutUrl}
+            orderId={checkoutData.orderId}
+            planName={checkoutData.planName}
+            planCode={checkoutData.planCode}
+            amount={checkoutData.amount}
+            onSuccess={handlePaymentSuccess}
+            onError={handlePaymentError}
+          />
+        )}
+      </>
     );
   }
 

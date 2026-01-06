@@ -260,13 +260,30 @@ Next Steps
 
 ## TODO Tasks - Week of December 30, 2025 - January 1, 2026
 
+### Payment Integration (Completed Dec 30, 2025)
+
+- [x] **Fix Fondy Edge Function**: Deploy with `--no-verify-jwt` flag
+- [x] **Fix Auth Token Passing**: Use `getUser(token)` directly instead of global headers
+- [x] **Fix Signature Algorithm**: Sort by keys (not values), use Python dict format for `recurring_data`
+- [x] **One-time Payment Flow**: Checkout page loads successfully
+- [x] **Subscription Payment Flow**: Checkout page loads successfully for Career Builder
+
+### Payment Testing (In Progress)
+
+- [ ] **Test Payment with Test Card**: Complete a test payment using Fondy test card numbers
+- [ ] **Verify Webhook Processing**: Confirm `fondy-webhook` Edge Function receives and processes callbacks
+- [ ] **Verify Subscription Creation**: Check that subscriptions are created in Supabase `subscriptions` table
+- [ ] **Verify Entitlements Update**: Confirm user entitlements update after successful payment
+- [ ] **Test One-time Purchase Flow**: Verify one-time purchase records in `one_time_purchases` table
+- [ ] **Test Usage Counters**: Confirm usage limits work after subscription activation
+
 ### Launch Week Checklist
 
 - [ ] **Final Security Audit**: Verify all API keys rotated and secured
 - [ ] **Monitoring Setup**: Sentry dashboard, uptime monitoring (UptimeRobot)
 - [ ] **Backup Strategy**: Verify Supabase backup procedures
 - [ ] **Load Testing**: Ensure system handles 100 concurrent users
-- [ ] **Payment Test**: Complete end-to-end payment flow in production
+- [ ] **Production Payment Test**: Complete end-to-end payment flow in production environment
 - [ ] **Social Media**: Prepare launch announcements
 - [ ] **Launch Day (Jan 1)**: Go live and monitor closely
 
@@ -431,15 +448,15 @@ Next Steps
 
 ## Security Checklist (Pre-Launch)
 
-- [ ] All API keys rotated and stored in Supabase secrets
-- [ ] Gemini API proxied through Edge Function
-- [ ] Fondy payment signed server-side
-- [ ] Webhook signature verification mandatory
-- [ ] RLS enabled on ALL tables
-- [ ] No secrets in frontend bundle
+- [x] All API keys rotated and stored in Supabase secrets
+- [x] Gemini API proxied through Edge Function
+- [x] Fondy payment signed server-side *(Fixed Dec 30, 2025)*
+- [x] Webhook signature verification mandatory
+- [x] RLS enabled on ALL tables
+- [x] No secrets in frontend bundle
 - [ ] HTTPS enforced on custom domain
 - [ ] Rate limiting on public endpoints
-- [ ] Input validation on file uploads
+- [x] Input validation on file uploads
 - [ ] Error messages don't leak internal details
 
 ---
@@ -454,8 +471,8 @@ Next Steps
 
 ## Notes
 
-- Launch is in **12 days** (as of Dec 20, 2025)
-- **CRITICAL**: Security fixes must be completed before any production deployment
+- Launch is in **2 days** (as of Dec 30, 2025)
+- **CRITICAL**: Payment testing must be completed before launch
 - Focus on stability and security over new features
 - Prioritize user experience and reliability
 - Remember: We sell **confidence and support**, not just analytics
@@ -469,7 +486,8 @@ Next Steps
 | Dec 17, 2025 | Initial | Feature completion | Done |
 | Dec 20, 2025 | Comprehensive Code Review | Architecture, Security, Performance, Billing | Done |
 | Dec 21, 2025 | Security Implementation | Edge Functions, Webhook Fixes, File Validation, Strict Mode | Done |
+| Dec 30, 2025 | Payment Integration Fix | Fondy signature algorithm, JWT bypass, Auth token handling | Done |
 
 ---
 
-*Last Updated: December 21, 2025*
+*Last Updated: December 30, 2025*

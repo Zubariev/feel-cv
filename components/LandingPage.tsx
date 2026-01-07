@@ -16,7 +16,11 @@ import {
   Target,
   Sparkles,
   UserCheck,
-  LogOut
+  LogOut,
+  BookOpen,
+  Info,
+  Mail,
+  DollarSign
 } from 'lucide-react';
 import { PricingSection } from './PricingSection';
 import { Footer } from './Footer';
@@ -109,6 +113,35 @@ export const LandingPage: React.FC<Props> = ({
           <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full bg-blue-600 blur-[120px]"></div>
         </div>
 
+        {/* Side Navigation */}
+        <nav className="absolute left-6 lg:left-12 top-1/2 -translate-y-1/2 z-20 hidden md:flex flex-col gap-6">
+          <SideNavButton
+            icon={<BookOpen className="w-5 h-5" />}
+            label="BLOG"
+            onClick={() => onNavigate('blog')}
+          />
+          <SideNavButton
+            icon={<Info className="w-5 h-5" />}
+            label="ABOUT US"
+            onClick={() => onNavigate('about')}
+          />
+          <SideNavButton
+            icon={<Mail className="w-5 h-5" />}
+            label="CONTACT"
+            onClick={() => onNavigate('contact')}
+          />
+          <SideNavButton
+            icon={<DollarSign className="w-5 h-5" />}
+            label="PRICING"
+            onClick={() => {
+              const pricingSection = document.getElementById('pricing-section');
+              if (pricingSection) {
+                pricingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }}
+          />
+        </nav>
+
         <div className="relative z-10 max-w-screen-xl mx-auto px-6 sm:px-8 lg:px-12 flex flex-col items-center text-center">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-400/30 text-indigo-300 text-sm font-medium mb-8 backdrop-blur-sm">
             <Heart className="w-4 h-4" />
@@ -116,7 +149,7 @@ export const LandingPage: React.FC<Props> = ({
           </div>
 
           <h1 className="text-6xl md:text-8xl font-extrabold tracking-tight mb-8 bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-slate-400">
-            CVSense
+            CViviD
           </h1>
 
           <p className="text-3xl md:text-4xl text-white font-medium max-w-4xl mb-6">
@@ -132,7 +165,7 @@ export const LandingPage: React.FC<Props> = ({
               onClick={handleCtaClick}
               className="group relative inline-flex items-center gap-3 px-10 py-5 text-lg rounded-full transition-all duration-300 shadow-[0_0_20px_rgba(79,70,229,0.5)] hover:shadow-[0_0_30px_rgba(79,70,229,0.6)] bg-indigo-600 hover:bg-indigo-500 text-white cursor-pointer"
             >
-              {isAuthenticated ? 'Launch CVSense' : 'Get Started'}
+              {isAuthenticated ? 'Launch CViviD' : 'Get Started'}
               <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
             </button>
             <div className="text-sm text-slate-400 md:text-left">
@@ -417,7 +450,7 @@ export const LandingPage: React.FC<Props> = ({
                   Bourdieu's Theory of Capital
                 </h2>
                 <p className="text-lg text-slate-600 mb-8 leading-relaxed">
-                  CVSense is built on sociological and market signaling theories. We interpret your professional history through 5 distinct forms of capital to measure your true leverage in the talent market.
+                  CViviD is built on sociological and market signaling theories. We interpret your professional history through 5 distinct forms of capital to measure your true leverage in the talent market.
                 </p>
                 <button onClick={handleCtaClick} className="text-lg text-indigo-600 font-semibold flex items-center hover:gap-3 transition-all">
                   Analyze your capital <ArrowRight className="w-5 h-5 ml-2" />
@@ -560,4 +593,20 @@ const ResponseCard = ({ icon, title, description, color }: { icon: React.ReactNo
       <p className="text-base text-slate-600 leading-relaxed">{description}</p>
     </div>
   </div>
+);
+
+const SideNavButton = ({ icon, label, onClick }: { icon: React.ReactNode, label: string, onClick: () => void }) => (
+  <button
+    onClick={onClick}
+    className="group flex items-center gap-4 cursor-pointer"
+  >
+    <div className="relative w-12 h-12 rounded-full border-2 border-slate-400/50 flex items-center justify-center transition-all duration-300 group-hover:border-white group-hover:bg-white/10 group-hover:scale-110 group-active:scale-95">
+      <span className="text-slate-400/70 transition-all duration-300 group-hover:text-white group-hover:scale-110">
+        {icon}
+      </span>
+    </div>
+    <span className="text-sm font-semibold tracking-wider text-slate-400/70 transition-all duration-300 group-hover:text-white group-hover:tracking-widest uppercase">
+      {label}
+    </span>
+  </button>
 );

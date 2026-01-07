@@ -1,6 +1,6 @@
 Ideas
 
-CVSense isnt not just another Dashboard business with AI.
+CViviD isnt not just another Dashboard business with AI.
 We sell confidence and support. 
 Understanding the user:
 

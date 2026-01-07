@@ -58,7 +58,7 @@ export const ATSScorePage: React.FC<Props> = ({ onBack, onNavigate, onStartAnaly
                 ATS Compatibility Score
               </h1>
               <p className="text-xl text-slate-300 mb-8 leading-relaxed">
-                75% of resumes are rejected by ATS before a human ever sees them. CVSense checks your CV against common ATS parsing requirements to ensure your application gets through.
+                75% of resumes are rejected by ATS before a human ever sees them. CViviD checks your CV against common ATS parsing requirements to ensure your application gets through.
               </p>
               <button
                 onClick={onStartAnalysis}
@@ -80,7 +80,7 @@ export const ATSScorePage: React.FC<Props> = ({ onBack, onNavigate, onStartAnaly
                 Applicant Tracking Systems (ATS) are software programs that scan and filter resumes before recruiters see them. These systems look for specific formatting, keywords, and structure to determine if a candidate matches a role.
               </p>
               <p className="text-lg text-slate-600 leading-relaxed">
-                CVSense ATS Compatibility analysis evaluates your CV against common ATS requirements including text parsability, formatting issues, keyword optimization, and structural clarity. A high ATS score means your resume is more likely to pass automated screening.
+                CViviD ATS Compatibility analysis evaluates your CV against common ATS requirements including text parsability, formatting issues, keyword optimization, and structural clarity. A high ATS score means your resume is more likely to pass automated screening.
               </p>
             </div>
           </div>

@@ -59,7 +59,7 @@ export const CapitalTheoryPage: React.FC<Props> = ({ onBack, onNavigate, onStart
                 Capital Theory Framework
               </h1>
               <p className="text-xl text-slate-300 mb-8 leading-relaxed">
-                CVSense evaluates your resume using Pierre Bourdieu's Capital Theory, measuring five distinct forms of capital that determine your position in the professional marketplace.
+                CViviD evaluates your resume using Pierre Bourdieu's Capital Theory, measuring five distinct forms of capital that determine your position in the professional marketplace.
               </p>
               <button
                 onClick={onStartAnalysis}
@@ -78,7 +78,7 @@ export const CapitalTheoryPage: React.FC<Props> = ({ onBack, onNavigate, onStart
             <div className="max-w-3xl mx-auto">
               <h2 className="text-3xl font-bold text-slate-900 mb-6">What It Is</h2>
               <p className="text-lg text-slate-600 leading-relaxed mb-6">
-                Pierre Bourdieu was a French sociologist who developed the theory that social position is determined by various forms of "capital" beyond just money. CVSense applies this framework to resume analysis, revealing the hidden signals that determine how employers perceive your professional value.
+                Pierre Bourdieu was a French sociologist who developed the theory that social position is determined by various forms of "capital" beyond just money. CViviD applies this framework to resume analysis, revealing the hidden signals that determine how employers perceive your professional value.
               </p>
               <p className="text-lg text-slate-600 leading-relaxed">
                 Unlike simple keyword matching, Capital Theory analysis understands the deeper meaning behind your experiences, education, and achievements. It measures not just what you've done, but what those accomplishments signal about your professional potential.
@@ -195,12 +195,12 @@ export const CapitalTheoryPage: React.FC<Props> = ({ onBack, onNavigate, onStart
           </div>
         </section>
 
-        {/* How CVSense Uses It */}
+        {/* How CViviD Uses It */}
         <section className="py-16 bg-white">
           <div className="max-w-screen-xl mx-auto px-6 sm:px-8 lg:px-12">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div>
-                <h2 className="text-3xl font-bold text-slate-900 mb-6">How CVSense Uses Capital Theory</h2>
+                <h2 className="text-3xl font-bold text-slate-900 mb-6">How CViviD Uses Capital Theory</h2>
                 <p className="text-lg text-slate-600 leading-relaxed mb-6">
                   Our AI analyzes every element of your CV to identify capital indicators. It extracts evidence for each capital type and calculates scores based on the strength and clarity of these signals.
                 </p>

@@ -2,7 +2,7 @@ SEO_GEO_Strategy_2
   
 **Search Engine Optimization (SEO) + Generative Engine Optimization (GEO)**
 
-This document describes how to prepare the CVSense project for:
+This document describes how to prepare the CViviD project for:
 - Traditional search engines (Google, Bing)
 - AI-powered search & assistants (ChatGPT, Perplexity, Claude, Gemini, etc.)
 
@@ -10,16 +10,16 @@ The goal is **discoverability, trust, and sustained organic growth** before and 
 
 ---
 
-## 1. Why SEO + GEO Matters for CVSense
+## 1. Why SEO + GEO Matters for CViviD
 
-CVSense is:
+CViviD is:
 - A **problem-solving SaaS** (CV analysis, job search)
 - A **knowledge-heavy product** (AI analysis, market signaling, hiring logic)
 - A **perfect fit for AI answers** (users ask: *“How to improve CV?”*)
 
 This means:
 - SEO brings **long-term organic traffic**
-- GEO ensures AI assistants **recommend CVSense by name**
+- GEO ensures AI assistants **recommend CViviD by name**
 
 > GEO is not “marketing fluff” — it is about making your product *legible to machines*.
 
@@ -110,7 +110,7 @@ Examples:
 - “How ATS Systems Read Your Resume”
 - “Why Your CV Is Rejected in 6 Seconds”
 
-👉 Positions CVSense as **expert**, not just a tool.
+👉 Positions CViviD as **expert**, not just a tool.
 
 ---
 
@@ -171,7 +171,7 @@ Bad:
 > “Our AI empowers your career journey”
 
 Good:
-> “CVSense analyzes CVs using market signaling theory to identify how employers interpret skills, education, and experience.”
+> “CViviD analyzes CVs using market signaling theory to identify how employers interpret skills, education, and experience.”
 
 ---
 
@@ -180,9 +180,9 @@ Good:
 You must **name yourself repeatedly and consistently**.
 
 Example pattern:
-- “CVSense is an AI-powered CV analysis platform.”
-- “Unlike generic AI tools, CVSense focuses on market signaling.”
-- “CVSense’s CV comparison feature allows…”
+- “CViviD is an AI-powered CV analysis platform.”
+- “Unlike generic AI tools, CViviD focuses on market signaling.”
+- “CViviD’s CV comparison feature allows…”
 
 This helps AI models:
 - Associate the name with the concept

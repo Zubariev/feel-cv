@@ -48,19 +48,19 @@ export const GDPRCompliancePage: React.FC<Props> = ({ onBack, onNavigate }) => {
           <div className="max-w-3xl mx-auto px-6 sm:px-8 lg:px-12">
             <div className="prose prose-slate max-w-none">
               <p className="text-lg text-slate-600 mb-8">
-                CVSense is committed to protecting your personal data in accordance with the General Data
+                CViviD is committed to protecting your personal data in accordance with the General Data
                 Protection Regulation (GDPR). This policy outlines your rights and our responsibilities
                 regarding data protection.
               </p>
 
               <h2 className="text-2xl font-bold text-slate-900 mt-12 mb-4">Data Controller</h2>
               <div className="bg-slate-50 p-6 rounded-xl mb-8">
-                <p className="text-slate-600"><strong>Company:</strong> CVSense</p>
+                <p className="text-slate-600"><strong>Company:</strong> CViviD</p>
                 <p className="text-slate-600 mt-2"><strong>Location:</strong> Kyiv, Ukraine</p>
                 <p className="text-slate-600 mt-2">
                   <strong>Contact:</strong>{' '}
-                  <a href="mailto:privacy@cvsense.com" className="text-indigo-600 hover:text-indigo-700">
-                    privacy@cvsense.com
+                  <a href="mailto:privacy@CViviD.com" className="text-indigo-600 hover:text-indigo-700">
+                    privacy@CViviD.com
                   </a>
                 </p>
               </div>
@@ -172,8 +172,8 @@ export const GDPRCompliancePage: React.FC<Props> = ({ onBack, onNavigate }) => {
               <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-100 mb-8">
                 <p className="text-slate-700">
                   <strong>To exercise your rights:</strong> Contact us at{' '}
-                  <a href="mailto:privacy@cvsense.com" className="text-indigo-600 hover:text-indigo-700">
-                    privacy@cvsense.com
+                  <a href="mailto:privacy@CViviD.com" className="text-indigo-600 hover:text-indigo-700">
+                    privacy@CViviD.com
                   </a>{' '}
                   with your request. We will respond within one month of receiving your request.
                 </p>
@@ -181,7 +181,7 @@ export const GDPRCompliancePage: React.FC<Props> = ({ onBack, onNavigate }) => {
 
               <h2 className="text-2xl font-bold text-slate-900 mt-12 mb-4">AI Processing and Your Data</h2>
               <p className="text-slate-600 mb-4">
-                CVSense uses artificial intelligence technology to provide analysis and recommendations for
+                CViviD uses artificial intelligence technology to provide analysis and recommendations for
                 your CV. Here's what you need to know about AI processing:
               </p>
               <ul className="list-disc list-inside text-slate-600 space-y-2 mb-6">
@@ -239,8 +239,8 @@ export const GDPRCompliancePage: React.FC<Props> = ({ onBack, onNavigate }) => {
                 <h3 className="font-semibold text-slate-900 mb-3">Data Protection Enquiries</h3>
                 <p className="text-slate-600">
                   <strong>Email:</strong>{' '}
-                  <a href="mailto:privacy@cvsense.com" className="text-indigo-600 hover:text-indigo-700">
-                    privacy@cvsense.com
+                  <a href="mailto:privacy@CViviD.com" className="text-indigo-600 hover:text-indigo-700">
+                    privacy@CViviD.com
                   </a>
                 </p>
                 <p className="text-slate-600 mt-2">

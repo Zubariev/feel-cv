@@ -1,5 +1,5 @@
 -- ============================================================================
--- CVSense Billing System
+-- CViviD Billing System
 -- Implements the SaaS billing model: Plans, Subscriptions, Purchases, Usage
 -- ============================================================================
 

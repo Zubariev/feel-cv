@@ -66,7 +66,7 @@ export const BlogPage: React.FC<Props> = ({ onBack, onNavigate, onSelectPost }) 
               <BrainCircuit className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-bold tracking-tight">CVSense Blog</h1>
+              <h1 className="text-lg font-bold tracking-tight">CViviD Blog</h1>
               <p className="text-xs text-slate-400">Insights for job seekers</p>
             </div>
           </div>
@@ -83,7 +83,7 @@ export const BlogPage: React.FC<Props> = ({ onBack, onNavigate, onSelectPost }) 
                 <BookOpen className="w-8 h-8 text-white" />
               </div>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">CVSense Blog</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">CViviD Blog</h1>
             <p className="text-xl text-slate-300 max-w-2xl mx-auto mb-8">
               Expert insights on resume optimization, career development, and the science behind successful job applications.
             </p>
@@ -181,7 +181,7 @@ export const BlogPage: React.FC<Props> = ({ onBack, onNavigate, onSelectPost }) 
           <div className="max-w-screen-xl mx-auto px-6 sm:px-8 lg:px-12 text-center">
             <h2 className="text-3xl font-bold mb-4">Ready to Optimize Your CV?</h2>
             <p className="text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
-              Put these insights into practice. Analyze your resume with CVSense and get personalized recommendations.
+              Put these insights into practice. Analyze your resume with CViviD and get personalized recommendations.
             </p>
             <button
               onClick={onBack}

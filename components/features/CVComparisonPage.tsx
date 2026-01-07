@@ -78,7 +78,7 @@ export const CVComparisonPage: React.FC<Props> = ({ onBack, onNavigate, onStartA
             <div className="max-w-3xl mx-auto">
               <h2 className="text-3xl font-bold text-slate-900 mb-6">What It Is</h2>
               <p className="text-lg text-slate-600 leading-relaxed mb-6">
-                CVSense CV Comparison allows you to analyze the differences between two versions of your resume. By comparing analyses side-by-side, you can see exactly how your edits impact every metric—from capital scores to visual hierarchy effectiveness.
+                CViviD CV Comparison allows you to analyze the differences between two versions of your resume. By comparing analyses side-by-side, you can see exactly how your edits impact every metric—from capital scores to visual hierarchy effectiveness.
               </p>
               <p className="text-lg text-slate-600 leading-relaxed">
                 This feature is designed for iterative improvement. Instead of guessing whether your changes made a difference, you get concrete data showing score improvements, new strengths identified, and areas that still need work.

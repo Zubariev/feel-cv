@@ -45,20 +45,20 @@ export const TermsOfUsePage: React.FC<Props> = ({ onBack, onNavigate }) => {
           <div className="max-w-3xl mx-auto px-6 sm:px-8 lg:px-12">
             <div className="prose prose-slate max-w-none">
               <p className="text-lg text-slate-600 mb-8">
-                Welcome to CVSense. By accessing or using our service, you agree to be bound by these
+                Welcome to CViviD. By accessing or using our service, you agree to be bound by these
                 Terms of Use. Please read them carefully before using our CV analysis platform.
               </p>
 
               <h2 className="text-2xl font-bold text-slate-900 mt-12 mb-4">1. Acceptance of Terms</h2>
               <p className="text-slate-600 mb-6">
-                By creating an account or using CVSense, you acknowledge that you have read, understood,
+                By creating an account or using CViviD, you acknowledge that you have read, understood,
                 and agree to be bound by these Terms of Use and our Privacy Policy. If you do not agree
                 to these terms, please do not use our service.
               </p>
 
               <h2 className="text-2xl font-bold text-slate-900 mt-12 mb-4">2. Description of Service</h2>
               <p className="text-slate-600 mb-4">
-                CVSense provides an AI-powered CV analysis service that:
+                CViviD provides an AI-powered CV analysis service that:
               </p>
               <ul className="list-disc list-inside text-slate-600 space-y-2 mb-6">
                 <li>Analyzes uploaded CV documents using artificial intelligence</li>
@@ -72,7 +72,7 @@ export const TermsOfUsePage: React.FC<Props> = ({ onBack, onNavigate }) => {
 
               <h3 className="text-xl font-semibold text-slate-800 mt-8 mb-3">3.1 Account Creation</h3>
               <p className="text-slate-600 mb-4">
-                To use certain features of CVSense, you must create an account. You agree to:
+                To use certain features of CViviD, you must create an account. You agree to:
               </p>
               <ul className="list-disc list-inside text-slate-600 space-y-2 mb-6">
                 <li>Provide accurate and complete information</li>
@@ -110,7 +110,7 @@ export const TermsOfUsePage: React.FC<Props> = ({ onBack, onNavigate }) => {
 
               <h3 className="text-xl font-semibold text-slate-800 mt-8 mb-3">5.2 Our Content</h3>
               <p className="text-slate-600 mb-6">
-                The CVSense platform, including its design, features, analysis methodology, and branding,
+                The CViviD platform, including its design, features, analysis methodology, and branding,
                 is our intellectual property. You may not copy, modify, or distribute any part of our
                 service without written permission.
               </p>
@@ -119,7 +119,7 @@ export const TermsOfUsePage: React.FC<Props> = ({ onBack, onNavigate }) => {
 
               <h3 className="text-xl font-semibold text-slate-800 mt-8 mb-3">6.1 Subscription Plans</h3>
               <p className="text-slate-600 mb-4">
-                CVSense offers various subscription plans with different features and usage limits.
+                CViviD offers various subscription plans with different features and usage limits.
                 Plan details, including pricing and features, are available on our website.
               </p>
 
@@ -139,7 +139,7 @@ export const TermsOfUsePage: React.FC<Props> = ({ onBack, onNavigate }) => {
 
               <h2 className="text-2xl font-bold text-slate-900 mt-12 mb-4">7. Disclaimer of Warranties</h2>
               <p className="text-slate-600 mb-4">
-                CVSense is provided "as is" and "as available" without warranties of any kind, either
+                CViviD is provided "as is" and "as available" without warranties of any kind, either
                 express or implied, including but not limited to:
               </p>
               <ul className="list-disc list-inside text-slate-600 space-y-2 mb-6">
@@ -155,7 +155,7 @@ export const TermsOfUsePage: React.FC<Props> = ({ onBack, onNavigate }) => {
 
               <h2 className="text-2xl font-bold text-slate-900 mt-12 mb-4">8. Limitation of Liability</h2>
               <p className="text-slate-600 mb-6">
-                To the maximum extent permitted by law, CVSense and its affiliates shall not be liable
+                To the maximum extent permitted by law, CViviD and its affiliates shall not be liable
                 for any indirect, incidental, special, consequential, or punitive damages, including
                 loss of profits, data, or business opportunities, arising from your use of our service.
               </p>
@@ -166,7 +166,7 @@ export const TermsOfUsePage: React.FC<Props> = ({ onBack, onNavigate }) => {
 
               <h2 className="text-2xl font-bold text-slate-900 mt-12 mb-4">9. Indemnification</h2>
               <p className="text-slate-600 mb-6">
-                You agree to indemnify and hold harmless CVSense, its officers, directors, employees,
+                You agree to indemnify and hold harmless CViviD, its officers, directors, employees,
                 and agents from any claims, damages, losses, or expenses arising from your use of
                 the service or violation of these terms.
               </p>
@@ -204,8 +204,8 @@ export const TermsOfUsePage: React.FC<Props> = ({ onBack, onNavigate }) => {
               <div className="bg-slate-50 p-6 rounded-xl">
                 <p className="text-slate-600">
                   <strong>Email:</strong>{' '}
-                  <a href="mailto:legal@cvsense.com" className="text-indigo-600 hover:text-indigo-700">
-                    legal@cvsense.com
+                  <a href="mailto:legal@CViviD.com" className="text-indigo-600 hover:text-indigo-700">
+                    legal@CViviD.com
                   </a>
                 </p>
                 <p className="text-slate-600 mt-2">
@@ -215,7 +215,7 @@ export const TermsOfUsePage: React.FC<Props> = ({ onBack, onNavigate }) => {
 
               <div className="mt-12 p-6 bg-indigo-50 rounded-xl border border-indigo-100">
                 <p className="text-slate-700 text-sm">
-                  <strong>By using CVSense, you acknowledge that you have read, understood, and agree
+                  <strong>By using CViviD, you acknowledge that you have read, understood, and agree
                   to these Terms of Use.</strong>
                 </p>
               </div>

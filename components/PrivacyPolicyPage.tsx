@@ -45,7 +45,7 @@ export const PrivacyPolicyPage: React.FC<Props> = ({ onBack, onNavigate }) => {
           <div className="max-w-3xl mx-auto px-6 sm:px-8 lg:px-12">
             <div className="prose prose-slate max-w-none">
               <p className="text-lg text-slate-600 mb-8">
-                At CVSense, we take your privacy seriously. This Privacy Policy explains how we collect,
+                At CViviD, we take your privacy seriously. This Privacy Policy explains how we collect,
                 use, disclose, and safeguard your information when you use our CV analysis service.
               </p>
 
@@ -127,8 +127,8 @@ export const PrivacyPolicyPage: React.FC<Props> = ({ onBack, onNavigate }) => {
               </ul>
               <p className="text-slate-600 mb-6">
                 To exercise these rights, please contact us at{' '}
-                <a href="mailto:privacy@cvsense.com" className="text-indigo-600 hover:text-indigo-700">
-                  privacy@cvsense.com
+                <a href="mailto:privacy@CViviD.com" className="text-indigo-600 hover:text-indigo-700">
+                  privacy@CViviD.com
                 </a>
               </p>
 
@@ -180,8 +180,8 @@ export const PrivacyPolicyPage: React.FC<Props> = ({ onBack, onNavigate }) => {
               <div className="bg-slate-50 p-6 rounded-xl">
                 <p className="text-slate-600">
                   <strong>Email:</strong>{' '}
-                  <a href="mailto:privacy@cvsense.com" className="text-indigo-600 hover:text-indigo-700">
-                    privacy@cvsense.com
+                  <a href="mailto:privacy@CViviD.com" className="text-indigo-600 hover:text-indigo-700">
+                    privacy@CViviD.com
                   </a>
                 </p>
                 <p className="text-slate-600 mt-2">

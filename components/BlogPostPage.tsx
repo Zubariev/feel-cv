@@ -34,7 +34,7 @@ export const BlogPostPage: React.FC<Props> = ({
 }) => {
   const [copied, setCopied] = React.useState(false);
 
-  const shareUrl = `https://cvsense.com/blog/${post.slug}`;
+  const shareUrl = `https://CViviD.com/blog/${post.slug}`;
 
   const handleCopyLink = async () => {
     try {
@@ -80,7 +80,7 @@ export const BlogPostPage: React.FC<Props> = ({
                 <BrainCircuit className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-lg font-bold tracking-tight">CVSense Blog</h1>
+                <h1 className="text-lg font-bold tracking-tight">CViviD Blog</h1>
                 <p className="text-xs text-slate-400">Insights for job seekers</p>
               </div>
             </div>
@@ -210,7 +210,7 @@ export const BlogPostPage: React.FC<Props> = ({
                   <div className="bg-indigo-600 text-white rounded-xl p-6">
                     <h3 className="text-lg font-bold mb-2">Ready to optimize your CV?</h3>
                     <p className="text-indigo-100 text-sm mb-4">
-                      Put these insights into practice with CVSense AI analysis.
+                      Put these insights into practice with CViviD AI analysis.
                     </p>
                     <button
                       onClick={onBack}

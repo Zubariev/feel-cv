@@ -1,4 +1,4 @@
-# CVSense - Project Plan & Progress
+# CViviD - Project Plan & Progress
 
 **Official Launch Date: January 1, 2026**
 
@@ -6,7 +6,7 @@
 
 ## Mission Statement
 
-**CVSense isn't just another Dashboard business with AI. We sell confidence and support.**
+**CViviD isn't just another Dashboard business with AI. We sell confidence and support.**
 
 ---
 
@@ -38,7 +38,7 @@ How we address user needs:
 
 ## Project Overview
 
-CVSense is an AI-powered resume analysis platform that evaluates resumes through:
+CViviD is an AI-powered resume analysis platform that evaluates resumes through:
 - Bourdieu Capital Theory (Material, Social, Cultural, Symbolic, Technological)
 - Visual Design Analysis (Layout, Typography, Color Harmony)
 - Market Signaling Metrics (ATS Friendliness, Brand Signals)

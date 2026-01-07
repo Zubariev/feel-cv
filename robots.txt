@@ -35,4 +35,4 @@ Allow: /images/
 Allow: /fonts/
 
 # Sitemap location
-Sitemap: https://cvsense.ai/sitemap.xml
+Sitemap: https://CViviD.ai/sitemap.xml

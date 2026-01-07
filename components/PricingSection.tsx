@@ -138,7 +138,7 @@ export const PricingSection: React.FC<PricingProps> = ({
   const careerBuilderPlan = plans.find(p => p.plan_code === 'career-builder');
 
   return (
-    <section className="py-24 bg-gradient-to-b from-white to-slate-50">
+    <section id="pricing-section" className="py-24 bg-gradient-to-b from-white to-slate-50">
       <div className="max-w-screen-xl mx-auto px-6 sm:px-8 lg:px-12">
         {/* Header */}
         <div className="text-center mb-16">

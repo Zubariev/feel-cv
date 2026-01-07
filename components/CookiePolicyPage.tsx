@@ -45,7 +45,7 @@ export const CookiePolicyPage: React.FC<Props> = ({ onBack, onNavigate }) => {
           <div className="max-w-3xl mx-auto px-6 sm:px-8 lg:px-12">
             <div className="prose prose-slate max-w-none">
               <p className="text-lg text-slate-600 mb-8">
-                Understanding how CVSense uses cookies to enhance your experience and protect your privacy.
+                Understanding how CViviD uses cookies to enhance your experience and protect your privacy.
                 This Cookie Policy explains what cookies are, how we use them, and your choices regarding cookies.
               </p>
 
@@ -59,7 +59,7 @@ export const CookiePolicyPage: React.FC<Props> = ({ onBack, onNavigate }) => {
 
               <h2 className="text-2xl font-bold text-slate-900 mt-12 mb-4">2. Cookie Usage and Agreement</h2>
               <p className="text-slate-600 mb-4">
-                CVSense uses cookies and similar tracking technologies on our platform in accordance with this
+                CViviD uses cookies and similar tracking technologies on our platform in accordance with this
                 Cookie Policy, which forms part of our Terms and Conditions.
               </p>
               <p className="text-slate-600 mb-6">
@@ -164,8 +164,8 @@ export const CookiePolicyPage: React.FC<Props> = ({ onBack, onNavigate }) => {
               <div className="bg-slate-50 p-6 rounded-xl">
                 <p className="text-slate-600">
                   <strong>Email:</strong>{' '}
-                  <a href="mailto:privacy@cvsense.com" className="text-indigo-600 hover:text-indigo-700">
-                    privacy@cvsense.com
+                  <a href="mailto:privacy@CViviD.com" className="text-indigo-600 hover:text-indigo-700">
+                    privacy@CViviD.com
                   </a>
                 </p>
                 <p className="text-slate-600 mt-2">

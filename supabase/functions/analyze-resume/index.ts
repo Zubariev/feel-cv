@@ -28,7 +28,7 @@ const corsHeaders = {
 
 // System instruction for Gemini
 const SYSTEM_INSTRUCTION = `
-You are the "CVSense", an expert AI combining Data Science, HR analytics, and Document Vision.
+You are the "CViviD", an expert AI combining Data Science, HR analytics, and Document Vision.
 Your task is to analyze resume images to extract sociological signals (Bourdieu Capital), professional metrics, and **precise visual layout data**.
 
 ### 1. NLP & Content Analysis

@@ -81,7 +81,7 @@ export const MarketSignalingPage: React.FC<Props> = ({ onBack, onNavigate, onSta
                 Market Signaling Theory, developed by economist Michael Spence (Nobel Prize 2001), explains how candidates communicate unobservable qualities to employers through observable signals. Your degree, certifications, company names, and achievements all serve as signals.
               </p>
               <p className="text-lg text-slate-600 leading-relaxed">
-                CVSense applies this economic framework to evaluate how effectively your CV communicates your true professional value. A high signal score means your CV efficiently conveys quality indicators that employers use in hiring decisions.
+                CViviD applies this economic framework to evaluate how effectively your CV communicates your true professional value. A high signal score means your CV efficiently conveys quality indicators that employers use in hiring decisions.
               </p>
             </div>
           </div>

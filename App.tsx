@@ -668,7 +668,7 @@ export default function App() {
       case 'career-accelerator':
         return { name: 'Career Accelerator Plan', amount: '€29/month' };
       default:
-        return { name: 'CVSense Plan', amount: '' };
+        return { name: 'CViviD Plan', amount: '' };
     }
   };
 
@@ -1118,7 +1118,7 @@ export default function App() {
                 <BrainCircuit className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold tracking-tight">CVSense</h1>
+              <h1 className="text-xl font-bold tracking-tight">CViviD</h1>
               <p className="text-xs text-slate-400 font-medium">5 types of capital & Visual Signal Extraction</p>
             </div>
           </div>

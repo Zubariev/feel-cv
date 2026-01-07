@@ -59,7 +59,7 @@ export const EyeTrackingPage: React.FC<Props> = ({ onBack, onNavigate, onStartAn
                 Eye-Tracking Heatmap Analysis
               </h1>
               <p className="text-xl text-slate-300 mb-8 leading-relaxed">
-                CVSense generates predictive eye-tracking heatmaps that simulate where recruiters will focus attention when viewing your CV. See through their eyes in seconds.
+                CViviD generates predictive eye-tracking heatmaps that simulate where recruiters will focus attention when viewing your CV. See through their eyes in seconds.
               </p>
               <button
                 onClick={onStartAnalysis}
@@ -81,7 +81,7 @@ export const EyeTrackingPage: React.FC<Props> = ({ onBack, onNavigate, onStartAn
                 Eye-tracking heatmap analysis uses MSI-Net saliency prediction technology to analyze your CV's visual hierarchy and generate a predictive map of where human eyes will focus. Warm colors indicate high-attention areas; cool colors show regions that may be overlooked.
               </p>
               <p className="text-lg text-slate-600 leading-relaxed">
-                This technology is based on the same principles used in professional UX research, where eye-tracking studies reveal how users actually view interfaces. CVSense brings this powerful insight to resume optimization.
+                This technology is based on the same principles used in professional UX research, where eye-tracking studies reveal how users actually view interfaces. CViviD brings this powerful insight to resume optimization.
               </p>
             </div>
           </div>

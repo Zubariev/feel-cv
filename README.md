@@ -1,6 +1,6 @@
-## CVSense – Visual & Capital Intelligence for Resumes
+## CViviD – Visual & Capital Intelligence for Resumes
 
-CVSense is a Vite/React frontend that ingests a resume (PDF or image), calls AI for multimodal analysis, and visualizes:
+CViviD is a Vite/React frontend that ingests a resume (PDF or image), calls AI for multimodal analysis, and visualizes:
 
 - **Bourdieu capital** distributions
 - **Visual saliency** heatmaps and layout metrics
@@ -123,7 +123,7 @@ If you see RLS errors in Supabase logs, confirm:
   - **Sign in** with email/password
   - **Sign up** with email/password (Supabase will send a confirmation email, if configured)
   - **Sign out** of the current session
-- The primary CTA **“Launch CVSense”** is disabled until the user is authenticated.
+- The primary CTA **“Launch CViviD”** is disabled until the user is authenticated.
 - Once signed in:
   - The header and hero show the user’s email.
   - All subsequent analyses will be stored under that user’s `user_id` in Supabase.

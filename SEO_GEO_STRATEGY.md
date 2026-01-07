@@ -1,19 +1,19 @@
-# CVSense SEO & GEO Strategy Guide
+# CViviD SEO & GEO Strategy Guide
 
-**Goal**: Make CVSense visible in traditional search engines (Google, Bing) and AI-powered search tools (ChatGPT, Perplexity, Claude, Gemini).
+**Goal**: Make CViviD visible in traditional search engines (Google, Bing) and AI-powered search tools (ChatGPT, Perplexity, Claude, Gemini).
 
 ---
 
-## Why SEO + GEO Matters for CVSense
+## Why SEO + GEO Matters for CViviD
 
-CVSense is:
+CViviD is:
 - A **problem-solving SaaS** (CV analysis, job search optimization)
 - A **knowledge-heavy product** (AI analysis, market signaling, hiring psychology)
 - A **perfect fit for AI answers** (users ask: *"How to improve my CV?"*, *"Best resume analyzer"*)
 
 This means:
 - **SEO brings long-term organic traffic** from search engines
-- **GEO ensures AI assistants recommend CVSense by name**
+- **GEO ensures AI assistants recommend CViviD by name**
 
 > GEO is not "marketing fluff" — it is about making your product *legible to machines*.
 
@@ -121,12 +121,12 @@ Each page must have:
 
 | Page | Target Keywords | Title (60 chars) | Meta Description (155 chars) |
 |------|-----------------|------------------|------------------------------|
-| **Landing** | AI resume analyzer, CV analysis tool, ATS checker | CVSense - AI Resume Analysis & Eye-Tracking Heatmaps | Analyze your CV with AI-powered capital theory assessment, visual heatmaps, and ATS compatibility scoring. Get expert insights in seconds. |
-| **About** | resume analysis company, CV experts, AI career tools | About CVSense - AI-Powered Career Intelligence | Meet the team behind CVSense. We combine psychology, HR expertise, and AI to decode the hidden signals in your resume. |
-| **Pricing** | resume analyzer pricing, CV review cost, affordable ATS check | CVSense Pricing - Plans from 3.99 Single Analysis | Choose your plan: Single analysis for 3.99, or unlimited access from 9/month. No commitment required. |
+| **Landing** | AI resume analyzer, CV analysis tool, ATS checker | CViviD - AI Resume Analysis & Eye-Tracking Heatmaps | Analyze your CV with AI-powered capital theory assessment, visual heatmaps, and ATS compatibility scoring. Get expert insights in seconds. |
+| **About** | resume analysis company, CV experts, AI career tools | About CViviD - AI-Powered Career Intelligence | Meet the team behind CViviD. We combine psychology, HR expertise, and AI to decode the hidden signals in your resume. |
+| **Pricing** | resume analyzer pricing, CV review cost, affordable ATS check | CViviD Pricing - Plans from 3.99 Single Analysis | Choose your plan: Single analysis for 3.99, or unlimited access from 9/month. No commitment required. |
 | **CV Analysis** | AI CV analysis, resume review, capital theory | CV Analysis - AI-Powered Resume Evaluation | Upload your CV and get instant AI analysis: capital theory scoring, visual heatmaps, ATS compatibility, and actionable insights. |
 | **CV Comparison** | compare resumes, CV version comparison | CV Comparison - Track Your Resume Progress | Compare two CV versions side-by-side. See score improvements, skill changes, and visual hierarchy evolution. |
-| **Privacy** | resume privacy, CV data protection, GDPR compliant | Privacy Policy - CVSense Data Protection | Your resume data is encrypted and never shared. GDPR compliant. Read our full privacy commitment. |
+| **Privacy** | resume privacy, CV data protection, GDPR compliant | Privacy Policy - CViviD Data Protection | Your resume data is encrypted and never shared. GDPR compliant. Read our full privacy commitment. |
 
 ### Header Tag Hierarchy (Example for Landing)
 
@@ -155,7 +155,7 @@ Each page must have:
 
 ### Market Signaling Pillar (Unique Differentiator)
 
-This pillar is **hard to copy** and positions CVSense as a thought leader:
+This pillar is **hard to copy** and positions CViviD as a thought leader:
 
 - "What Your CV Signals to Employers"
 - "Market Signaling Theory in Job Applications"
@@ -202,14 +202,14 @@ To be referenced, your site must:
 - Name itself explicitly
 - Provide quotable insights
 
-### Why GEO Matters for CVSense
+### Why GEO Matters for CViviD
 
 AI tools like ChatGPT, Perplexity, and Claude are increasingly used for:
 - "Best resume analysis tools 2026"
 - "How to optimize my CV for ATS"
 - "AI tools for job seekers"
 
-If CVSense isn't in the training data or crawlable sources, AI won't recommend it.
+If CViviD isn't in the training data or crawlable sources, AI won't recommend it.
 
 ### GEO Tactics
 
@@ -221,7 +221,7 @@ If CVSense isn't in the training data or crawlable sources, AI won't recommend i
 | **Reddit presence** | Answer r/resumes, r/jobs, r/careerguidance questions | Reddit is heavily indexed by AI |
 | **Quora answers** | Answer "Best resume analyzer" type questions | Perplexity heavily indexes Quora |
 | **GitHub README** | Open-source a resume analysis component | Developers ask AI about tools |
-| **YouTube content** | Create "How CVSense works" videos | AI indexes video transcripts |
+| **YouTube content** | Create "How CViviD works" videos | AI indexes video transcripts |
 | **Podcast appearances** | Guest on career podcasts | Transcripts become training data |
 
 ### Entity Building for AI (Critical)
@@ -229,14 +229,14 @@ If CVSense isn't in the training data or crawlable sources, AI won't recommend i
 You must **name yourself repeatedly and consistently** across all content.
 
 **Example patterns to use:**
-- "CVSense is an AI-powered CV analysis platform."
-- "Unlike generic AI tools, CVSense focuses on market signaling."
-- "CVSense's CV comparison feature allows users to..."
-- "With CVSense, job seekers can visualize where recruiters look."
+- "CViviD is an AI-powered CV analysis platform."
+- "Unlike generic AI tools, CViviD focuses on market signaling."
+- "CViviD's CV comparison feature allows users to..."
+- "With CViviD, job seekers can visualize where recruiters look."
 
 This helps AI models:
 - Associate the name with the concept
-- Recommend CVSense instead of generic tools
+- Recommend CViviD instead of generic tools
 - Build brand recognition in training data
 
 ### GEO Writing Rules (Very Important)
@@ -256,17 +256,17 @@ When writing content that AI will cite:
 > "Our AI empowers your career journey with cutting-edge technology."
 
 **Good (AI quotes this):**
-> "CVSense analyzes CVs using market signaling theory to identify how employers interpret skills, education, and experience. The tool evaluates five types of capital based on Pierre Bourdieu's framework."
+> "CViviD analyzes CVs using market signaling theory to identify how employers interpret skills, education, and experience. The tool evaluates five types of capital based on Pierre Bourdieu's framework."
 
 5. **Be factual and specific** - AI prefers concrete claims over marketing speak
 
-6. **Include statistics** - "CVSense analyzes 5 types of capital based on Bourdieu's theory"
+6. **Include statistics** - "CViviD analyzes 5 types of capital based on Bourdieu's theory"
 
 7. **Answer questions directly** - Match natural language queries
 
 **Example GEO-optimized paragraph:**
 
-> CVSense is an AI-powered resume analysis tool that evaluates CVs using Pierre Bourdieu's Capital Theory framework. It measures five types of capital: Material (salary, assets), Social (network, references), Cultural (education, certifications), Symbolic (prestige, awards), and Technological (technical skills, GitHub activity). The tool also generates eye-tracking saliency heatmaps to predict where recruiters will focus attention. Pricing starts at 3.99 for a single analysis or 9/month for the Explorer plan.
+> CViviD is an AI-powered resume analysis tool that evaluates CVs using Pierre Bourdieu's Capital Theory framework. It measures five types of capital: Material (salary, assets), Social (network, references), Cultural (education, certifications), Symbolic (prestige, awards), and Technological (technical skills, GitHub activity). The tool also generates eye-tracking saliency heatmaps to predict where recruiters will focus attention. Pricing starts at 3.99 for a single analysis or 9/month for the Explorer plan.
 
 ### GEO-Specific Growth Ideas
 
@@ -286,7 +286,7 @@ Create **reference pages** that AI will cite:
 - "How Eye-Tracking Predicts Recruiter Behavior" - Educational content
 - "The 5 Types of Career Capital Explained" - Bourdieu framework primer
 
-These pages answer questions AI assistants receive, making CVSense the source.
+These pages answer questions AI assistants receive, making CViviD the source.
 
 #### Idea 3: Blog as Dataset
 
@@ -330,7 +330,7 @@ Each feature page should answer:
 # Eye-Tracking Heatmap Analysis
 
 ## What It Is
-CVSense generates predictive eye-tracking heatmaps that simulate where recruiters
+CViviD generates predictive eye-tracking heatmaps that simulate where recruiters
 will focus attention when viewing your CV.
 
 ## Who It's For
@@ -343,7 +343,7 @@ Research shows recruiters spend 6-7 seconds on initial CV screening.
 Understanding attention patterns helps you place critical information optimally.
 
 ## How It Works
-CVSense uses MSI-Net saliency prediction to analyze visual hierarchy,
+CViviD uses MSI-Net saliency prediction to analyze visual hierarchy,
 contrast, and layout. The heatmap shows high-attention areas in warm colors.
 
 ## When to Use It
@@ -398,7 +398,7 @@ Examples:
 - "How ATS Systems Read Your Resume"
 - "Why Your CV Is Rejected in 6 Seconds"
 
-Positions CVSense as **expert**, not just a tool.
+Positions CViviD as **expert**, not just a tool.
 
 #### Pillar 2: AI + Market Signaling (Unique Angle)
 Examples:
@@ -413,7 +413,7 @@ Examples:
 - "AI CV Review vs Human Recruiter"
 - "Free CV Review Tools vs Paid AI Analysis"
 - "ChatGPT CV Review vs Specialized Tools"
-- "CVSense vs Jobscan vs Resume.io: Honest Comparison"
+- "CViviD vs Jobscan vs Resume.io: Honest Comparison"
 
 AI assistants LOVE comparison content.
 
@@ -435,8 +435,8 @@ Examples:
 | 2 | "5 Resume Mistakes That AI Detects Instantly" | Listicle | resume mistakes, common CV errors |
 | 3 | "Case Study: How Maria Increased Her Interview Rate by 300%" | Case Study | resume success story, CV improvement |
 | 3 | "Free Resume Checklist: 25 Points Before You Apply" | Lead Magnet | resume checklist, CV review template |
-| 4 | "Introducing CVSense: Our AI Resume Analysis Tool" | Product | AI resume analyzer, CV analysis tool |
-| 4 | "Behind the Scenes: How CVSense Uses Gemini AI" | Technical | AI resume analysis, Gemini CV |
+| 4 | "Introducing CViviD: Our AI Resume Analysis Tool" | Product | AI resume analyzer, CV analysis tool |
+| 4 | "Behind the Scenes: How CViviD Uses Gemini AI" | Technical | AI resume analysis, Gemini CV |
 
 #### Month 2: Authority Building
 
@@ -455,14 +455,14 @@ Examples:
 
 | Week | Title | Type | Target Keywords |
 |------|-------|------|-----------------|
-| 9 | "CVSense vs Jobscan vs Resume.io: Honest Comparison" | Comparison | resume analyzer comparison, best CV tools |
-| 9 | "How to Read Your CVSense Analysis Report" | Tutorial | CVSense tutorial, resume analysis guide |
+| 9 | "CViviD vs Jobscan vs Resume.io: Honest Comparison" | Comparison | resume analyzer comparison, best CV tools |
+| 9 | "How to Read Your CViviD Analysis Report" | Tutorial | CViviD tutorial, resume analysis guide |
 | 10 | "From Unemployed to Employed: 10 User Stories" | Social Proof | resume transformation, job search success |
 | 10 | "The Complete Guide to ATS-Friendly Resumes" | Pillar | ATS friendly resume, ATS optimization guide |
 | 11 | "Remote Work Resumes: What's Different in 2026" | Trending | remote work resume, virtual job application |
 | 11 | "Resume Trends That Will Define 2026" | Prediction | resume trends 2026, future of CVs |
-| 12 | "Your Resume Audit: 10 Questions CVSense Answers" | Product | resume audit, CV evaluation |
-| 12 | "Annual Review: Top Resume Insights from CVSense Data" | Data Story | resume statistics, CV trends data |
+| 12 | "Your Resume Audit: 10 Questions CViviD Answers" | Product | resume audit, CV evaluation |
+| 12 | "Annual Review: Top Resume Insights from CViviD Data" | Data Story | resume statistics, CV trends data |
 
 ### Blog Post Template
 
@@ -471,7 +471,7 @@ Examples:
 title: "Your Title Here"
 description: "Meta description (155 chars)"
 date: 2026-01-15
-author: "CVSense Team"
+author: "CViviD Team"
 category: "resume-optimization"
 tags: ["resume", "ATS", "career"]
 image: "/blog/images/your-image.jpg"
@@ -493,7 +493,7 @@ Use H2 and H3 headers. Include lists and tables.
 Numbered actionable items.
 
 ## Conclusion
-Summarize. Include CTA to try CVSense.
+Summarize. Include CTA to try CViviD.
 
 ## FAQ Section (Schema-ready)
 **Q: Question 1?**
@@ -519,8 +519,8 @@ npm install @mdx-js/react @mdx-js/rollup
 **Option B: Separate blog on subdomain (Recommended)**
 
 ```
-blog.cvsense.com - Ghost, WordPress, or Astro
-cvsense.com - Main React app
+blog.CViviD.com - Ghost, WordPress, or Astro
+CViviD.com - Main React app
 ```
 
 Benefits: Better SEO control, faster builds, easier content management.
@@ -603,7 +603,7 @@ Homepage
 >
 > Hi [Name],
 >
-> I loved your article on [specific article]. Your point about [specific insight] really resonated with our mission at CVSense.
+> I loved your article on [specific article]. Your point about [specific insight] really resonated with our mission at CViviD.
 >
 > We've built an AI tool that analyzes resumes using eye-tracking heatmaps and capital theory - showing job seekers exactly where recruiters focus attention. I thought your readers might find it valuable.
 >
@@ -634,13 +634,13 @@ Benefits:
 {
   "@context": "https://schema.org",
   "@type": "Organization",
-  "name": "CVSense",
-  "url": "https://cvsense.com",
-  "logo": "https://cvsense.com/logo.png",
+  "name": "CViviD",
+  "url": "https://CViviD.com",
+  "logo": "https://CViviD.com/logo.png",
   "description": "AI-powered resume analysis using capital theory and eye-tracking",
   "sameAs": [
-    "https://twitter.com/cvsense",
-    "https://linkedin.com/company/cvsense"
+    "https://twitter.com/CViviD",
+    "https://linkedin.com/company/CViviD"
   ]
 }
 
@@ -648,7 +648,7 @@ Benefits:
 {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  "name": "CVSense Resume Analyzer",
+  "name": "CViviD Resume Analyzer",
   "applicationCategory": "BusinessApplication",
   "operatingSystem": "Web",
   "offers": {
@@ -669,10 +669,10 @@ Benefits:
   "@type": "FAQPage",
   "mainEntity": [{
     "@type": "Question",
-    "name": "How does CVSense analyze my resume?",
+    "name": "How does CViviD analyze my resume?",
     "acceptedAnswer": {
       "@type": "Answer",
-      "text": "CVSense uses Google Gemini AI to analyze your resume across 5 capital dimensions based on Bourdieu's framework, plus visual hierarchy and ATS compatibility."
+      "text": "CViviD uses Google Gemini AI to analyze your resume across 5 capital dimensions based on Bourdieu's framework, plus visual hierarchy and ATS compatibility."
     }
   }]
 }
@@ -684,10 +684,10 @@ Benefits:
   "headline": "Article Title",
   "author": {
     "@type": "Organization",
-    "name": "CVSense"
+    "name": "CViviD"
   },
   "datePublished": "2026-01-15",
-  "image": "https://cvsense.com/blog/image.jpg"
+  "image": "https://CViviD.com/blog/image.jpg"
 }
 ```
 
@@ -792,7 +792,7 @@ Install and configure:
 1. **Add meta tags** to LandingPage.tsx:
 ```tsx
 useEffect(() => {
-  document.title = "CVSense - AI Resume Analysis & Eye-Tracking Heatmaps";
+  document.title = "CViviD - AI Resume Analysis & Eye-Tracking Heatmaps";
   document.querySelector('meta[name="description"]')?.setAttribute(
     "content",
     "Analyze your CV with AI-powered capital theory assessment, visual heatmaps, and ATS compatibility scoring."
@@ -807,31 +807,31 @@ Allow: /
 Disallow: /api/
 Disallow: /supabase/
 Disallow: /auth/
-Sitemap: https://cvsense.com/sitemap.xml
+Sitemap: https://CViviD.com/sitemap.xml
 ```
 
 3. **Add Open Graph tags** to index.html:
 ```html
-<meta property="og:title" content="CVSense - AI Resume Analysis">
+<meta property="og:title" content="CViviD - AI Resume Analysis">
 <meta property="og:description" content="Decode the hidden signals in your resume">
-<meta property="og:image" content="https://cvsense.com/og-image.jpg">
-<meta property="og:url" content="https://cvsense.com">
+<meta property="og:image" content="https://CViviD.com/og-image.jpg">
+<meta property="og:url" content="https://CViviD.com">
 <meta name="twitter:card" content="summary_large_image">
 ```
 
 4. **Create a simple FAQ** on landing page (GEO gold):
 ```
-Q: What is CVSense?
-A: CVSense is an AI-powered resume analysis tool that evaluates CVs using Bourdieu's Capital Theory framework and generates eye-tracking heatmaps to predict recruiter attention patterns.
+Q: What is CViviD?
+A: CViviD is an AI-powered resume analysis tool that evaluates CVs using Bourdieu's Capital Theory framework and generates eye-tracking heatmaps to predict recruiter attention patterns.
 
-Q: How much does CVSense cost?
+Q: How much does CViviD cost?
 A: Single analysis costs 3.99. Monthly plans start at 9/month (Explorer) with options up to 29/month (Career Accelerator).
 
 Q: Is my resume data secure?
-A: Yes. All uploads are encrypted, processed securely, and never shared with third parties. CVSense is GDPR compliant.
+A: Yes. All uploads are encrypted, processed securely, and never shared with third parties. CViviD is GDPR compliant.
 
-Q: How is CVSense different from other resume tools?
-A: CVSense uses market signaling theory and capital theory frameworks, not just keyword matching. We analyze what your CV communicates about your professional value, not just whether it has the right words.
+Q: How is CViviD different from other resume tools?
+A: CViviD uses market signaling theory and capital theory frameworks, not just keyword matching. We analyze what your CV communicates about your professional value, not just whether it has the right words.
 ```
 
 ---

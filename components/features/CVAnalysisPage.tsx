@@ -59,7 +59,7 @@ export const CVAnalysisPage: React.FC<Props> = ({ onBack, onNavigate, onStartAna
                 CV Analysis - AI-Powered Resume Evaluation
               </h1>
               <p className="text-xl text-slate-300 mb-8 leading-relaxed">
-                CVSense analyzes your CV using advanced AI to evaluate capital theory scoring, visual hierarchy, ATS compatibility, and market signaling strength. Get actionable insights in seconds.
+                CViviD analyzes your CV using advanced AI to evaluate capital theory scoring, visual hierarchy, ATS compatibility, and market signaling strength. Get actionable insights in seconds.
               </p>
               <button
                 onClick={onStartAnalysis}
@@ -78,7 +78,7 @@ export const CVAnalysisPage: React.FC<Props> = ({ onBack, onNavigate, onStartAna
             <div className="max-w-3xl mx-auto">
               <h2 className="text-3xl font-bold text-slate-900 mb-6">What It Is</h2>
               <p className="text-lg text-slate-600 leading-relaxed mb-6">
-                CVSense CV Analysis is an AI-powered tool that evaluates your resume across multiple dimensions using Pierre Bourdieu's Capital Theory framework. Unlike simple keyword scanners, CVSense understands the deeper signals your CV sends to employers.
+                CViviD CV Analysis is an AI-powered tool that evaluates your resume across multiple dimensions using Pierre Bourdieu's Capital Theory framework. Unlike simple keyword scanners, CViviD understands the deeper signals your CV sends to employers.
               </p>
               <p className="text-lg text-slate-600 leading-relaxed">
                 The analysis covers five types of capital (Material, Social, Cultural, Symbolic, and Technological), visual presentation quality, ATS compatibility, and overall market signaling effectiveness. Each analysis provides specific, actionable recommendations to improve your CV's performance.
@@ -133,7 +133,7 @@ export const CVAnalysisPage: React.FC<Props> = ({ onBack, onNavigate, onStartAna
                   Research shows recruiters spend an average of 6-7 seconds on initial CV screening. In that brief window, your CV must communicate value instantly and effectively.
                 </p>
                 <p className="text-lg text-slate-600 leading-relaxed mb-6">
-                  Most candidates never receive feedback on why their CVs don't perform. CVSense bridges this gap by providing the same insights that professional recruiters and HR consultants use—making expert-level analysis accessible to everyone.
+                  Most candidates never receive feedback on why their CVs don't perform. CViviD bridges this gap by providing the same insights that professional recruiters and HR consultants use—making expert-level analysis accessible to everyone.
                 </p>
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3">

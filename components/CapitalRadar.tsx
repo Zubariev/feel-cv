@@ -8,13 +8,15 @@ import {
   ResponsiveContainer,
   Tooltip
 } from 'recharts';
+import { Info } from 'lucide-react';
 import { CapitalDistribution } from '../types';
 
 interface Props {
   data: CapitalDistribution;
+  onInfoClick?: () => void;
 }
 
-export const CapitalRadar: React.FC<Props> = ({ data }) => {
+export const CapitalRadar: React.FC<Props> = ({ data, onInfoClick }) => {
   const chartData = [
     { subject: 'Material', A: data.material, fullMark: 100 },
     { subject: 'Social', A: data.social, fullMark: 100 },
@@ -25,7 +27,18 @@ export const CapitalRadar: React.FC<Props> = ({ data }) => {
 
   return (
     <div className="w-full h-80">
-      <h3 className="text-lg font-semibold text-slate-800 mb-2">Forms of Capital (Bourdieu)</h3>
+      <h3 className="text-lg font-semibold text-slate-800 mb-2 flex items-center">
+        Forms of Capital (Bourdieu)
+        {onInfoClick && (
+          <button
+            onClick={onInfoClick}
+            className="ml-2 p-1 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
+            title="Learn more about this analysis"
+          >
+            <Info className="w-4 h-4" />
+          </button>
+        )}
+      </h3>
       <ResponsiveContainer width="100%" height="100%">
         <RadarChart cx="50%" cy="50%" outerRadius="70%" data={chartData}>
           <PolarGrid stroke="#e2e8f0" />

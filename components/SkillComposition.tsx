@@ -1,11 +1,13 @@
 import React from 'react';
+import { Info } from 'lucide-react';
 import { SkillComposition } from '../types';
 
 interface Props {
   data: SkillComposition;
+  onInfoClick?: () => void;
 }
 
-export const SkillCompositionBar: React.FC<Props> = ({ data }) => {
+export const SkillCompositionBar: React.FC<Props> = ({ data, onInfoClick }) => {
   // Normalize just in case
   const total = data.hardSkills + data.softSkills + data.education + data.impact;
   const hard = (data.hardSkills / total) * 100;
@@ -15,7 +17,18 @@ export const SkillCompositionBar: React.FC<Props> = ({ data }) => {
 
   return (
     <div className="w-full">
-      <h3 className="text-lg font-semibold text-slate-800 mb-4">Semantic Content Distribution</h3>
+      <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center">
+        Semantic Content Distribution
+        {onInfoClick && (
+          <button
+            onClick={onInfoClick}
+            className="ml-2 p-1 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
+            title="Learn more about this analysis"
+          >
+            <Info className="w-4 h-4" />
+          </button>
+        )}
+      </h3>
       <div className="w-full h-6 flex rounded-full overflow-hidden bg-slate-100">
         <div style={{ width: `${hard}%` }} className="bg-indigo-500 h-full" title={`Hard Skills: ${Math.round(hard)}%`} />
         <div style={{ width: `${soft}%` }} className="bg-teal-400 h-full" title={`Soft Skills: ${Math.round(soft)}%`} />

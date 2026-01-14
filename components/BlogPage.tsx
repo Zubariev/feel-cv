@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react';
 import {
   ArrowLeft,
   BrainCircuit,
-  Search,
   BookOpen,
   ChevronRight,
   FileText
@@ -14,8 +13,7 @@ import {
   BlogCategory,
   categoryLabels,
   categoryColors,
-  getAllCategories,
-  searchPosts
+  getAllCategories
 } from '../data/blogData';
 
 interface Props {
@@ -25,29 +23,16 @@ interface Props {
 }
 
 export const BlogPage: React.FC<Props> = ({ onBack, onNavigate, onSelectPost }) => {
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<BlogCategory | 'all'>('all');
 
   const categories = useMemo(() => getAllCategories(), []);
 
   const filteredPosts = useMemo(() => {
-    let posts = blogPosts;
-
-    // Filter by category
-    if (selectedCategory !== 'all') {
-      posts = posts.filter(post => post.category === selectedCategory);
+    if (selectedCategory === 'all') {
+      return blogPosts;
     }
-
-    // Filter by search query
-    if (searchQuery.trim()) {
-      posts = searchPosts(searchQuery);
-      if (selectedCategory !== 'all') {
-        posts = posts.filter(post => post.category === selectedCategory);
-      }
-    }
-
-    return posts;
-  }, [searchQuery, selectedCategory]);
+    return blogPosts.filter(post => post.category === selectedCategory);
+  }, [selectedCategory]);
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -76,43 +61,31 @@ export const BlogPage: React.FC<Props> = ({ onBack, onNavigate, onSelectPost }) 
       {/* Main Content */}
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 text-white py-16">
+        <section className="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 text-white py-20 lg:py-24">
           <div className="max-w-screen-xl mx-auto px-6 sm:px-8 lg:px-12 text-center">
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="bg-indigo-500 p-3 rounded-xl">
-                <BookOpen className="w-8 h-8 text-white" />
+            <div className="flex items-center justify-center gap-3 mb-8">
+              <div className="bg-indigo-500/90 p-4 rounded-2xl shadow-lg shadow-indigo-500/20">
+                <BookOpen className="w-9 h-9 text-white" />
               </div>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">CViviD Blog</h1>
-            <p className="text-xl text-slate-300 max-w-2xl mx-auto mb-8">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-5 tracking-tight">CViviD Blog</h1>
+            <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
               Expert insights on resume optimization, career development, and the science behind successful job applications.
             </p>
-
-            {/* Search Bar */}
-            <div className="max-w-xl mx-auto relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search articles..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              />
-            </div>
           </div>
         </section>
 
         {/* Category Filter */}
-        <section className="border-b border-slate-200 bg-slate-50">
-          <div className="max-w-screen-xl mx-auto px-6 sm:px-8 lg:px-12 py-4">
+        <section className="border-b border-slate-200 bg-slate-50/80">
+          <div className="max-w-screen-xl mx-auto px-6 sm:px-8 lg:px-12 py-5">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="text-sm font-medium text-slate-500">Filter by:</span>
+              <span className="text-sm font-semibold text-slate-500 tracking-wide uppercase">Filter:</span>
               <button
                 onClick={() => setSelectedCategory('all')}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 ${
                   selectedCategory === 'all'
-                    ? 'bg-slate-900 text-white'
-                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                    ? 'bg-slate-900 text-white shadow-md'
+                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 hover:border-slate-300'
                 }`}
               >
                 All Posts
@@ -121,10 +94,10 @@ export const BlogPage: React.FC<Props> = ({ onBack, onNavigate, onSelectPost }) 
                 <button
                   key={category}
                   onClick={() => setSelectedCategory(category)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 ${
                     selectedCategory === category
-                      ? 'bg-slate-900 text-white'
-                      : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                      ? 'bg-slate-900 text-white shadow-md'
+                      : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 hover:border-slate-300'
                   }`}
                 >
                   {categoryLabels[category]}
@@ -135,10 +108,10 @@ export const BlogPage: React.FC<Props> = ({ onBack, onNavigate, onSelectPost }) 
         </section>
 
         {/* Blog Posts Grid */}
-        <section className="py-16 bg-white">
+        <section className="py-16 lg:py-20 bg-white">
           <div className="max-w-screen-xl mx-auto px-6 sm:px-8 lg:px-12">
             {filteredPosts.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
                 {filteredPosts.map(post => (
                   <BlogPostCard
                     key={post.slug}
@@ -153,22 +126,19 @@ export const BlogPage: React.FC<Props> = ({ onBack, onNavigate, onSelectPost }) 
                   <FileText className="w-10 h-10 text-slate-400" />
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-2">
-                  {blogPosts.length === 0 ? 'Coming Soon' : 'No posts found'}
+                  {blogPosts.length === 0 ? 'Coming Soon' : 'No posts in this category'}
                 </h3>
                 <p className="text-slate-600 max-w-md mx-auto">
                   {blogPosts.length === 0
                     ? 'We\'re working on creating valuable content for you. Check back soon for expert insights on resume optimization and career development.'
-                    : 'Try adjusting your search or filter to find what you\'re looking for.'}
+                    : 'Try selecting a different category to find articles.'}
                 </p>
-                {searchQuery && (
+                {selectedCategory !== 'all' && (
                   <button
-                    onClick={() => {
-                      setSearchQuery('');
-                      setSelectedCategory('all');
-                    }}
+                    onClick={() => setSelectedCategory('all')}
                     className="mt-6 px-6 py-3 bg-slate-900 text-white font-medium rounded-lg hover:bg-slate-800 transition-colors"
                   >
-                    Clear Filters
+                    View All Posts
                   </button>
                 )}
               </div>
@@ -177,15 +147,15 @@ export const BlogPage: React.FC<Props> = ({ onBack, onNavigate, onSelectPost }) 
         </section>
 
         {/* CTA Section */}
-        <section className="py-16 bg-indigo-600 text-white">
+        <section className="py-20 lg:py-24 bg-gradient-to-br from-indigo-600 to-indigo-700 text-white">
           <div className="max-w-screen-xl mx-auto px-6 sm:px-8 lg:px-12 text-center">
-            <h2 className="text-3xl font-bold mb-4">Ready to Optimize Your CV?</h2>
-            <p className="text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
+            <h2 className="text-3xl lg:text-4xl font-extrabold mb-5 tracking-tight">Ready to Optimize Your CV?</h2>
+            <p className="text-lg lg:text-xl text-indigo-100 mb-10 max-w-2xl mx-auto leading-relaxed">
               Put these insights into practice. Analyze your resume with CViviD and get personalized recommendations.
             </p>
             <button
               onClick={onBack}
-              className="px-8 py-4 bg-white text-indigo-600 font-semibold rounded-xl hover:bg-indigo-50 transition-colors"
+              className="px-10 py-4 bg-white text-indigo-600 font-bold rounded-xl hover:bg-indigo-50 transition-all duration-200 shadow-lg shadow-indigo-900/20 hover:shadow-xl"
             >
               Analyze Your CV
             </button>
@@ -209,45 +179,45 @@ const BlogPostCard: React.FC<BlogPostCardProps> = ({ post, onClick }) => {
   return (
     <article
       onClick={onClick}
-      className="group bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg transition-all cursor-pointer"
+      className="group bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-200/50 hover:border-slate-300 transition-all duration-300 cursor-pointer"
     >
       {/* Image placeholder */}
-      <div className="aspect-video bg-gradient-to-br from-slate-100 to-slate-200 relative overflow-hidden">
+      <div className="aspect-[16/10] bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 relative overflow-hidden">
         {post.image ? (
           <img
             src={post.image}
             alt={post.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
-            <BookOpen className="w-12 h-12 text-slate-300" />
+            <BookOpen className="w-14 h-14 text-slate-300/80" />
           </div>
         )}
       </div>
 
-      <div className="p-6">
+      <div className="p-6 lg:p-7">
         {/* Category badge */}
-        <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium border ${categoryColors[post.category]} mb-3`}>
+        <span className={`inline-block px-3 py-1.5 rounded-full text-xs font-semibold tracking-wide border ${categoryColors[post.category]} mb-4`}>
           {categoryLabels[post.category]}
         </span>
 
         {/* Title */}
-        <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-indigo-600 transition-colors line-clamp-2">
+        <h3 className="text-lg lg:text-xl font-bold text-slate-900 mb-3 group-hover:text-indigo-600 transition-colors duration-200 line-clamp-2 leading-snug tracking-tight">
           {post.title}
         </h3>
 
         {/* Description */}
-        <p className="text-slate-600 text-sm mb-4 line-clamp-3">
+        <p className="text-slate-600 text-sm leading-relaxed mb-5 line-clamp-3">
           {post.description}
         </p>
 
         {/* Tags */}
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="flex flex-wrap gap-2 mb-5">
           {post.tags.slice(0, 3).map(tag => (
             <span
               key={tag}
-              className="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded"
+              className="px-2.5 py-1 bg-slate-50 text-slate-500 text-xs font-medium rounded-md border border-slate-100"
             >
               {tag}
             </span>
@@ -255,9 +225,9 @@ const BlogPostCard: React.FC<BlogPostCardProps> = ({ post, onClick }) => {
         </div>
 
         {/* Read more link */}
-        <div className="flex items-center text-indigo-600 font-medium text-sm group-hover:gap-2 transition-all">
+        <div className="flex items-center text-indigo-600 font-semibold text-sm group-hover:gap-2 transition-all duration-200">
           Read article
-          <ChevronRight className="w-4 h-4 ml-1" />
+          <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform duration-200" />
         </div>
       </div>
     </article>

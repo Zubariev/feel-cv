@@ -60,6 +60,17 @@ const PageLoader = () => (
   </div>
 );
 
+// Info button component that links to blog posts
+const InfoButton: React.FC<{ slug: string; onClick: (slug: string) => void }> = ({ slug, onClick }) => (
+  <button
+    onClick={(e) => { e.stopPropagation(); onClick(slug); }}
+    className="ml-2 p-1 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
+    title="Learn more about this analysis"
+  >
+    <Info className="w-4 h-4" />
+  </button>
+);
+
 import {
   BarChart3,
   BrainCircuit,
@@ -74,7 +85,10 @@ import {
   EyeOff,
   Layers,
   ArrowLeft,
-  History
+  History,
+  Info,
+  X,
+  ZoomIn
 } from 'lucide-react';
 
 export default function App() {
@@ -123,6 +137,9 @@ export default function App() {
 
   // Embedded checkout state
   const [showEmbeddedCheckout, setShowEmbeddedCheckout] = useState(false);
+
+  // Image lightbox state
+  const [showImageLightbox, setShowImageLightbox] = useState(false);
   const [checkoutData, setCheckoutData] = useState<{
     checkoutUrl: string;
     orderId: string;
@@ -165,6 +182,17 @@ export default function App() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [result]);
+
+  // Handle ESC key to close lightbox
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showImageLightbox) {
+        setShowImageLightbox(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showImageLightbox]);
 
   // Initialize auth session and subscribe to changes
   useEffect(() => {
@@ -784,6 +812,13 @@ export default function App() {
     setSelectedBlogPost(null);
   };
 
+  // Handler to open a specific blog post from analysis info buttons
+  const handleOpenBlogPost = (slug: string) => {
+    setCurrentPage('blog');
+    setSelectedBlogPost(slug);
+    setShowLanding(false);
+  };
+
   // Show Payment Success Page
   if (showPaymentSuccess) {
     return (
@@ -1221,7 +1256,10 @@ export default function App() {
             <div className="lg:col-span-4 space-y-6">
               <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
                 <div className="flex justify-between items-center mb-4">
-                     <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">Source Document</h3>
+                     <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider flex items-center">
+                       Source Document
+                       <InfoButton slug="how-to-read-visual-analysis" onClick={handleOpenBlogPost} />
+                     </h3>
                      <div className="flex gap-2">
                          <button 
                             onClick={() => setShowSkills(!showSkills)}
@@ -1244,22 +1282,34 @@ export default function App() {
                 
                 {imagePreview && (
                   <div className="relative rounded-lg overflow-hidden border border-slate-100 shadow-inner group bg-slate-100">
-                     <img
-                        ref={imageRef}
-                        src={
-                          // Use cached layer images if available, otherwise use base imagePreview
-                          cachedLayerUrls
-                            ? (showSaliency && showSkills && cachedLayerUrls.heatmap_skills)
-                              || (showSaliency && !showSkills && cachedLayerUrls.heatmap)
-                              || (!showSaliency && showSkills && cachedLayerUrls.skills)
-                              || cachedLayerUrls.raw
-                              || imagePreview
-                            : imagePreview
-                        }
-                        onLoad={handleImageLoad}
-                        alt="Resume Preview"
-                        className="w-full h-auto block"
-                     />
+                     <div
+                       className="relative cursor-zoom-in"
+                       onClick={() => setShowImageLightbox(true)}
+                       title="Click to enlarge"
+                     >
+                       <img
+                          ref={imageRef}
+                          src={
+                            // Use cached layer images if available, otherwise use base imagePreview
+                            cachedLayerUrls
+                              ? (showSaliency && showSkills && cachedLayerUrls.heatmap_skills)
+                                || (showSaliency && !showSkills && cachedLayerUrls.heatmap)
+                                || (!showSaliency && showSkills && cachedLayerUrls.skills)
+                                || cachedLayerUrls.raw
+                                || imagePreview
+                              : imagePreview
+                          }
+                          onLoad={handleImageLoad}
+                          alt="Resume Preview"
+                          className="w-full h-auto block"
+                       />
+                       {/* Zoom indicator on hover */}
+                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                         <div className="bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg">
+                           <ZoomIn className="w-5 h-5 text-slate-700" />
+                         </div>
+                       </div>
+                     </div>
 
                      {/* Only render on-the-fly overlays when no cached layers (i.e., fresh analysis) */}
                      {!cachedLayerUrls && showSkills && result.skillHighlights && result.skillHighlights.length > 0 && (
@@ -1318,7 +1368,10 @@ export default function App() {
 
               {/* Key Metrics Summary */}
               <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-6">Market Impact</h3>
+                <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-6 flex items-center">
+                  Market Impact
+                  <InfoButton slug="understanding-market-impact-scores" onClick={handleOpenBlogPost} />
+                </h3>
                 <div className="space-y-6">
                   <div>
                     <div className="flex justify-between mb-1">
@@ -1376,6 +1429,7 @@ export default function App() {
                 <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center">
                     <Eye className="w-5 h-5 mr-2 text-indigo-500" />
                     Visual Layout Engine
+                    <InfoButton slug="understanding-layout-engine-scores" onClick={handleOpenBlogPost} />
                 </h3>
                 <VisualMetrics data={result.visualAnalysis} />
               </section>
@@ -1383,23 +1437,23 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Capital Radar */}
                 <section className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                  <CapitalRadar data={result.capitalDistribution} />
+                  <CapitalRadar data={result.capitalDistribution} onInfoClick={() => handleOpenBlogPost('understanding-forms-of-capital')} />
                 </section>
 
                 {/* Tone Analysis */}
                 <section className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                  <ToneAnalysis data={result.toneProfile} />
+                  <ToneAnalysis data={result.toneProfile} onInfoClick={() => handleOpenBlogPost('understanding-tone-style-profile')} />
                 </section>
               </div>
 
               {/* Capital Evidence - NEW SECTION */}
               <section className="bg-slate-50 rounded-xl">
-                 <CapitalEvidence data={result.capitalEvidence} />
+                 <CapitalEvidence data={result.capitalEvidence} onInfoClick={() => handleOpenBlogPost('understanding-forms-of-capital')} />
               </section>
 
               {/* Semantic Distribution */}
               <section className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <SkillCompositionBar data={result.skillComposition} />
+                <SkillCompositionBar data={result.skillComposition} onInfoClick={() => handleOpenBlogPost('understanding-skills-distribution')} />
               </section>
 
               {/* Insights & Skills */}
@@ -1408,6 +1462,7 @@ export default function App() {
                     <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center">
                         <Award className="w-5 h-5 mr-2 text-emerald-500" />
                         Top Detected Skills
+                        <InfoButton slug="understanding-skills-distribution" onClick={handleOpenBlogPost} />
                     </h3>
                     <div className="flex flex-wrap gap-2 mb-4">
                         {result.topHardSkills.map((skill, i) => (
@@ -1464,6 +1519,48 @@ export default function App() {
           </div>
         )}
       </main>
+
+      {/* Image Lightbox Modal */}
+      {showImageLightbox && imagePreview && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setShowImageLightbox(false)}
+        >
+          {/* Close button */}
+          <button
+            onClick={() => setShowImageLightbox(false)}
+            className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors z-10"
+            title="Close (ESC)"
+          >
+            <X className="w-6 h-6 text-white" />
+          </button>
+
+          {/* Image container */}
+          <div
+            className="relative max-w-[95vw] max-h-[95vh] animate-in zoom-in-95 duration-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={
+                cachedLayerUrls
+                  ? (showSaliency && showSkills && cachedLayerUrls.heatmap_skills)
+                    || (showSaliency && !showSkills && cachedLayerUrls.heatmap)
+                    || (!showSaliency && showSkills && cachedLayerUrls.skills)
+                    || cachedLayerUrls.raw
+                    || imagePreview
+                  : imagePreview
+              }
+              alt="Resume Full View"
+              className="max-w-full max-h-[95vh] object-contain rounded-lg shadow-2xl"
+            />
+          </div>
+
+          {/* Instructions */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 text-sm">
+            Click anywhere or press ESC to close
+          </div>
+        </div>
+      )}
 
       {/* Upgrade Modal */}
       {entitlements && (

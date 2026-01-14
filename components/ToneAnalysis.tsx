@@ -9,13 +9,15 @@ import {
   ResponsiveContainer,
   Cell
 } from 'recharts';
+import { Info } from 'lucide-react';
 import { ToneProfile } from '../types';
 
 interface Props {
   data: ToneProfile;
+  onInfoClick?: () => void;
 }
 
-export const ToneAnalysis: React.FC<Props> = ({ data }) => {
+export const ToneAnalysis: React.FC<Props> = ({ data, onInfoClick }) => {
   const chartData = [
     { name: 'Formal', value: data.formal, color: '#94a3b8' },
     { name: 'Professional', value: data.professional, color: '#3b82f6' },
@@ -26,7 +28,18 @@ export const ToneAnalysis: React.FC<Props> = ({ data }) => {
 
   return (
     <div className="w-full h-80">
-      <h3 className="text-lg font-semibold text-slate-800 mb-2">Tone & Style Profile</h3>
+      <h3 className="text-lg font-semibold text-slate-800 mb-2 flex items-center">
+        Tone & Style Profile
+        {onInfoClick && (
+          <button
+            onClick={onInfoClick}
+            className="ml-2 p-1 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
+            title="Learn more about this analysis"
+          >
+            <Info className="w-4 h-4" />
+          </button>
+        )}
+      </h3>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={chartData}

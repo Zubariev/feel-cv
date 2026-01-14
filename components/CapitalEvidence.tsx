@@ -1,12 +1,13 @@
 import React from 'react';
 import { CapitalEvidence as CapitalEvidenceType } from '../types';
-import { Coins, Users, GraduationCap, Crown, Cpu, Quote } from 'lucide-react';
+import { Coins, Users, GraduationCap, Crown, Cpu, Quote, Info } from 'lucide-react';
 
 interface Props {
   data: CapitalEvidenceType;
+  onInfoClick?: () => void;
 }
 
-export const CapitalEvidence: React.FC<Props> = ({ data }) => {
+export const CapitalEvidence: React.FC<Props> = ({ data, onInfoClick }) => {
   const categories = [
     { 
       key: 'cultural', 
@@ -55,6 +56,15 @@ export const CapitalEvidence: React.FC<Props> = ({ data }) => {
       <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center">
         <Quote className="w-5 h-5 mr-2 text-indigo-500" />
         Forms of Capital Evidence
+        {onInfoClick && (
+          <button
+            onClick={onInfoClick}
+            className="ml-2 p-1 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
+            title="Learn more about this analysis"
+          >
+            <Info className="w-4 h-4" />
+          </button>
+        )}
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {categories.map((cat) => (

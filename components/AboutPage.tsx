@@ -16,9 +16,10 @@ import { Footer } from './Footer';
 interface Props {
   onBack: () => void;
   onNavigate: (page: 'about' | 'contact' | 'privacy' | 'terms' | 'cookies' | 'gdpr' | 'ai-ethics' | 'blog' | 'cv-analysis' | 'cv-comparison' | 'eye-tracking' | 'capital-theory' | 'ats-score' | 'market-signaling') => void;
+  onPricingClick?: () => void;
 }
 
-export const AboutPage: React.FC<Props> = ({ onBack, onNavigate }) => {
+export const AboutPage: React.FC<Props> = ({ onBack, onNavigate, onPricingClick }) => {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
@@ -32,7 +33,7 @@ export const AboutPage: React.FC<Props> = ({ onBack, onNavigate }) => {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-lg font-bold tracking-tight">About CViviD</h1>
+            <h1 className="text-lg font-bold tracking-tight">About CVIVID</h1>
             <p className="text-xs text-slate-400">Our mission and story</p>
           </div>
         </div>
@@ -48,7 +49,7 @@ export const AboutPage: React.FC<Props> = ({ onBack, onNavigate }) => {
                 <BrainCircuit className="w-10 h-10 text-white" />
               </div>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">About CViviD</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">About CVIVID</h1>
             <p className="text-xl text-slate-300 max-w-2xl mx-auto">
               Empowering professionals to understand and articulate their true value in the job market.
             </p>
@@ -61,7 +62,7 @@ export const AboutPage: React.FC<Props> = ({ onBack, onNavigate }) => {
             <div className="max-w-3xl mx-auto text-center mb-16">
               <h2 className="text-3xl font-bold text-slate-900 mb-6">Our Mission</h2>
               <p className="text-lg text-slate-600 leading-relaxed">
-                We believe that everyone deserves to understand their professional worth. CViviD was born from a simple
+                We believe that everyone deserves to understand their professional worth. CVIVID was born from a simple
                 observation: too many talented professionals struggle to articulate their value, not because they lack skills,
                 but because they lack the tools to see and communicate what makes them unique.
               </p>
@@ -285,7 +286,7 @@ export const AboutPage: React.FC<Props> = ({ onBack, onNavigate }) => {
       </main>
 
       {/* Footer */}
-      <Footer onNavigate={onNavigate} />
+      <Footer onNavigate={onNavigate} onPricingClick={onPricingClick} />
     </div>
   );
 };

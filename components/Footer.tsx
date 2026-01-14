@@ -11,9 +11,10 @@ import {
 
 interface Props {
   onNavigate: (page: 'about' | 'contact' | 'privacy' | 'terms' | 'cookies' | 'gdpr' | 'ai-ethics' | 'blog' | 'cv-analysis' | 'cv-comparison' | 'eye-tracking' | 'capital-theory' | 'ats-score' | 'market-signaling') => void;
+  onPricingClick?: () => void;
 }
 
-export const Footer: React.FC<Props> = ({ onNavigate }) => {
+export const Footer: React.FC<Props> = ({ onNavigate, onPricingClick }) => {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -27,7 +28,7 @@ export const Footer: React.FC<Props> = ({ onNavigate }) => {
               <div className="bg-indigo-500 p-2 rounded-lg">
                 <BrainCircuit className="w-6 h-6 text-white" />
               </div>
-              <span className="text-xl font-bold text-white">CViviD</span>
+              <span className="text-xl font-bold text-white">CVIVID</span>
             </div>
             <p className="text-sm text-slate-400 mb-6 leading-relaxed">
               AI-powered CV analysis using Bourdieu's capital theory and visual signal extraction.
@@ -103,12 +104,12 @@ export const Footer: React.FC<Props> = ({ onNavigate }) => {
                 </button>
               </li>
               <li>
-                <a
-                  href="#pricing"
+                <button
+                  onClick={onPricingClick}
                   className="text-sm text-slate-400 hover:text-indigo-400 transition-colors"
                 >
                   Pricing
-                </a>
+                </button>
               </li>
             </ul>
           </div>
@@ -222,10 +223,10 @@ export const Footer: React.FC<Props> = ({ onNavigate }) => {
               <li className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-indigo-400 flex-shrink-0" />
                 <a
-                  href="mailto:support@CViviD.com"
+                  href="mailto:support@CVIVID.com"
                   className="text-sm text-slate-400 hover:text-indigo-400 transition-colors"
                 >
-                  support@CViviD.com
+                  support@CVIVID.com
                 </a>
               </li>
               <li className="flex items-start gap-3">
@@ -252,7 +253,7 @@ export const Footer: React.FC<Props> = ({ onNavigate }) => {
         <div className="max-w-screen-xl mx-auto px-6 sm:px-8 lg:px-12 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-slate-500">
-              &copy; {currentYear} CViviD. All rights reserved.
+              &copy; {currentYear} CVIVID. All rights reserved.
             </p>
             <div className="flex items-center gap-6">
               <button

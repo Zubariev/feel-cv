@@ -149,7 +149,7 @@ export const LandingPage: React.FC<Props> = ({
           </div>
 
           <h1 className="text-6xl md:text-8xl font-extrabold tracking-tight mb-8 bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-slate-400">
-            CViviD
+            CVIVID
           </h1>
 
           <p className="text-3xl md:text-4xl text-white font-medium max-w-4xl mb-6">
@@ -165,7 +165,7 @@ export const LandingPage: React.FC<Props> = ({
               onClick={handleCtaClick}
               className="group relative inline-flex items-center gap-3 px-10 py-5 text-lg rounded-full transition-all duration-300 shadow-[0_0_20px_rgba(79,70,229,0.5)] hover:shadow-[0_0_30px_rgba(79,70,229,0.6)] bg-indigo-600 hover:bg-indigo-500 text-white cursor-pointer"
             >
-              {isAuthenticated ? 'Launch CViviD' : 'Get Started'}
+              {isAuthenticated ? 'Launch CVIVID' : 'Get Started'}
               <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
             </button>
             <div className="text-sm text-slate-400 md:text-left">
@@ -450,7 +450,7 @@ export const LandingPage: React.FC<Props> = ({
                   Bourdieu's Theory of Capital
                 </h2>
                 <p className="text-lg text-slate-600 mb-8 leading-relaxed">
-                  CViviD is built on sociological and market signaling theories. We interpret your professional history through 5 distinct forms of capital to measure your true leverage in the talent market.
+                  CVIVID is built on sociological and market signaling theories. We interpret your professional history through 5 distinct forms of capital to measure your true leverage in the talent market.
                 </p>
                 <button onClick={handleCtaClick} className="text-lg text-indigo-600 font-semibold flex items-center hover:gap-3 transition-all">
                   Analyze your capital <ArrowRight className="w-5 h-5 ml-2" />
@@ -549,7 +549,15 @@ export const LandingPage: React.FC<Props> = ({
       </section>
 
       {/* Footer */}
-      <Footer onNavigate={onNavigate} />
+      <Footer
+        onNavigate={onNavigate}
+        onPricingClick={() => {
+          const pricingSection = document.getElementById('pricing-section');
+          if (pricingSection) {
+            pricingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }}
+      />
 
     </div>
   );

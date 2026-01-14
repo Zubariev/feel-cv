@@ -231,7 +231,7 @@ serve(async (req: Request) => {
     });
 
     // Get the origin for callback URLs
-    const origin = req.headers.get('origin') || 'https://CViviD.com';
+    const origin = req.headers.get('origin') || 'https://CVIVID.com';
 
     // Build order parameters
     const orderParams: Record<string, unknown> = {

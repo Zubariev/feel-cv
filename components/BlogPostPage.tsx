@@ -23,6 +23,7 @@ interface Props {
   onBackToBlog: () => void;
   onNavigate: (page: 'about' | 'contact' | 'privacy' | 'terms' | 'cookies' | 'gdpr' | 'ai-ethics' | 'blog' | 'cv-analysis' | 'cv-comparison' | 'eye-tracking' | 'capital-theory' | 'ats-score' | 'market-signaling') => void;
   onSelectPost: (slug: string) => void;
+  onPricingClick?: () => void;
 }
 
 // Clean up blog content - remove article wrapper and first h1 (title is shown in header)
@@ -39,11 +40,12 @@ export const BlogPostPage: React.FC<Props> = ({
   onBack,
   onBackToBlog,
   onNavigate,
-  onSelectPost
+  onSelectPost,
+  onPricingClick
 }) => {
   const [copied, setCopied] = React.useState(false);
 
-  const shareUrl = `https://CViviD.com/blog/${post.slug}`;
+  const shareUrl = `https://CVIVID.com/blog/${post.slug}`;
 
   const handleCopyLink = async () => {
     try {
@@ -89,7 +91,7 @@ export const BlogPostPage: React.FC<Props> = ({
                 <BrainCircuit className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-lg font-bold tracking-tight">CViviD Blog</h1>
+                <h1 className="text-lg font-bold tracking-tight">CVIVID Blog</h1>
                 <p className="text-xs text-slate-400">Insights for job seekers</p>
               </div>
             </div>
@@ -225,7 +227,7 @@ export const BlogPostPage: React.FC<Props> = ({
                   <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 text-white rounded-2xl p-6 shadow-lg shadow-indigo-600/20">
                     <h3 className="text-lg font-bold mb-3 tracking-tight">Ready to optimize your CV?</h3>
                     <p className="text-indigo-100 text-sm leading-relaxed mb-5">
-                      Put these insights into practice with CViviD AI analysis.
+                      Put these insights into practice with CVIVID AI analysis.
                     </p>
                     <button
                       onClick={onBack}
@@ -294,7 +296,7 @@ export const BlogPostPage: React.FC<Props> = ({
       </main>
 
       {/* Footer */}
-      <Footer onNavigate={onNavigate} />
+      <Footer onNavigate={onNavigate} onPricingClick={onPricingClick} />
     </div>
   );
 };

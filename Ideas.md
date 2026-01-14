@@ -1,6 +1,6 @@
 Ideas
 
-CViviD isnt not just another Dashboard business with AI.
+CVIVID isnt not just another Dashboard business with AI.
 We sell confidence and support. 
 Understanding the user:
 

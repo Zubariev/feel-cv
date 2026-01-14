@@ -20,9 +20,10 @@ interface Props {
   onBack: () => void;
   onNavigate: (page: 'about' | 'contact' | 'privacy' | 'terms' | 'cookies' | 'gdpr' | 'ai-ethics' | 'blog' | 'cv-analysis' | 'cv-comparison' | 'eye-tracking' | 'capital-theory' | 'ats-score' | 'market-signaling') => void;
   onSelectPost: (slug: string) => void;
+  onPricingClick?: () => void;
 }
 
-export const BlogPage: React.FC<Props> = ({ onBack, onNavigate, onSelectPost }) => {
+export const BlogPage: React.FC<Props> = ({ onBack, onNavigate, onSelectPost, onPricingClick }) => {
   const [selectedCategory, setSelectedCategory] = useState<BlogCategory | 'all'>('all');
 
   const categories = useMemo(() => getAllCategories(), []);
@@ -51,7 +52,7 @@ export const BlogPage: React.FC<Props> = ({ onBack, onNavigate, onSelectPost }) 
               <BrainCircuit className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-bold tracking-tight">CViviD Blog</h1>
+              <h1 className="text-lg font-bold tracking-tight">CVIVID Blog</h1>
               <p className="text-xs text-slate-400">Insights for job seekers</p>
             </div>
           </div>
@@ -68,7 +69,7 @@ export const BlogPage: React.FC<Props> = ({ onBack, onNavigate, onSelectPost }) 
                 <BookOpen className="w-9 h-9 text-white" />
               </div>
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-5 tracking-tight">CViviD Blog</h1>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-5 tracking-tight">CVIVID Blog</h1>
             <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
               Expert insights on resume optimization, career development, and the science behind successful job applications.
             </p>
@@ -151,7 +152,7 @@ export const BlogPage: React.FC<Props> = ({ onBack, onNavigate, onSelectPost }) 
           <div className="max-w-screen-xl mx-auto px-6 sm:px-8 lg:px-12 text-center">
             <h2 className="text-3xl lg:text-4xl font-extrabold mb-5 tracking-tight">Ready to Optimize Your CV?</h2>
             <p className="text-lg lg:text-xl text-indigo-100 mb-10 max-w-2xl mx-auto leading-relaxed">
-              Put these insights into practice. Analyze your resume with CViviD and get personalized recommendations.
+              Put these insights into practice. Analyze your resume with CVIVID and get personalized recommendations.
             </p>
             <button
               onClick={onBack}
@@ -164,7 +165,7 @@ export const BlogPage: React.FC<Props> = ({ onBack, onNavigate, onSelectPost }) 
       </main>
 
       {/* Footer */}
-      <Footer onNavigate={onNavigate} />
+      <Footer onNavigate={onNavigate} onPricingClick={onPricingClick} />
     </div>
   );
 };

@@ -5,9 +5,10 @@ import { Footer } from './Footer';
 interface Props {
   onBack: () => void;
   onNavigate: (page: 'about' | 'contact' | 'privacy' | 'terms' | 'cookies' | 'gdpr' | 'ai-ethics' | 'blog' | 'cv-analysis' | 'cv-comparison' | 'eye-tracking' | 'capital-theory' | 'ats-score' | 'market-signaling') => void;
+  onPricingClick?: () => void;
 }
 
-export const AIEthicalPolicyPage: React.FC<Props> = ({ onBack, onNavigate }) => {
+export const AIEthicalPolicyPage: React.FC<Props> = ({ onBack, onNavigate, onPricingClick }) => {
   const lastUpdated = 'December 20, 2025';
 
   return (
@@ -102,7 +103,7 @@ export const AIEthicalPolicyPage: React.FC<Props> = ({ onBack, onNavigate }) => 
 
               <h2 className="text-2xl font-bold text-slate-900 mt-12 mb-4">1. Responsible AI Use</h2>
               <p className="text-slate-600 mb-4">
-                CViviD's AI analyzes CVs and application data to provide optimization suggestions. We aim for
+                CVIVID's AI analyzes CVs and application data to provide optimization suggestions. We aim for
                 fairness, transparency, and accuracy in all our AI-powered features.
               </p>
               <p className="text-slate-600 mb-4">
@@ -111,7 +112,7 @@ export const AIEthicalPolicyPage: React.FC<Props> = ({ onBack, onNavigate }) => 
               </p>
               <div className="bg-amber-50 border border-amber-200 p-6 rounded-xl mb-6">
                 <p className="text-slate-700">
-                  <strong>Important:</strong> CViviD, our AI, and everything we do is not intended to help you
+                  <strong>Important:</strong> CVIVID, our AI, and everything we do is not intended to help you
                   get jobs you are not qualified for. It is designed to help you present yourself authentically
                   and effectively for positions you are genuinely qualified for.
                 </p>
@@ -171,7 +172,7 @@ export const AIEthicalPolicyPage: React.FC<Props> = ({ onBack, onNavigate }) => 
               </p>
               <ul className="list-disc list-inside text-slate-600 space-y-2 mb-6">
                 <li>Human review is recommended for all CV edits and AI outputs before submission</li>
-                <li>CViviD does not make hiring decisions; final responsibility lies with you</li>
+                <li>CVIVID does not make hiring decisions; final responsibility lies with you</li>
                 <li>Users must exercise their own judgment when using AI suggestions</li>
                 <li>The accuracy of AI-generated content cannot be guaranteed</li>
                 <li>You remain solely responsible for all content you submit to employers</li>
@@ -212,14 +213,14 @@ export const AIEthicalPolicyPage: React.FC<Props> = ({ onBack, onNavigate }) => 
               <div className="bg-slate-50 p-6 rounded-xl">
                 <p className="text-slate-600">
                   <strong>Email:</strong>{' '}
-                  <a href="mailto:ai-ethics@CViviD.com" className="text-indigo-600 hover:text-indigo-700">
-                    ai-ethics@CViviD.com
+                  <a href="mailto:ai-ethics@CVIVID.com" className="text-indigo-600 hover:text-indigo-700">
+                    ai-ethics@CVIVID.com
                   </a>
                 </p>
                 <p className="text-slate-600 mt-2">
                   <strong>General Support:</strong>{' '}
-                  <a href="mailto:support@CViviD.com" className="text-indigo-600 hover:text-indigo-700">
-                    support@CViviD.com
+                  <a href="mailto:support@CVIVID.com" className="text-indigo-600 hover:text-indigo-700">
+                    support@CVIVID.com
                   </a>
                 </p>
               </div>
@@ -227,7 +228,7 @@ export const AIEthicalPolicyPage: React.FC<Props> = ({ onBack, onNavigate }) => 
               <div className="mt-12 p-6 bg-indigo-50 rounded-xl border border-indigo-100">
                 <p className="text-slate-700 text-sm">
                   This AI Ethical Policy is part of our comprehensive Terms & Conditions that govern your use
-                  of CViviD's services. For complete details, please refer to our{' '}
+                  of CVIVID's services. For complete details, please refer to our{' '}
                   <button
                     onClick={() => onNavigate('terms')}
                     className="text-indigo-600 hover:text-indigo-700 font-medium"
@@ -249,7 +250,7 @@ export const AIEthicalPolicyPage: React.FC<Props> = ({ onBack, onNavigate }) => 
       </main>
 
       {/* Footer */}
-      <Footer onNavigate={onNavigate} />
+      <Footer onNavigate={onNavigate} onPricingClick={onPricingClick} />
     </div>
   );
 };

@@ -696,7 +696,7 @@ export default function App() {
       case 'career-accelerator':
         return { name: 'Career Accelerator Plan', amount: '€29/month' };
       default:
-        return { name: 'CViviD Plan', amount: '' };
+        return { name: 'CVIVID Plan', amount: '' };
     }
   };
 
@@ -812,6 +812,23 @@ export default function App() {
     setSelectedBlogPost(null);
   };
 
+  // Handler to navigate to landing page and scroll to pricing section
+  const handlePricingClick = () => {
+    setCurrentPage(null);
+    setSelectedBlogPost(null);
+    setShowLanding(true);
+    setShowHistory(false);
+    setShowComparison(false);
+    setShowComparisonSelector(false);
+    // Scroll to pricing after the landing page renders
+    setTimeout(() => {
+      const pricingSection = document.getElementById('pricing-section');
+      if (pricingSection) {
+        pricingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  };
+
   // Handler to open a specific blog post from analysis info buttons
   const handleOpenBlogPost = (slug: string) => {
     setCurrentPage('blog');
@@ -838,7 +855,7 @@ export default function App() {
     return (
       <ErrorBoundary>
         <Suspense fallback={<PageLoader />}>
-          <AboutPage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+          <AboutPage onBack={handleBackFromPage} onNavigate={handleNavigate} onPricingClick={handlePricingClick} />
         </Suspense>
       </ErrorBoundary>
     );
@@ -849,7 +866,7 @@ export default function App() {
     return (
       <ErrorBoundary>
         <Suspense fallback={<PageLoader />}>
-          <ContactPage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+          <ContactPage onBack={handleBackFromPage} onNavigate={handleNavigate} onPricingClick={handlePricingClick} />
         </Suspense>
       </ErrorBoundary>
     );
@@ -860,7 +877,7 @@ export default function App() {
     return (
       <ErrorBoundary>
         <Suspense fallback={<PageLoader />}>
-          <PrivacyPolicyPage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+          <PrivacyPolicyPage onBack={handleBackFromPage} onNavigate={handleNavigate} onPricingClick={handlePricingClick} />
         </Suspense>
       </ErrorBoundary>
     );
@@ -871,7 +888,7 @@ export default function App() {
     return (
       <ErrorBoundary>
         <Suspense fallback={<PageLoader />}>
-          <TermsOfUsePage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+          <TermsOfUsePage onBack={handleBackFromPage} onNavigate={handleNavigate} onPricingClick={handlePricingClick} />
         </Suspense>
       </ErrorBoundary>
     );
@@ -882,7 +899,7 @@ export default function App() {
     return (
       <ErrorBoundary>
         <Suspense fallback={<PageLoader />}>
-          <CookiePolicyPage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+          <CookiePolicyPage onBack={handleBackFromPage} onNavigate={handleNavigate} onPricingClick={handlePricingClick} />
         </Suspense>
       </ErrorBoundary>
     );
@@ -893,7 +910,7 @@ export default function App() {
     return (
       <ErrorBoundary>
         <Suspense fallback={<PageLoader />}>
-          <GDPRCompliancePage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+          <GDPRCompliancePage onBack={handleBackFromPage} onNavigate={handleNavigate} onPricingClick={handlePricingClick} />
         </Suspense>
       </ErrorBoundary>
     );
@@ -904,7 +921,7 @@ export default function App() {
     return (
       <ErrorBoundary>
         <Suspense fallback={<PageLoader />}>
-          <AIEthicalPolicyPage onBack={handleBackFromPage} onNavigate={handleNavigate} />
+          <AIEthicalPolicyPage onBack={handleBackFromPage} onNavigate={handleNavigate} onPricingClick={handlePricingClick} />
         </Suspense>
       </ErrorBoundary>
     );
@@ -923,6 +940,7 @@ export default function App() {
               onBackToBlog={handleBackToBlog}
               onNavigate={handleNavigate}
               onSelectPost={handleSelectBlogPost}
+              onPricingClick={handlePricingClick}
             />
           </Suspense>
         </ErrorBoundary>
@@ -939,6 +957,7 @@ export default function App() {
             onBack={handleBackFromPage}
             onNavigate={handleNavigate}
             onSelectPost={handleSelectBlogPost}
+            onPricingClick={handlePricingClick}
           />
         </Suspense>
       </ErrorBoundary>
@@ -953,6 +972,7 @@ export default function App() {
           <CVAnalysisPage
             onBack={handleBackFromPage}
             onNavigate={handleNavigate}
+            onPricingClick={handlePricingClick}
             onStartAnalysis={() => {
               setCurrentPage(null);
               setShowLanding(false);
@@ -971,6 +991,7 @@ export default function App() {
           <CVComparisonPage
             onBack={handleBackFromPage}
             onNavigate={handleNavigate}
+            onPricingClick={handlePricingClick}
             onStartAnalysis={() => {
               setCurrentPage(null);
               setShowLanding(false);
@@ -989,6 +1010,7 @@ export default function App() {
           <EyeTrackingPage
             onBack={handleBackFromPage}
             onNavigate={handleNavigate}
+            onPricingClick={handlePricingClick}
             onStartAnalysis={() => {
               setCurrentPage(null);
               setShowLanding(false);
@@ -1007,6 +1029,7 @@ export default function App() {
           <CapitalTheoryPage
             onBack={handleBackFromPage}
             onNavigate={handleNavigate}
+            onPricingClick={handlePricingClick}
             onStartAnalysis={() => {
               setCurrentPage(null);
               setShowLanding(false);
@@ -1025,6 +1048,7 @@ export default function App() {
           <ATSScorePage
             onBack={handleBackFromPage}
             onNavigate={handleNavigate}
+            onPricingClick={handlePricingClick}
             onStartAnalysis={() => {
               setCurrentPage(null);
               setShowLanding(false);
@@ -1043,6 +1067,7 @@ export default function App() {
           <MarketSignalingPage
             onBack={handleBackFromPage}
             onNavigate={handleNavigate}
+            onPricingClick={handlePricingClick}
             onStartAnalysis={() => {
               setCurrentPage(null);
               setShowLanding(false);
@@ -1153,7 +1178,7 @@ export default function App() {
                 <BrainCircuit className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold tracking-tight">CViviD</h1>
+              <h1 className="text-xl font-bold tracking-tight">CVIVID</h1>
               <p className="text-xs text-slate-400 font-medium">5 types of capital & Visual Signal Extraction</p>
             </div>
           </div>

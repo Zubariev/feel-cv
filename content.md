@@ -5,10 +5,10 @@ Effective Date: 20 Dec 2025
 
 Last Updated: 20 Dec 2025
 
-CViviD, is committed to protecting your personal data in accordance with the General Data Protection Regulation (GDPR). This policy outlines your rights and our responsibilities regarding data protection.
+CVIVID, is committed to protecting your personal data in accordance with the General Data Protection Regulation (GDPR). This policy outlines your rights and our responsibilities regarding data protection.
 
 Data Controller
-Company: "CViviD"
+Company: "CVIVID"
 
 Company Number: 12345
 
@@ -57,7 +57,7 @@ Lodge a complaint with the Information Commissioner's Office (ICO).
 To exercise your rights: Contact us at [email] with your request. We will respond within one month of receiving your request.
 
 AI Processing and Your Data
-CViviD uses artificial intelligence technology to provide suggestions and recommendations for your CV and job applications. Here's what you need to know:
+CVIVID uses artificial intelligence technology to provide suggestions and recommendations for your CV and job applications. Here's what you need to know:
 
 (a) AI processing is based on your explicit consent.
 
@@ -137,13 +137,13 @@ Effective Date: 20 Dec 2025
 Last Updated: 20 Dec 2025
 
 1. Responsible AI Use
-CViviD's AI analyzes CVs, and application data to provide optimization suggestions. We aim for fairness, transparency, and accuracy in all our AI-powered features.
+CVIVID's AI analyzes CVs, and application data to provide optimization suggestions. We aim for fairness, transparency, and accuracy in all our AI-powered features.
 
 The Company utilises AI technology to provide suggestions, recommendations, and assistance through the Services, including but not limited to content generation, CV optimisation, job matching, and application guidance.
 
 All AI-generated content, suggestions, and recommendations provided through the Services are advisory in nature only and are intended to assist Users in creating and improving their CVs and job applications.
 
-Important: CViviD, our AI and everything we do is not intended to get you jobs you are not qualified for. It is designed to get you only what you are ideally qualified for.
+Important: CVIVID, our AI and everything we do is not intended to get you jobs you are not qualified for. It is designed to get you only what you are ideally qualified for.
 
 2. Bias Mitigation
 AI is trained to avoid discrimination based on age, gender, ethnicity, religion, disability, or other protected characteristics.
@@ -153,7 +153,7 @@ Users are encouraged to review AI-generated suggestions and exercise their own j
 Users acknowledge that AI-generated suggestions and recommendations may not be suitable for all circumstances or job applications, and that Users remain solely responsible for reviewing, editing, and approving all content before submission to potential employers.
 
 3. Transparency
-Users are informed when AI tools are being used throughout the CViviD platform and services.
+Users are informed when AI tools are being used throughout the CVIVID platform and services.
 
 AI outputs are suggestions, not guarantees. The Company makes no warranties, representations, or guarantees regarding the success of any job application or employment outcome, or the accuracy or suitability of AI-generated content for specific roles or industries.
 
@@ -178,19 +178,19 @@ The Company may use aggregated and anonymised data derived from User Content for
 6. Human Oversight
 Human review is recommended for all CV edits, application recommendations, and AI outputs before submission to potential employers.
 
-CViviD does not make hiring decisions; final responsibility lies with the user. Users must exercise their own judgment when using AI suggestions and recommendations.
+CVIVID does not make hiring decisions; final responsibility lies with the user. Users must exercise their own judgment when using AI suggestions and recommendations.
 
 The accuracy, completeness, or appropriateness of AI-generated content cannot be guaranteed, and users remain solely responsible for all Content they upload, submit, or provide to the Platform.
 
 Complete Terms & Conditions
-This AI Ethical Policy is part of our comprehensive Terms & Conditions that govern your use of CViviD's services.
+This AI Ethical Policy is part of our comprehensive Terms & Conditions that govern your use of CVIVID's services.
 
 For complete details on all aspects of our service, including additional AI-related terms, user responsibilities, data protection, and legal obligations, please refer to our full Terms of Service.
 
 ---
 
 Cookies Policy
-Understanding how CViviD uses cookies to enhance your experience and protect your privacy
+Understanding how CVIVID uses cookies to enhance your experience and protect your privacy
 
 Effective Date: 1st October 2025
 
@@ -233,6 +233,6 @@ Last Updated: 22nd October 2025
 6.1. For detailed information about the types of cookies used, their purposes, and retention periods, Users should refer to the complete Cookies Policy.
 
 7. Complete Terms and Conditions
-7.1. This Cookies Policy forms part of our comprehensive Terms and Conditions. For complete legal terms governing your use of CViviD, including detailed privacy provisions, data protection measures, and user obligations, please refer to our full Terms of Service.
+7.1. This Cookies Policy forms part of our comprehensive Terms and Conditions. For complete legal terms governing your use of CVIVID, including detailed privacy provisions, data protection measures, and user obligations, please refer to our full Terms of Service.
 
 7.2. For questions about these terms, please contact us at [email]

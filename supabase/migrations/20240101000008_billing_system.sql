@@ -1,5 +1,5 @@
 -- ============================================================================
--- CViviD Billing System
+-- CVIVID Billing System
 -- Implements the SaaS billing model: Plans, Subscriptions, Purchases, Usage
 -- ============================================================================
 

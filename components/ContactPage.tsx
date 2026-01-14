@@ -14,9 +14,10 @@ import { Footer } from './Footer';
 interface Props {
   onBack: () => void;
   onNavigate: (page: 'about' | 'contact' | 'privacy' | 'terms' | 'cookies' | 'gdpr' | 'ai-ethics' | 'blog' | 'cv-analysis' | 'cv-comparison' | 'eye-tracking' | 'capital-theory' | 'ats-score' | 'market-signaling') => void;
+  onPricingClick?: () => void;
 }
 
-export const ContactPage: React.FC<Props> = ({ onBack, onNavigate }) => {
+export const ContactPage: React.FC<Props> = ({ onBack, onNavigate, onPricingClick }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -72,7 +73,7 @@ export const ContactPage: React.FC<Props> = ({ onBack, onNavigate }) => {
             <MessageSquare className="w-16 h-16 mx-auto mb-6 text-indigo-400" />
             <h1 className="text-4xl md:text-5xl font-bold mb-4">Get in Touch</h1>
             <p className="text-xl text-slate-300 max-w-2xl mx-auto">
-              Have questions about CViviD? We're here to help you understand your professional value.
+              Have questions about CVIVID? We're here to help you understand your professional value.
             </p>
           </div>
         </section>
@@ -97,8 +98,8 @@ export const ContactPage: React.FC<Props> = ({ onBack, onNavigate }) => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-slate-900">Email</h3>
-                      <a href="mailto:support@CViviD.com" className="text-indigo-600 hover:text-indigo-700">
-                        support@CViviD.com
+                      <a href="mailto:support@CVIVID.com" className="text-indigo-600 hover:text-indigo-700">
+                        support@CVIVID.com
                       </a>
                     </div>
                   </div>
@@ -267,7 +268,7 @@ export const ContactPage: React.FC<Props> = ({ onBack, onNavigate }) => {
       </main>
 
       {/* Footer */}
-      <Footer onNavigate={onNavigate} />
+      <Footer onNavigate={onNavigate} onPricingClick={onPricingClick} />
     </div>
   );
 };

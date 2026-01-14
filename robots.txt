@@ -35,4 +35,4 @@ Allow: /images/
 Allow: /fonts/
 
 # Sitemap location
-Sitemap: https://CViviD.ai/sitemap.xml
+Sitemap: https://CVIVID.ai/sitemap.xml

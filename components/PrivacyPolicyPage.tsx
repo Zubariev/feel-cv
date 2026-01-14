@@ -5,9 +5,10 @@ import { Footer } from './Footer';
 interface Props {
   onBack: () => void;
   onNavigate: (page: 'about' | 'contact' | 'privacy' | 'terms' | 'cookies' | 'gdpr' | 'ai-ethics' | 'blog' | 'cv-analysis' | 'cv-comparison' | 'eye-tracking' | 'capital-theory' | 'ats-score' | 'market-signaling') => void;
+  onPricingClick?: () => void;
 }
 
-export const PrivacyPolicyPage: React.FC<Props> = ({ onBack, onNavigate }) => {
+export const PrivacyPolicyPage: React.FC<Props> = ({ onBack, onNavigate, onPricingClick }) => {
   const lastUpdated = 'December 20, 2025';
 
   return (
@@ -45,7 +46,7 @@ export const PrivacyPolicyPage: React.FC<Props> = ({ onBack, onNavigate }) => {
           <div className="max-w-3xl mx-auto px-6 sm:px-8 lg:px-12">
             <div className="prose prose-slate max-w-none">
               <p className="text-lg text-slate-600 mb-8">
-                At CViviD, we take your privacy seriously. This Privacy Policy explains how we collect,
+                At CVIVID, we take your privacy seriously. This Privacy Policy explains how we collect,
                 use, disclose, and safeguard your information when you use our CV analysis service.
               </p>
 
@@ -127,8 +128,8 @@ export const PrivacyPolicyPage: React.FC<Props> = ({ onBack, onNavigate }) => {
               </ul>
               <p className="text-slate-600 mb-6">
                 To exercise these rights, please contact us at{' '}
-                <a href="mailto:privacy@CViviD.com" className="text-indigo-600 hover:text-indigo-700">
-                  privacy@CViviD.com
+                <a href="mailto:privacy@CVIVID.com" className="text-indigo-600 hover:text-indigo-700">
+                  privacy@CVIVID.com
                 </a>
               </p>
 
@@ -180,8 +181,8 @@ export const PrivacyPolicyPage: React.FC<Props> = ({ onBack, onNavigate }) => {
               <div className="bg-slate-50 p-6 rounded-xl">
                 <p className="text-slate-600">
                   <strong>Email:</strong>{' '}
-                  <a href="mailto:privacy@CViviD.com" className="text-indigo-600 hover:text-indigo-700">
-                    privacy@CViviD.com
+                  <a href="mailto:privacy@CVIVID.com" className="text-indigo-600 hover:text-indigo-700">
+                    privacy@CVIVID.com
                   </a>
                 </p>
                 <p className="text-slate-600 mt-2">
@@ -194,7 +195,7 @@ export const PrivacyPolicyPage: React.FC<Props> = ({ onBack, onNavigate }) => {
       </main>
 
       {/* Footer */}
-      <Footer onNavigate={onNavigate} />
+      <Footer onNavigate={onNavigate} onPricingClick={onPricingClick} />
     </div>
   );
 };

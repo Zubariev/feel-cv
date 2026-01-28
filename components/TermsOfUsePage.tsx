@@ -205,8 +205,8 @@ export const TermsOfUsePage: React.FC<Props> = ({ onBack, onNavigate, onPricingC
               <div className="bg-slate-50 p-6 rounded-xl">
                 <p className="text-slate-600">
                   <strong>Email:</strong>{' '}
-                  <a href="mailto:legal@CVIVID.com" className="text-indigo-600 hover:text-indigo-700">
-                    legal@CVIVID.com
+                  <a href="mailto:roman.zubariev@wiwi.digital" className="text-indigo-600 hover:text-indigo-700">
+                    roman.zubariev@wiwi.digital
                   </a>
                 </p>
                 <p className="text-slate-600 mt-2">

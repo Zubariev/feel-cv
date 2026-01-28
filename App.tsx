@@ -1103,6 +1103,7 @@ export default function App() {
             userId={currentUser.id}
             onCompare={handleCompare}
             onCancel={handleCancelComparison}
+            entitlements={entitlements}
           />
         </Suspense>
       </ErrorBoundary>

@@ -60,8 +60,8 @@ export const GDPRCompliancePage: React.FC<Props> = ({ onBack, onNavigate, onPric
                 <p className="text-slate-600 mt-2"><strong>Location:</strong> Kyiv, Ukraine</p>
                 <p className="text-slate-600 mt-2">
                   <strong>Contact:</strong>{' '}
-                  <a href="mailto:privacy@CVIVID.com" className="text-indigo-600 hover:text-indigo-700">
-                    privacy@CVIVID.com
+                  <a href="mailto:roman.zubariev@wiwi.digital" className="text-indigo-600 hover:text-indigo-700">
+                    roman.zubariev@wiwi.digital
                   </a>
                 </p>
               </div>
@@ -173,8 +173,8 @@ export const GDPRCompliancePage: React.FC<Props> = ({ onBack, onNavigate, onPric
               <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-100 mb-8">
                 <p className="text-slate-700">
                   <strong>To exercise your rights:</strong> Contact us at{' '}
-                  <a href="mailto:privacy@CVIVID.com" className="text-indigo-600 hover:text-indigo-700">
-                    privacy@CVIVID.com
+                  <a href="mailto:roman.zubariev@wiwi.digital" className="text-indigo-600 hover:text-indigo-700">
+                    roman.zubariev@wiwi.digital
                   </a>{' '}
                   with your request. We will respond within one month of receiving your request.
                 </p>
@@ -240,8 +240,8 @@ export const GDPRCompliancePage: React.FC<Props> = ({ onBack, onNavigate, onPric
                 <h3 className="font-semibold text-slate-900 mb-3">Data Protection Enquiries</h3>
                 <p className="text-slate-600">
                   <strong>Email:</strong>{' '}
-                  <a href="mailto:privacy@CVIVID.com" className="text-indigo-600 hover:text-indigo-700">
-                    privacy@CVIVID.com
+                  <a href="mailto:roman.zubariev@wiwi.digital" className="text-indigo-600 hover:text-indigo-700">
+                    roman.zubariev@wiwi.digital
                   </a>
                 </p>
                 <p className="text-slate-600 mt-2">

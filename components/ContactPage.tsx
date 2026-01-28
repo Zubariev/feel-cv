@@ -98,8 +98,8 @@ export const ContactPage: React.FC<Props> = ({ onBack, onNavigate, onPricingClic
                     </div>
                     <div>
                       <h3 className="font-semibold text-slate-900">Email</h3>
-                      <a href="mailto:support@CVIVID.com" className="text-indigo-600 hover:text-indigo-700">
-                        support@CVIVID.com
+                      <a href="mailto:roman.zubariev@wiwi.digital" className="text-indigo-600 hover:text-indigo-700">
+                        roman.zubariev@wiwi.digital
                       </a>
                     </div>
                   </div>

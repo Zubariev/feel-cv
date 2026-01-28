@@ -128,8 +128,8 @@ export const PrivacyPolicyPage: React.FC<Props> = ({ onBack, onNavigate, onPrici
               </ul>
               <p className="text-slate-600 mb-6">
                 To exercise these rights, please contact us at{' '}
-                <a href="mailto:privacy@CVIVID.com" className="text-indigo-600 hover:text-indigo-700">
-                  privacy@CVIVID.com
+                <a href="mailto:roman.zubariev@wiwi.digital" className="text-indigo-600 hover:text-indigo-700">
+                  roman.zubariev@wiwi.digital
                 </a>
               </p>
 
@@ -181,8 +181,8 @@ export const PrivacyPolicyPage: React.FC<Props> = ({ onBack, onNavigate, onPrici
               <div className="bg-slate-50 p-6 rounded-xl">
                 <p className="text-slate-600">
                   <strong>Email:</strong>{' '}
-                  <a href="mailto:privacy@CVIVID.com" className="text-indigo-600 hover:text-indigo-700">
-                    privacy@CVIVID.com
+                  <a href="mailto:roman.zubariev@wiwi.digital" className="text-indigo-600 hover:text-indigo-700">
+                    roman.zubariev@wiwi.digital
                   </a>
                 </p>
                 <p className="text-slate-600 mt-2">

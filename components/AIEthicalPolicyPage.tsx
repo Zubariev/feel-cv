@@ -213,14 +213,14 @@ export const AIEthicalPolicyPage: React.FC<Props> = ({ onBack, onNavigate, onPri
               <div className="bg-slate-50 p-6 rounded-xl">
                 <p className="text-slate-600">
                   <strong>Email:</strong>{' '}
-                  <a href="mailto:ai-ethics@CVIVID.com" className="text-indigo-600 hover:text-indigo-700">
-                    ai-ethics@CVIVID.com
+                  <a href="mailto:roman.zubariev@wiwi.digital" className="text-indigo-600 hover:text-indigo-700">
+                    roman.zubariev@wiwi.digital
                   </a>
                 </p>
                 <p className="text-slate-600 mt-2">
                   <strong>General Support:</strong>{' '}
-                  <a href="mailto:support@CVIVID.com" className="text-indigo-600 hover:text-indigo-700">
-                    support@CVIVID.com
+                  <a href="mailto:roman.zubariev@wiwi.digital" className="text-indigo-600 hover:text-indigo-700">
+                    roman.zubariev@wiwi.digital
                   </a>
                 </p>
               </div>

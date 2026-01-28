@@ -9,8 +9,8 @@ import {
   Loader2
 } from 'lucide-react';
 import { databaseService } from '../services/databaseService';
-import { useEntitlements } from '../contexts/EntitlementsContext';
 import { HistoryListSkeleton } from './LoadingSkeletons';
+import { EntitlementSnapshot } from '../types';
 
 interface AnalysisItem {
   id: string;
@@ -26,18 +26,22 @@ interface Props {
   userId: string;
   onCompare: (baseId: string, compareId: string) => void;
   onCancel: () => void;
+  entitlements?: EntitlementSnapshot | null;
 }
 
-export const ComparisonSelector: React.FC<Props> = ({ userId, onCompare, onCancel }) => {
+export const ComparisonSelector: React.FC<Props> = ({ userId, onCompare, onCancel, entitlements }) => {
   const [analyses, setAnalyses] = useState<AnalysisItem[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [comparing, setComparing] = useState(false);
 
-  const { comparisonsRemaining, isUnlimitedComparisons, entitlements } = useEntitlements();
-  const remaining = comparisonsRemaining ?? 0;
-  const limit = isUnlimitedComparisons ? Infinity : (entitlements.limits.comparisons_per_month ?? 0);
+  // Calculate comparisons remaining from entitlements prop
+  const isUnlimitedComparisons = entitlements?.limits.unlimited_comparisons ?? false;
+  const comparisonsLimit = entitlements?.limits.comparisons_per_month ?? 0;
+  const comparisonsUsed = entitlements?.usage.comparisons_used ?? 0;
+  const remaining = isUnlimitedComparisons ? Infinity : Math.max(0, comparisonsLimit - comparisonsUsed);
+  const limit = isUnlimitedComparisons ? Infinity : comparisonsLimit;
 
   useEffect(() => {
     const fetchAnalyses = async () => {

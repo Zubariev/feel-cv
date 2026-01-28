@@ -223,10 +223,10 @@ export const Footer: React.FC<Props> = ({ onNavigate, onPricingClick }) => {
               <li className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-indigo-400 flex-shrink-0" />
                 <a
-                  href="mailto:support@CVIVID.com"
+                  href="mailto:roman.zubariev@wiwi.digital"
                   className="text-sm text-slate-400 hover:text-indigo-400 transition-colors"
                 >
-                  support@CVIVID.com
+                  roman.zubariev@wiwi.digital
                 </a>
               </li>
               <li className="flex items-start gap-3">

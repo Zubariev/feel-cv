@@ -9,7 +9,7 @@ interface Props {
 }
 
 export const TermsOfUsePage: React.FC<Props> = ({ onBack, onNavigate, onPricingClick }) => {
-  const lastUpdated = 'December 20, 2025';
+  const lastUpdated = 'February 2, 2026';
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -132,10 +132,39 @@ export const TermsOfUsePage: React.FC<Props> = ({ onBack, onNavigate, onPricingC
                 <li>Prices may change with reasonable notice</li>
               </ul>
 
-              <h3 className="text-xl font-semibold text-slate-800 mt-8 mb-3">6.3 Refunds</h3>
+              <h3 className="text-xl font-semibold text-slate-800 mt-8 mb-3">6.3 Refund Policy</h3>
+              <p className="text-slate-600 mb-4">
+                We want you to be satisfied with CVIVID. Our refund policy is as follows:
+              </p>
+
+              <h4 className="text-lg font-medium text-slate-700 mt-6 mb-2">One-Time Purchases (Single CV Analysis)</h4>
+              <ul className="list-disc list-inside text-slate-600 space-y-2 mb-4">
+                <li>Refunds are available within 14 days of purchase if you have not yet used the analysis</li>
+                <li>Once an analysis has been performed, the service is considered delivered and refunds are not available</li>
+                <li>If you experience technical issues preventing analysis, contact us for a full refund or replacement</li>
+              </ul>
+
+              <h4 className="text-lg font-medium text-slate-700 mt-6 mb-2">Subscription Plans</h4>
+              <ul className="list-disc list-inside text-slate-600 space-y-2 mb-4">
+                <li>You may cancel your subscription at any time from your account settings</li>
+                <li>Cancellation takes effect at the end of your current billing period</li>
+                <li>Refunds for the current billing period are available within 7 days of charge if no analyses were used</li>
+                <li>Partial refunds are not provided for unused analyses within a billing period</li>
+                <li>If you experience persistent technical issues, contact us for a prorated refund</li>
+              </ul>
+
+              <h4 className="text-lg font-medium text-slate-700 mt-6 mb-2">How to Request a Refund</h4>
+              <p className="text-slate-600 mb-4">
+                To request a refund, please contact our support team at{' '}
+                <a href="mailto:roman.zubariev@wiwi.digital" className="text-indigo-600 hover:text-indigo-700">
+                  roman.zubariev@wiwi.digital
+                </a>{' '}
+                with your account email and reason for the refund. We aim to process all refund requests within 5-7 business days.
+              </p>
+
+              <h4 className="text-lg font-medium text-slate-700 mt-6 mb-2">Exceptions</h4>
               <p className="text-slate-600 mb-6">
-                Refund requests are handled on a case-by-case basis. Please contact our support team
-                if you have concerns about a charge.
+                Refunds may be denied if we detect fraudulent activity, abuse of the refund policy, or violation of these Terms of Use. We reserve the right to modify this refund policy with reasonable notice.
               </p>
 
               <h2 className="text-2xl font-bold text-slate-900 mt-12 mb-4">7. Disclaimer of Warranties</h2>

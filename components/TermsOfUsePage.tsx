@@ -46,7 +46,8 @@ export const TermsOfUsePage: React.FC<Props> = ({ onBack, onNavigate, onPricingC
           <div className="max-w-3xl mx-auto px-6 sm:px-8 lg:px-12">
             <div className="prose prose-slate max-w-none">
               <p className="text-lg text-slate-600 mb-8">
-                Welcome to CVIVID. By accessing or using our service, you agree to be bound by these
+                Welcome to CVIVID, a CV analysis service operated by <strong>Roman Zubariev</strong> (sole proprietor),
+                based in Kyiv, Ukraine. By accessing or using our service, you agree to be bound by these
                 Terms of Use. Please read them carefully before using our CV analysis platform.
               </p>
 
@@ -124,12 +125,18 @@ export const TermsOfUsePage: React.FC<Props> = ({ onBack, onNavigate, onPricingC
                 Plan details, including pricing and features, are available on our website.
               </p>
 
-              <h3 className="text-xl font-semibold text-slate-800 mt-8 mb-3">6.2 Billing</h3>
+              <h3 className="text-xl font-semibold text-slate-800 mt-8 mb-3">6.2 Billing and Payment Processing</h3>
+              <p className="text-slate-600 mb-4">
+                Our order process is conducted by our online reseller <strong>Paddle.com</strong>. Paddle.com is the Merchant of Record
+                for all our orders. Paddle provides all customer service inquiries and handles returns.
+              </p>
               <ul className="list-disc list-inside text-slate-600 space-y-2 mb-6">
                 <li>Subscriptions are billed according to the chosen billing cycle</li>
-                <li>Payments are processed securely through our payment providers</li>
+                <li>Payments are processed securely through Paddle's payment infrastructure</li>
+                <li>VAT and sales tax are calculated and handled by Paddle based on your location</li>
                 <li>You agree to pay all applicable fees and taxes</li>
                 <li>Prices may change with reasonable notice</li>
+                <li>Payment methods accepted include credit/debit cards and PayPal</li>
               </ul>
 
               <h3 className="text-xl font-semibold text-slate-800 mt-8 mb-3">6.3 Refund Policy</h3>
@@ -137,20 +144,24 @@ export const TermsOfUsePage: React.FC<Props> = ({ onBack, onNavigate, onPricingC
                 We want you to be satisfied with CVIVID. Our refund policy is as follows:
               </p>
 
+              <h4 className="text-lg font-medium text-slate-700 mt-6 mb-2">30-Day Money-Back Guarantee</h4>
+              <p className="text-slate-600 mb-4">
+                We offer a 30-day money-back guarantee on all purchases. If you're not satisfied with CVIVID
+                for any reason, you can request a full refund within 30 days of your purchase.
+              </p>
+
               <h4 className="text-lg font-medium text-slate-700 mt-6 mb-2">One-Time Purchases (Single CV Analysis)</h4>
               <ul className="list-disc list-inside text-slate-600 space-y-2 mb-4">
-                <li>Refunds are available within 14 days of purchase if you have not yet used the analysis</li>
-                <li>Once an analysis has been performed, the service is considered delivered and refunds are not available</li>
-                <li>If you experience technical issues preventing analysis, contact us for a full refund or replacement</li>
+                <li>Full refund available within 30 days of purchase</li>
+                <li>If you experience technical issues preventing analysis, contact us for immediate refund or replacement</li>
               </ul>
 
               <h4 className="text-lg font-medium text-slate-700 mt-6 mb-2">Subscription Plans</h4>
               <ul className="list-disc list-inside text-slate-600 space-y-2 mb-4">
-                <li>You may cancel your subscription at any time from your account settings</li>
+                <li>You may cancel your subscription at any time</li>
+                <li>Full refund available within 30 days of your initial purchase or any renewal</li>
                 <li>Cancellation takes effect at the end of your current billing period</li>
-                <li>Refunds for the current billing period are available within 7 days of charge if no analyses were used</li>
-                <li>Partial refunds are not provided for unused analyses within a billing period</li>
-                <li>If you experience persistent technical issues, contact us for a prorated refund</li>
+                <li>If you experience technical issues, contact us for a prorated refund</li>
               </ul>
 
               <h4 className="text-lg font-medium text-slate-700 mt-6 mb-2">How to Request a Refund</h4>

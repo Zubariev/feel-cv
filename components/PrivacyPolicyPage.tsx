@@ -9,7 +9,7 @@ interface Props {
 }
 
 export const PrivacyPolicyPage: React.FC<Props> = ({ onBack, onNavigate, onPricingClick }) => {
-  const lastUpdated = 'December 20, 2025';
+  const lastUpdated = 'February 2, 2026';
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -58,7 +58,7 @@ export const PrivacyPolicyPage: React.FC<Props> = ({ onBack, onNavigate, onPrici
                 <li>Email address and account credentials</li>
                 <li>CV/resume documents you upload for analysis</li>
                 <li>Analysis results and history</li>
-                <li>Payment information (processed securely by third-party payment providers)</li>
+                <li>Payment information (processed securely by Paddle.com, our Merchant of Record)</li>
               </ul>
 
               <h3 className="text-xl font-semibold text-slate-800 mt-8 mb-3">1.2 Automatically Collected Information</h3>
@@ -111,7 +111,8 @@ export const PrivacyPolicyPage: React.FC<Props> = ({ onBack, onNavigate, onPrici
                 We do not sell your personal information. We may share data only in these circumstances:
               </p>
               <ul className="list-disc list-inside text-slate-600 space-y-2 mb-6">
-                <li><strong>Service Providers:</strong> Third-party services that help us operate (e.g., cloud hosting, payment processing)</li>
+                <li><strong>Payment Processing:</strong> Paddle.com acts as our Merchant of Record and processes all payments. Your payment data is handled according to <a href="https://www.paddle.com/legal/privacy" className="text-indigo-600 hover:text-indigo-700">Paddle's Privacy Policy</a></li>
+                <li><strong>Service Providers:</strong> Third-party services that help us operate (e.g., Supabase for cloud hosting and database)</li>
                 <li><strong>AI Processing:</strong> Google's Gemini AI for document analysis (your content is processed according to Google's data policies)</li>
                 <li><strong>Legal Requirements:</strong> When required by law or to protect our legal rights</li>
                 <li><strong>Business Transfers:</strong> In the event of a merger, acquisition, or sale of assets</li>

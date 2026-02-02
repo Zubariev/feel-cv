@@ -246,7 +246,7 @@ export default function App() {
     refreshEntitlements();
   }, [refreshEntitlements]);
 
-  // Detect payment success URL
+  // Detect URL paths for direct navigation
   useEffect(() => {
     const path = window.location.pathname;
     if (path === '/payment/success') {
@@ -254,6 +254,36 @@ export default function App() {
       setShowLanding(false);
       // Clean up the URL without page reload
       window.history.replaceState({}, '', '/');
+    } else if (path === '/terms') {
+      setCurrentPage('terms');
+      setShowLanding(false);
+    } else if (path === '/privacy') {
+      setCurrentPage('privacy');
+      setShowLanding(false);
+    } else if (path === '/pricing') {
+      setShowLanding(true);
+      // Scroll to pricing after render
+      setTimeout(() => {
+        const pricingSection = document.getElementById('pricing-section');
+        if (pricingSection) {
+          pricingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    } else if (path === '/about') {
+      setCurrentPage('about');
+      setShowLanding(false);
+    } else if (path === '/contact') {
+      setCurrentPage('contact');
+      setShowLanding(false);
+    } else if (path === '/cookies') {
+      setCurrentPage('cookies');
+      setShowLanding(false);
+    } else if (path === '/gdpr') {
+      setCurrentPage('gdpr');
+      setShowLanding(false);
+    } else if (path === '/ai-ethics') {
+      setCurrentPage('ai-ethics');
+      setShowLanding(false);
     }
   }, []);
 

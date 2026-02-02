@@ -23,7 +23,6 @@ import { entitlementsService } from './services/entitlementsService';
 import { paymentService } from './services/paymentService';
 import { UpgradeModal } from './components/UpgradeModal';
 import { UsageSummary } from './components/UsageMeter';
-import { EmbeddedCheckout } from './components/EmbeddedCheckout';
 import { useToast } from './components/Toast';
 
 // Lazy-loaded page components for code splitting
@@ -135,18 +134,8 @@ export default function App() {
   const [blockedAction, setBlockedAction] = useState<'analyze' | 'compare'>('analyze');
   const [paymentLoading, setPaymentLoading] = useState(false);
 
-  // Embedded checkout state
-  const [showEmbeddedCheckout, setShowEmbeddedCheckout] = useState(false);
-
   // Image lightbox state
   const [showImageLightbox, setShowImageLightbox] = useState(false);
-  const [checkoutData, setCheckoutData] = useState<{
-    checkoutUrl: string;
-    orderId: string;
-    planName: string;
-    planCode: PlanCode;
-    amount: string;
-  } | null>(null);
 
   // Ref for image dimensions to size the canvas
   const imageRef = useRef<HTMLImageElement>(null);
@@ -730,7 +719,7 @@ export default function App() {
     }
   };
 
-  // Payment flow handler
+  // Payment flow handler - opens Paddle checkout overlay
   const handleSelectPlan = async (planCode: PlanCode) => {
     console.log('[App] handleSelectPlan called with planCode:', planCode);
     console.log('[App] currentUser:', currentUser?.id);
@@ -750,71 +739,43 @@ export default function App() {
       return;
     }
 
+    // Close the upgrade modal before opening Paddle
+    setShowUpgradeModal(false);
     setPaymentLoading(true);
-    console.log('[App] Starting payment creation...');
+
+    console.log('[App] Opening Paddle checkout...');
     try {
-      const { checkoutUrl, orderId } = await paymentService.createPayment({
+      await paymentService.openCheckout({
         userId: currentUser.id,
         userEmail: currentUser.email || '',
         planCode,
+        onSuccess: () => {
+          console.log('[App] Paddle payment successful');
+          setShowPaymentSuccess(true);
+          showToast({
+            type: 'success',
+            title: 'Payment Successful',
+            message: 'Your plan has been activated!',
+          });
+          // Refresh entitlements after webhook processes
+          setTimeout(() => refreshEntitlements(), 2000);
+        },
+        onClose: () => {
+          console.log('[App] Paddle checkout closed');
+          setPaymentLoading(false);
+        },
       });
-
-      console.log('[App] Payment created successfully:', { checkoutUrl, orderId });
-      const planInfo = getPlanDisplayInfo(planCode);
-
-      // Close the upgrade modal and show embedded checkout
-      setShowUpgradeModal(false);
-      setCheckoutData({
-        checkoutUrl,
-        orderId,
-        planName: planInfo.name,
-        planCode,
-        amount: planInfo.amount,
-      });
-      setShowEmbeddedCheckout(true);
     } catch (err) {
-      console.error('[App] Failed to create payment:', err);
+      console.error('[App] Failed to open Paddle checkout:', err);
       showToast({
         type: 'error',
         title: 'Payment Error',
         message: err instanceof Error ? err.message : 'Failed to start payment. Please try again.',
       });
-    } finally {
       setPaymentLoading(false);
     }
   };
 
-  // Handle successful payment from embedded checkout
-  const handlePaymentSuccess = async () => {
-    setShowEmbeddedCheckout(false);
-    setCheckoutData(null);
-    setShowPaymentSuccess(true);
-    showToast({
-      type: 'success',
-      title: 'Payment Successful',
-      message: 'Your plan has been activated!',
-    });
-    // Refresh entitlements after a short delay to allow webhook processing
-    setTimeout(() => refreshEntitlements(), 2000);
-  };
-
-  // Handle payment error from embedded checkout
-  const handlePaymentError = (error: string) => {
-    setShowEmbeddedCheckout(false);
-    setCheckoutData(null);
-    setAnalysisError(`Payment failed: ${error}`);
-    showToast({
-      type: 'error',
-      title: 'Payment Failed',
-      message: error || 'Please try again or use a different payment method.',
-    });
-  };
-
-  // Handle embedded checkout close
-  const handleCheckoutClose = () => {
-    setShowEmbeddedCheckout(false);
-    setCheckoutData(null);
-  };
 
   // Page navigation handlers
   const handleNavigate = (page: 'about' | 'contact' | 'privacy' | 'terms' | 'cookies' | 'gdpr' | 'ai-ethics' | 'blog' | 'cv-analysis' | 'cv-comparison' | 'eye-tracking' | 'capital-theory' | 'ats-score' | 'market-signaling') => {
@@ -1174,20 +1135,6 @@ export default function App() {
           />
         </Suspense>
 
-        {/* Embedded Checkout Modal - must be rendered on landing page too */}
-        {checkoutData && (
-          <EmbeddedCheckout
-            isOpen={showEmbeddedCheckout}
-            onClose={handleCheckoutClose}
-            checkoutUrl={checkoutData.checkoutUrl}
-            orderId={checkoutData.orderId}
-            planName={checkoutData.planName}
-            planCode={checkoutData.planCode}
-            amount={checkoutData.amount}
-            onSuccess={handlePaymentSuccess}
-            onError={handlePaymentError}
-          />
-        )}
       </>
     );
   }
@@ -1629,20 +1576,6 @@ export default function App() {
         />
       )}
 
-      {/* Embedded Checkout Modal */}
-      {checkoutData && (
-        <EmbeddedCheckout
-          isOpen={showEmbeddedCheckout}
-          onClose={handleCheckoutClose}
-          checkoutUrl={checkoutData.checkoutUrl}
-          orderId={checkoutData.orderId}
-          planName={checkoutData.planName}
-          planCode={checkoutData.planCode}
-          amount={checkoutData.amount}
-          onSuccess={handlePaymentSuccess}
-          onError={handlePaymentError}
-        />
-      )}
     </div>
   );
 }

@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
+import { Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom';
+import { SEOHead, SEO_CONFIG } from './components/SEOHead';
 import { FileUpload } from './components/FileUpload';
 import { CapitalRadar } from './components/CapitalRadar';
 import { ToneAnalysis } from './components/ToneAnalysis';
@@ -40,6 +42,7 @@ const AIEthicalPolicyPage = lazy(() => import('./components/AIEthicalPolicyPage'
 const PaymentSuccessPage = lazy(() => import('./components/PaymentSuccessPage').then(m => ({ default: m.PaymentSuccessPage })));
 const BlogPage = lazy(() => import('./components/BlogPage').then(m => ({ default: m.BlogPage })));
 const BlogPostPage = lazy(() => import('./components/BlogPostPage').then(m => ({ default: m.BlogPostPage })));
+import { BlogPostWrapper } from './components/BlogPostWrapper';
 
 // Feature pages
 const CVAnalysisPage = lazy(() => import('./components/features/CVAnalysisPage').then(m => ({ default: m.CVAnalysisPage })));
@@ -92,8 +95,8 @@ import {
 
 export default function App() {
   const { showToast } = useToast();
-  const [showLanding, setShowLanding] = useState(true);
-  const [showHistory, setShowHistory] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [result, setResult] = useState<AnalysisResult | null>(null);
@@ -120,8 +123,7 @@ export default function App() {
   const [comparisonBaseAnalysis, setComparisonBaseAnalysis] = useState<AnalysisResult | null>(null);
   const [comparisonCompareAnalysis, setComparisonCompareAnalysis] = useState<AnalysisResult | null>(null);
 
-  // Page navigation state
-  const [currentPage, setCurrentPage] = useState<'about' | 'contact' | 'privacy' | 'terms' | 'cookies' | 'gdpr' | 'ai-ethics' | 'blog' | 'cv-analysis' | 'cv-comparison' | 'eye-tracking' | 'capital-theory' | 'ats-score' | 'market-signaling' | null>(null);
+  // Blog post from URL params (will be handled in route component)
   const [selectedBlogPost, setSelectedBlogPost] = useState<string | null>(null);
 
   // Payment success state
@@ -235,50 +237,21 @@ export default function App() {
     refreshEntitlements();
   }, [refreshEntitlements]);
 
-  // Detect URL paths for direct navigation
+  // Handle pricing page scroll
   useEffect(() => {
-    const path = window.location.pathname;
-    if (path === '/payment/success') {
-      setShowPaymentSuccess(true);
-      setShowLanding(false);
-      // Clean up the URL without page reload
-      window.history.replaceState({}, '', '/');
-    } else if (path === '/terms') {
-      setCurrentPage('terms');
-      setShowLanding(false);
-    } else if (path === '/privacy') {
-      setCurrentPage('privacy');
-      setShowLanding(false);
-    } else if (path === '/pricing') {
-      setShowLanding(true);
-      // Scroll to pricing after render
+    if (location.pathname === '/pricing') {
       setTimeout(() => {
         const pricingSection = document.getElementById('pricing-section');
         if (pricingSection) {
           pricingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       }, 100);
-    } else if (path === '/about') {
-      setCurrentPage('about');
-      setShowLanding(false);
-    } else if (path === '/contact') {
-      setCurrentPage('contact');
-      setShowLanding(false);
-    } else if (path === '/cookies') {
-      setCurrentPage('cookies');
-      setShowLanding(false);
-    } else if (path === '/gdpr') {
-      setCurrentPage('gdpr');
-      setShowLanding(false);
-    } else if (path === '/ai-ethics') {
-      setCurrentPage('ai-ethics');
-      setShowLanding(false);
     }
-  }, []);
+  }, [location.pathname]);
 
   const handlePaymentSuccessContinue = () => {
     setShowPaymentSuccess(false);
-    setShowLanding(false);
+    navigate('/app');
   };
 
   const handleLogin = async (email: string, password: string) => {
@@ -534,17 +507,15 @@ export default function App() {
   };
 
   const handleViewHistory = () => {
-    setShowHistory(true);
-    setShowLanding(false);
+    navigate('/history');
   };
 
   const handleBackFromHistory = () => {
-    setShowHistory(false);
+    navigate('/app');
   };
 
   const handleViewAnalysis = async (analysisId: string) => {
-    setShowHistory(false);
-    setShowLanding(false);
+    navigate('/app');
     setIsAnalyzing(true);
     setResult(null);
     setImagePreview(null);
@@ -619,8 +590,7 @@ export default function App() {
 
   // Comparison feature handlers
   const handleStartComparison = () => {
-    setShowComparisonSelector(true);
-    setShowHistory(false);
+    navigate('/compare');
   };
 
   const handleCompare = async (baseId: string, compareId: string) => {
@@ -682,8 +652,8 @@ export default function App() {
       setComparisonResult(comparison);
       setComparisonBaseAnalysis(baseResult);
       setComparisonCompareAnalysis(compareResult);
-      setShowComparisonSelector(false);
       setShowComparison(true);
+      navigate('/comparison-result');
     } catch (err) {
       console.error('Comparison failed:', err);
       setAnalysisError('Failed to compare analyses. Please try again.');
@@ -695,12 +665,11 @@ export default function App() {
     setComparisonResult(null);
     setComparisonBaseAnalysis(null);
     setComparisonCompareAnalysis(null);
-    setShowHistory(true);
+    navigate('/history');
   };
 
   const handleCancelComparison = () => {
-    setShowComparisonSelector(false);
-    setShowHistory(true);
+    navigate('/history');
   };
 
   // Plan display info helper
@@ -777,376 +746,89 @@ export default function App() {
   };
 
 
-  // Page navigation handlers
+  // Page navigation handlers - using React Router
   const handleNavigate = (page: 'about' | 'contact' | 'privacy' | 'terms' | 'cookies' | 'gdpr' | 'ai-ethics' | 'blog' | 'cv-analysis' | 'cv-comparison' | 'eye-tracking' | 'capital-theory' | 'ats-score' | 'market-signaling') => {
-    setCurrentPage(page);
-    setShowLanding(false);
-    setShowHistory(false);
-    setShowComparison(false);
-    setShowComparisonSelector(false);
-    if (page !== 'blog') {
-      setSelectedBlogPost(null);
-    }
+    const routeMap: Record<string, string> = {
+      'about': '/about',
+      'contact': '/contact',
+      'privacy': '/privacy',
+      'terms': '/terms',
+      'cookies': '/cookies',
+      'gdpr': '/gdpr',
+      'ai-ethics': '/ai-ethics',
+      'blog': '/blog',
+      'cv-analysis': '/features/cv-analysis',
+      'cv-comparison': '/features/comparison',
+      'eye-tracking': '/features/eye-tracking',
+      'capital-theory': '/features/capital-theory',
+      'ats-score': '/features/ats-score',
+      'market-signaling': '/features/market-signaling',
+    };
+    navigate(routeMap[page] || '/');
   };
 
   const handleBackFromPage = () => {
-    setCurrentPage(null);
-    setSelectedBlogPost(null);
-    setShowLanding(true);
+    navigate('/');
   };
 
   const handleSelectBlogPost = (slug: string) => {
-    setSelectedBlogPost(slug);
+    navigate(`/blog/${slug}`);
   };
 
   const handleBackToBlog = () => {
-    setSelectedBlogPost(null);
+    navigate('/blog');
   };
 
   // Handler to navigate to landing page and scroll to pricing section
   const handlePricingClick = () => {
-    setCurrentPage(null);
-    setSelectedBlogPost(null);
-    setShowLanding(true);
-    setShowHistory(false);
-    setShowComparison(false);
-    setShowComparisonSelector(false);
-    // Scroll to pricing after the landing page renders
-    setTimeout(() => {
-      const pricingSection = document.getElementById('pricing-section');
-      if (pricingSection) {
-        pricingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 100);
+    navigate('/pricing');
   };
 
   // Handler to open a specific blog post from analysis info buttons
   const handleOpenBlogPost = (slug: string) => {
-    setCurrentPage('blog');
-    setSelectedBlogPost(slug);
-    setShowLanding(false);
+    navigate(`/blog/${slug}`);
   };
 
-  // Show Payment Success Page
-  if (showPaymentSuccess) {
-    return (
-      <ErrorBoundary>
-        <Suspense fallback={<PageLoader />}>
-          <PaymentSuccessPage
-            onContinue={handlePaymentSuccessContinue}
-            onRefreshEntitlements={refreshEntitlements}
-          />
-        </Suspense>
-      </ErrorBoundary>
-    );
-  }
+  // Common props for page components
+  const pageProps = {
+    onBack: handleBackFromPage,
+    onNavigate: handleNavigate,
+    onPricingClick: handlePricingClick,
+  };
 
-  // Show About Page
-  if (currentPage === 'about') {
-    return (
-      <ErrorBoundary>
-        <Suspense fallback={<PageLoader />}>
-          <AboutPage onBack={handleBackFromPage} onNavigate={handleNavigate} onPricingClick={handlePricingClick} />
-        </Suspense>
-      </ErrorBoundary>
-    );
-  }
+  const featurePageProps = {
+    ...pageProps,
+    onStartAnalysis: () => navigate('/app'),
+  };
 
-  // Show Contact Page
-  if (currentPage === 'contact') {
-    return (
-      <ErrorBoundary>
-        <Suspense fallback={<PageLoader />}>
-          <ContactPage onBack={handleBackFromPage} onNavigate={handleNavigate} onPricingClick={handlePricingClick} />
-        </Suspense>
-      </ErrorBoundary>
-    );
-  }
+  // Landing page element (reused for / and /pricing routes)
+  const landingElement = (
+    <Suspense fallback={<PageLoader />}>
+      <SEOHead {...SEO_CONFIG.home} />
+      <LandingPage
+        onStart={() => navigate('/app')}
+        isAuthenticated={!!currentUser}
+        userEmail={currentUser?.email ?? undefined}
+        onLogin={handleLogin}
+        onSignup={handleSignup}
+        onLogout={handleLogout}
+        authError={authError}
+        authLoading={authLoading}
+        onNavigate={handleNavigate}
+        onSelectPlan={(planId) => handleSelectPlan(planId as PlanCode)}
+      />
+    </Suspense>
+  );
 
-  // Show Privacy Policy Page
-  if (currentPage === 'privacy') {
-    return (
-      <ErrorBoundary>
-        <Suspense fallback={<PageLoader />}>
-          <PrivacyPolicyPage onBack={handleBackFromPage} onNavigate={handleNavigate} onPricingClick={handlePricingClick} />
-        </Suspense>
-      </ErrorBoundary>
-    );
-  }
-
-  // Show Terms of Use Page
-  if (currentPage === 'terms') {
-    return (
-      <ErrorBoundary>
-        <Suspense fallback={<PageLoader />}>
-          <TermsOfUsePage onBack={handleBackFromPage} onNavigate={handleNavigate} onPricingClick={handlePricingClick} />
-        </Suspense>
-      </ErrorBoundary>
-    );
-  }
-
-  // Show Cookie Policy Page
-  if (currentPage === 'cookies') {
-    return (
-      <ErrorBoundary>
-        <Suspense fallback={<PageLoader />}>
-          <CookiePolicyPage onBack={handleBackFromPage} onNavigate={handleNavigate} onPricingClick={handlePricingClick} />
-        </Suspense>
-      </ErrorBoundary>
-    );
-  }
-
-  // Show GDPR Compliance Page
-  if (currentPage === 'gdpr') {
-    return (
-      <ErrorBoundary>
-        <Suspense fallback={<PageLoader />}>
-          <GDPRCompliancePage onBack={handleBackFromPage} onNavigate={handleNavigate} onPricingClick={handlePricingClick} />
-        </Suspense>
-      </ErrorBoundary>
-    );
-  }
-
-  // Show AI Ethical Policy Page
-  if (currentPage === 'ai-ethics') {
-    return (
-      <ErrorBoundary>
-        <Suspense fallback={<PageLoader />}>
-          <AIEthicalPolicyPage onBack={handleBackFromPage} onNavigate={handleNavigate} onPricingClick={handlePricingClick} />
-        </Suspense>
-      </ErrorBoundary>
-    );
-  }
-
-  // Show Blog Post Page (individual post)
-  if (currentPage === 'blog' && selectedBlogPost) {
-    const post = getPostBySlug(selectedBlogPost);
-    if (post) {
-      return (
-        <ErrorBoundary>
-          <Suspense fallback={<PageLoader />}>
-            <BlogPostPage
-              post={post}
-              onBack={handleBackFromPage}
-              onBackToBlog={handleBackToBlog}
-              onNavigate={handleNavigate}
-              onSelectPost={handleSelectBlogPost}
-              onPricingClick={handlePricingClick}
-            />
-          </Suspense>
-        </ErrorBoundary>
-      );
-    }
-  }
-
-  // Show Blog Page (listing)
-  if (currentPage === 'blog') {
-    return (
-      <ErrorBoundary>
-        <Suspense fallback={<PageLoader />}>
-          <BlogPage
-            onBack={handleBackFromPage}
-            onNavigate={handleNavigate}
-            onSelectPost={handleSelectBlogPost}
-            onPricingClick={handlePricingClick}
-          />
-        </Suspense>
-      </ErrorBoundary>
-    );
-  }
-
-  // Show CV Analysis Feature Page
-  if (currentPage === 'cv-analysis') {
-    return (
-      <ErrorBoundary>
-        <Suspense fallback={<PageLoader />}>
-          <CVAnalysisPage
-            onBack={handleBackFromPage}
-            onNavigate={handleNavigate}
-            onPricingClick={handlePricingClick}
-            onStartAnalysis={() => {
-              setCurrentPage(null);
-              setShowLanding(false);
-            }}
-          />
-        </Suspense>
-      </ErrorBoundary>
-    );
-  }
-
-  // Show CV Comparison Feature Page
-  if (currentPage === 'cv-comparison') {
-    return (
-      <ErrorBoundary>
-        <Suspense fallback={<PageLoader />}>
-          <CVComparisonPage
-            onBack={handleBackFromPage}
-            onNavigate={handleNavigate}
-            onPricingClick={handlePricingClick}
-            onStartAnalysis={() => {
-              setCurrentPage(null);
-              setShowLanding(false);
-            }}
-          />
-        </Suspense>
-      </ErrorBoundary>
-    );
-  }
-
-  // Show Eye-Tracking Feature Page
-  if (currentPage === 'eye-tracking') {
-    return (
-      <ErrorBoundary>
-        <Suspense fallback={<PageLoader />}>
-          <EyeTrackingPage
-            onBack={handleBackFromPage}
-            onNavigate={handleNavigate}
-            onPricingClick={handlePricingClick}
-            onStartAnalysis={() => {
-              setCurrentPage(null);
-              setShowLanding(false);
-            }}
-          />
-        </Suspense>
-      </ErrorBoundary>
-    );
-  }
-
-  // Show Capital Theory Feature Page
-  if (currentPage === 'capital-theory') {
-    return (
-      <ErrorBoundary>
-        <Suspense fallback={<PageLoader />}>
-          <CapitalTheoryPage
-            onBack={handleBackFromPage}
-            onNavigate={handleNavigate}
-            onPricingClick={handlePricingClick}
-            onStartAnalysis={() => {
-              setCurrentPage(null);
-              setShowLanding(false);
-            }}
-          />
-        </Suspense>
-      </ErrorBoundary>
-    );
-  }
-
-  // Show ATS Score Feature Page
-  if (currentPage === 'ats-score') {
-    return (
-      <ErrorBoundary>
-        <Suspense fallback={<PageLoader />}>
-          <ATSScorePage
-            onBack={handleBackFromPage}
-            onNavigate={handleNavigate}
-            onPricingClick={handlePricingClick}
-            onStartAnalysis={() => {
-              setCurrentPage(null);
-              setShowLanding(false);
-            }}
-          />
-        </Suspense>
-      </ErrorBoundary>
-    );
-  }
-
-  // Show Market Signaling Feature Page
-  if (currentPage === 'market-signaling') {
-    return (
-      <ErrorBoundary>
-        <Suspense fallback={<PageLoader />}>
-          <MarketSignalingPage
-            onBack={handleBackFromPage}
-            onNavigate={handleNavigate}
-            onPricingClick={handlePricingClick}
-            onStartAnalysis={() => {
-              setCurrentPage(null);
-              setShowLanding(false);
-            }}
-          />
-        </Suspense>
-      </ErrorBoundary>
-    );
-  }
-
-  // Show Comparison Dashboard
-  if (showComparison && comparisonResult && comparisonBaseAnalysis && comparisonCompareAnalysis) {
-    return (
-      <ErrorBoundary>
-        <Suspense fallback={<PageLoader />}>
-          <ComparisonDashboard
-            comparison={comparisonResult}
-            baseAnalysis={comparisonBaseAnalysis}
-            compareAnalysis={comparisonCompareAnalysis}
-            onBack={handleBackFromComparison}
-          />
-        </Suspense>
-      </ErrorBoundary>
-    );
-  }
-
-  // Show Comparison Selector
-  if (showComparisonSelector && currentUser) {
-    return (
-      <ErrorBoundary>
-        <Suspense fallback={<PageLoader />}>
-          <ComparisonSelector
-            userId={currentUser.id}
-            onCompare={handleCompare}
-            onCancel={handleCancelComparison}
-            entitlements={entitlements}
-          />
-        </Suspense>
-      </ErrorBoundary>
-    );
-  }
-
-  // Show History Page
-  if (showHistory && currentUser) {
-    return (
-      <ErrorBoundary>
-        <Suspense fallback={<PageLoader />}>
-          <AnalysisHistory
-            userId={currentUser.id}
-            onBack={handleBackFromHistory}
-            onViewAnalysis={handleViewAnalysis}
-            onStartComparison={handleStartComparison}
-          />
-        </Suspense>
-      </ErrorBoundary>
-    );
-  }
-
-  if (showLanding) {
-    return (
-      <>
-        <Suspense fallback={<PageLoader />}>
-          <LandingPage
-            onStart={() => setShowLanding(false)}
-            isAuthenticated={!!currentUser}
-            userEmail={currentUser?.email ?? undefined}
-            onLogin={handleLogin}
-            onSignup={handleSignup}
-            onLogout={handleLogout}
-            authError={authError}
-            authLoading={authLoading}
-            onNavigate={handleNavigate}
-            onSelectPlan={(planId) => handleSelectPlan(planId as PlanCode)}
-          />
-        </Suspense>
-
-      </>
-    );
-  }
-
-  return (
+  // Analysis dashboard element
+  const dashboardElement = (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-20 animate-in fade-in duration-500">
       {/* Header */}
       <header className="bg-slate-850 text-white py-4 shadow-lg sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <button 
-              onClick={() => setShowLanding(true)}
+            <button
+              onClick={() => navigate('/')}
               className="p-1 hover:bg-slate-700 rounded transition-colors text-slate-400 hover:text-white mr-1"
               title="Back to Home"
             >
@@ -1182,7 +864,7 @@ export default function App() {
               </>
             )}
             <button
-              onClick={currentUser ? handleLogout : () => setShowLanding(true)}
+              onClick={currentUser ? handleLogout : () => navigate('/')}
               className="flex items-center gap-2 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-md text-xs font-medium transition-colors"
             >
               {currentUser ? 'Sign out' : 'Sign in'}
@@ -1575,7 +1257,196 @@ export default function App() {
           onSelectPlan={handleSelectPlan}
         />
       )}
-
     </div>
+  );
+
+  return (
+    <Routes>
+      {/* Landing and marketing pages */}
+      <Route path="/" element={landingElement} />
+      <Route path="/pricing" element={landingElement} />
+
+      {/* Legal pages */}
+      <Route path="/about" element={
+        <ErrorBoundary>
+          <SEOHead {...SEO_CONFIG.about} />
+          <Suspense fallback={<PageLoader />}>
+            <AboutPage {...pageProps} />
+          </Suspense>
+        </ErrorBoundary>
+      } />
+      <Route path="/contact" element={
+        <ErrorBoundary>
+          <SEOHead {...SEO_CONFIG.contact} />
+          <Suspense fallback={<PageLoader />}>
+            <ContactPage {...pageProps} />
+          </Suspense>
+        </ErrorBoundary>
+      } />
+      <Route path="/privacy" element={
+        <ErrorBoundary>
+          <SEOHead {...SEO_CONFIG.privacy} />
+          <Suspense fallback={<PageLoader />}>
+            <PrivacyPolicyPage {...pageProps} />
+          </Suspense>
+        </ErrorBoundary>
+      } />
+      <Route path="/terms" element={
+        <ErrorBoundary>
+          <SEOHead {...SEO_CONFIG.terms} />
+          <Suspense fallback={<PageLoader />}>
+            <TermsOfUsePage {...pageProps} />
+          </Suspense>
+        </ErrorBoundary>
+      } />
+      <Route path="/cookies" element={
+        <ErrorBoundary>
+          <SEOHead {...SEO_CONFIG.cookies} />
+          <Suspense fallback={<PageLoader />}>
+            <CookiePolicyPage {...pageProps} />
+          </Suspense>
+        </ErrorBoundary>
+      } />
+      <Route path="/gdpr" element={
+        <ErrorBoundary>
+          <SEOHead {...SEO_CONFIG.gdpr} />
+          <Suspense fallback={<PageLoader />}>
+            <GDPRCompliancePage {...pageProps} />
+          </Suspense>
+        </ErrorBoundary>
+      } />
+      <Route path="/ai-ethics" element={
+        <ErrorBoundary>
+          <SEOHead {...SEO_CONFIG.aiEthics} />
+          <Suspense fallback={<PageLoader />}>
+            <AIEthicalPolicyPage {...pageProps} />
+          </Suspense>
+        </ErrorBoundary>
+      } />
+
+      {/* Blog routes */}
+      <Route path="/blog" element={
+        <ErrorBoundary>
+          <SEOHead {...SEO_CONFIG.blog} />
+          <Suspense fallback={<PageLoader />}>
+            <BlogPage
+              {...pageProps}
+              onSelectPost={handleSelectBlogPost}
+            />
+          </Suspense>
+        </ErrorBoundary>
+      } />
+      <Route path="/blog/:slug" element={
+        <BlogPostWrapper onNavigate={handleNavigate} onPricingClick={handlePricingClick} />
+      } />
+
+      {/* Feature pages */}
+      <Route path="/features/cv-analysis" element={
+        <ErrorBoundary>
+          <SEOHead {...SEO_CONFIG.features.cvAnalysis} />
+          <Suspense fallback={<PageLoader />}>
+            <CVAnalysisPage {...featurePageProps} />
+          </Suspense>
+        </ErrorBoundary>
+      } />
+      <Route path="/features/comparison" element={
+        <ErrorBoundary>
+          <SEOHead {...SEO_CONFIG.features.cvComparison} />
+          <Suspense fallback={<PageLoader />}>
+            <CVComparisonPage {...featurePageProps} />
+          </Suspense>
+        </ErrorBoundary>
+      } />
+      <Route path="/features/eye-tracking" element={
+        <ErrorBoundary>
+          <SEOHead {...SEO_CONFIG.features.eyeTracking} />
+          <Suspense fallback={<PageLoader />}>
+            <EyeTrackingPage {...featurePageProps} />
+          </Suspense>
+        </ErrorBoundary>
+      } />
+      <Route path="/features/capital-theory" element={
+        <ErrorBoundary>
+          <SEOHead {...SEO_CONFIG.features.capitalTheory} />
+          <Suspense fallback={<PageLoader />}>
+            <CapitalTheoryPage {...featurePageProps} />
+          </Suspense>
+        </ErrorBoundary>
+      } />
+      <Route path="/features/ats-score" element={
+        <ErrorBoundary>
+          <SEOHead {...SEO_CONFIG.features.atsScore} />
+          <Suspense fallback={<PageLoader />}>
+            <ATSScorePage {...featurePageProps} />
+          </Suspense>
+        </ErrorBoundary>
+      } />
+      <Route path="/features/market-signaling" element={
+        <ErrorBoundary>
+          <SEOHead {...SEO_CONFIG.features.marketSignaling} />
+          <Suspense fallback={<PageLoader />}>
+            <MarketSignalingPage {...featurePageProps} />
+          </Suspense>
+        </ErrorBoundary>
+      } />
+
+      {/* App routes (authenticated) */}
+      <Route path="/app" element={dashboardElement} />
+      <Route path="/history" element={
+        currentUser ? (
+          <ErrorBoundary>
+            <Suspense fallback={<PageLoader />}>
+              <AnalysisHistory
+                userId={currentUser.id}
+                onBack={handleBackFromHistory}
+                onViewAnalysis={handleViewAnalysis}
+                onStartComparison={handleStartComparison}
+              />
+            </Suspense>
+          </ErrorBoundary>
+        ) : landingElement
+      } />
+      <Route path="/compare" element={
+        currentUser ? (
+          <ErrorBoundary>
+            <Suspense fallback={<PageLoader />}>
+              <ComparisonSelector
+                userId={currentUser.id}
+                onCompare={handleCompare}
+                onCancel={handleCancelComparison}
+                entitlements={entitlements}
+              />
+            </Suspense>
+          </ErrorBoundary>
+        ) : landingElement
+      } />
+      <Route path="/comparison-result" element={
+        showComparison && comparisonResult && comparisonBaseAnalysis && comparisonCompareAnalysis ? (
+          <ErrorBoundary>
+            <Suspense fallback={<PageLoader />}>
+              <ComparisonDashboard
+                comparison={comparisonResult}
+                baseAnalysis={comparisonBaseAnalysis}
+                compareAnalysis={comparisonCompareAnalysis}
+                onBack={handleBackFromComparison}
+              />
+            </Suspense>
+          </ErrorBoundary>
+        ) : landingElement
+      } />
+      <Route path="/payment/success" element={
+        <ErrorBoundary>
+          <Suspense fallback={<PageLoader />}>
+            <PaymentSuccessPage
+              onContinue={handlePaymentSuccessContinue}
+              onRefreshEntitlements={refreshEntitlements}
+            />
+          </Suspense>
+        </ErrorBoundary>
+      } />
+
+      {/* Fallback - redirect to home */}
+      <Route path="*" element={landingElement} />
+    </Routes>
   );
 }

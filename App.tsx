@@ -39,6 +39,7 @@ const TermsOfUsePage = lazy(() => import('./components/TermsOfUsePage').then(m =
 const CookiePolicyPage = lazy(() => import('./components/CookiePolicyPage').then(m => ({ default: m.CookiePolicyPage })));
 const GDPRCompliancePage = lazy(() => import('./components/GDPRCompliancePage').then(m => ({ default: m.GDPRCompliancePage })));
 const AIEthicalPolicyPage = lazy(() => import('./components/AIEthicalPolicyPage').then(m => ({ default: m.AIEthicalPolicyPage })));
+const PricingPage = lazy(() => import('./components/PricingPage').then(m => ({ default: m.PricingPage })));
 const PaymentSuccessPage = lazy(() => import('./components/PaymentSuccessPage').then(m => ({ default: m.PaymentSuccessPage })));
 const BlogPage = lazy(() => import('./components/BlogPage').then(m => ({ default: m.BlogPage })));
 const BlogPostPage = lazy(() => import('./components/BlogPostPage').then(m => ({ default: m.BlogPostPage })));
@@ -237,17 +238,6 @@ export default function App() {
     refreshEntitlements();
   }, [refreshEntitlements]);
 
-  // Handle pricing page scroll
-  useEffect(() => {
-    if (location.pathname === '/pricing') {
-      setTimeout(() => {
-        const pricingSection = document.getElementById('pricing-section');
-        if (pricingSection) {
-          pricingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }, 100);
-    }
-  }, [location.pathname]);
 
   const handlePaymentSuccessContinue = () => {
     setShowPaymentSuccess(false);
@@ -1264,7 +1254,18 @@ export default function App() {
     <Routes>
       {/* Landing and marketing pages */}
       <Route path="/" element={landingElement} />
-      <Route path="/pricing" element={landingElement} />
+      <Route path="/pricing" element={
+        <ErrorBoundary>
+          <SEOHead {...SEO_CONFIG.pricing} />
+          <Suspense fallback={<PageLoader />}>
+            <PricingPage
+              {...pageProps}
+              onSelectPlan={(planId) => handleSelectPlan(planId as PlanCode)}
+              isAuthenticated={!!currentUser}
+            />
+          </Suspense>
+        </ErrorBoundary>
+      } />
 
       {/* Legal pages */}
       <Route path="/about" element={

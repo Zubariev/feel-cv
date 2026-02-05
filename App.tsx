@@ -63,6 +63,14 @@ const PageLoader = () => (
   </div>
 );
 
+// Redirect to static files (forces full page navigation)
+const StaticRedirect: React.FC<{ to: string }> = ({ to }) => {
+  useEffect(() => {
+    window.location.href = to;
+  }, [to]);
+  return <PageLoader />;
+};
+
 // Info button component that links to blog posts
 const InfoButton: React.FC<{ slug: string; onClick: (slug: string) => void }> = ({ slug, onClick }) => (
   <button
@@ -1445,6 +1453,9 @@ export default function App() {
           </Suspense>
         </ErrorBoundary>
       } />
+
+      {/* Static file redirects */}
+      <Route path="/sitemap" element={<StaticRedirect to="/sitemap.xml" />} />
 
       {/* Fallback - redirect to home */}
       <Route path="*" element={landingElement} />

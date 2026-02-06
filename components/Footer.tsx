@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   BrainCircuit,
   Mail,
@@ -16,6 +16,14 @@ interface Props {
 
 export const Footer: React.FC<Props> = ({ onNavigate, onPricingClick }) => {
   const currentYear = new Date().getFullYear();
+  const trustboxRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Load TrustBox widget after component mounts
+    if (trustboxRef.current && (window as any).Trustpilot) {
+      (window as any).Trustpilot.loadFromElement(trustboxRef.current, true);
+    }
+  }, []);
 
   return (
     <footer className="bg-slate-900 text-slate-300">
@@ -244,6 +252,22 @@ export const Footer: React.FC<Props> = ({ onNavigate, onPricingClick }) => {
                 Get in Touch
               </button>
             </div>
+          </div>
+        </div>
+
+        {/* TrustBox widget */}
+        <div className="mt-12 pt-8 border-t border-slate-800">
+          <div
+            ref={trustboxRef}
+            className="trustpilot-widget"
+            data-locale="en-US"
+            data-template-id="56278e9abfbbba0bdcd568bc"
+            data-businessunit-id="6984a851c5b7f0ff5cd3e86b"
+            data-style-height="52px"
+            data-style-width="100%"
+            data-token="6ee1bcd4-756c-4536-b45e-1135f5104dc3"
+          >
+            <a href="https://www.trustpilot.com/review/cvivid.space" target="_blank" rel="noopener noreferrer">Trustpilot</a>
           </div>
         </div>
       </div>

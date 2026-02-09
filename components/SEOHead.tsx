@@ -75,7 +75,7 @@ export function SEOHead({
 export const SEO_CONFIG = {
   home: {
     title: 'CVIVID - AI-Powered CV Analysis & Resume Optimization',
-    description: 'Analyze your CV with AI-powered insights. Get eye-tracking heatmaps, capital theory analysis, ATS compatibility scores, and actionable feedback to improve your resume.',
+    description: 'Analyze your CV with AI-powered insights. Get eye-tracking heatmaps, capital theory analysis, ATS scores, and actionable feedback.',
     path: '/',
   },
   about: {
